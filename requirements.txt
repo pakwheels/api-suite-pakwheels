@@ -1,0 +1,8 @@
+pytest
+requests
+pytest-xdist
+jsonschema
+python-dotenv
+pytest-html
+allure-pytest
+schemathesis

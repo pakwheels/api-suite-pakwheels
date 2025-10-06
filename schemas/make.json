@@ -1,0 +1,354 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/schemas/makes.show.schema.json",
+  "title": "Make Detail (e.g., Toyota page)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "error",
+    "manufacturer_title",
+    "imported_models",
+    "active_models",
+    "discontinued_models",
+    "heading",
+    "upcoming_models",
+    "description",
+    "price_table",
+    "reviews",
+    "comparisons",
+    "car_dealers_by_city",
+    "used_cars_link",
+    "similar_links",
+    "search_text",
+    "faqs",
+    "banner_image",
+    "videos",
+    "bread_crumbs",
+    "other_models",
+    "make_alternatives",
+    "discussions_h2",
+    "custom_dimensions"
+  ],
+  "properties": {
+    "error": { "type": ["string", "null"] },
+    "manufacturer_title": { "type": "string" },
+    "active_models": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["heading", "models"],
+      "properties": {
+        "heading": { "type": "string" },
+        "models": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/activeModel" }
+        }
+      }
+    },
+    "imported_models": { "type": "array" },
+    "discontinued_models": { "type": "array" },
+    "upcoming_models": { "type": ["array", "null"] },
+    "heading": { "type": "string" },
+    "description": { "type": "string" },
+    "price_table": { "type": "string" },
+    "reviews": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["heading", "reviews"],
+      "properties": {
+        "heading": { "type": "string" },
+        "reviews": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/reviewItem" }
+        }
+      }
+    },
+    "comparisons": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["heading", "comparisons"],
+      "properties": {
+        "heading": { "type": "string" },
+        "comparisons": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/comparisonItem" }
+        }
+      }
+    },
+    "car_dealers_by_city": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["heading", "links", "view_more"],
+      "properties": {
+        "heading": { "type": "string" },
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["url", "tooltip", "link_text"],
+            "properties": {
+              "url": { "type": "string" },
+              "tooltip": { "type": "string" },
+              "link_text": { "type": "string" }
+            }
+          }
+        },
+        "view_more": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["link_text", "url", "tooltip"],
+          "properties": {
+            "link_text": { "type": "string" },
+            "url": { "type": "string" },
+            "tooltip": { "type": "string" }
+          }
+        }
+      }
+    },
+    "used_cars_link": { "type": "string" },
+    "similar_links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["heading", "links"],
+        "properties": {
+          "heading": { "type": "string" },
+          "links": { "type": "array" }
+        }
+      }
+    },
+    "search_text": { "type": "string" },
+    "faqs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["heading", "faqs"],
+      "properties": {
+        "heading": { "type": "string" },
+        "faqs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["question", "answer"],
+            "properties": {
+              "question": { "type": "string" },
+              "answer": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "banner_image": { "type": ["string", "null"] },
+    "videos": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/videoWrapper" }
+    },
+    "bread_crumbs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "url"],
+        "properties": {
+          "label": { "type": "string" },
+          "url": { "type": "string" }
+        }
+      }
+    },
+    "other_models": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["heading", "description", "models"],
+      "properties": {
+        "heading": { "type": "string" },
+        "description": { "type": "string" },
+        "models": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/otherModel" }
+        }
+      }
+    },
+    "make_alternatives": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["heading", "makes"],
+      "properties": {
+        "heading": { "type": "string" },
+        "makes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["title", "logo", "link"],
+            "properties": {
+              "title": { "type": "string" },
+              "logo": { "type": "string" },
+              "link": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "discussions_h2": { "type": "string" },
+    "custom_dimensions": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+
+  "$defs": {
+    "pictureSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "medium": { "type": "string" },
+        "original": { "type": "string" },
+        "resized": { "type": "string" },
+        "thumbnail": { "type": "string" }
+      }
+    },
+    "activeModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "price",
+        "schema_price",
+        "review_rating",
+        "reviewCount",
+        "display_pic",
+        "link",
+        "used_listing_link",
+        "used_listing_title",
+        "used_listing_link_text"
+      ],
+      "properties": {
+        "title": { "type": "string" },
+        "price": { "type": "string" },
+        "schema_price": { "type": "number" },
+        "review_rating": { "type": "number" },
+        "reviewCount": { "type": "number" },
+        "display_pic": { "$ref": "#/$defs/pictureSet" },
+        "link": { "type": "string" },
+        "used_listing_link": { "type": "string" },
+        "used_listing_title": { "type": "string" },
+        "used_listing_link_text": { "type": "string" }
+      }
+    },
+    "reviewItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "sub_title",
+        "url",
+        "detail_url",
+        "pictures",
+        "overall_rating",
+        "owner",
+        "created_at",
+        "description",
+        "style",
+        "comfort",
+        "fuel_economy",
+        "performance",
+        "value_for_money"
+      ],
+      "properties": {
+        "id": { "type": "number" },
+        "title": { "type": "string" },
+        "sub_title": { "type": ["string", "null"] },
+        "url": { "type": ["string", "boolean", "null"] },
+        "detail_url": { "type": "string" },
+        "pictures": { "$ref": "#/$defs/pictureSet" },
+        "overall_rating": { "type": "number" },
+        "owner": { "type": "string" },
+        "created_at": { "type": "string" },
+        "description": { "type": ["string", "null"] },
+        "style": { "type": "number" },
+        "comfort": { "type": "number" },
+        "fuel_economy": { "type": "number" },
+        "performance": { "type": "number" },
+        "value_for_money": { "type": "number" }
+      }
+    },
+    "comparisonItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "title", "comparison_pictures_1", "comparison_pictures_2", "is_featured"],
+      "properties": {
+        "url": { "type": "string" },
+        "title": { "type": "string" },
+        "comparison_pictures_1": { "$ref": "#/$defs/pictureSet" },
+        "comparison_pictures_2": { "$ref": "#/$defs/pictureSet" },
+        "is_featured": { "type": "boolean" }
+      }
+    },
+    "videoWrapper": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["video"],
+      "properties": {
+        "video": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "title", "url", "manufacturer_id", "video_type", "is_popular", "is_featured", "url_slug", "youtube_id"],
+          "properties": {
+            "id": { "type": "number" },
+            "title": { "type": "string" },
+            "url": { "type": "string" },
+            "manufacturer_id": { "type": ["number", "null"] },
+            "model_id": { "type": ["number", "null"] },
+            "version_id": { "type": ["number", "null"] },
+            "generation_id": { "type": ["number", "null"] },
+            "version_group_id": { "type": ["number", "null"] },
+            "version_specification_id": { "type": ["number", "null"] },
+            "video_type": { "type": "number" },
+            "is_popular": { "type": "boolean" },
+            "created_at": { "type": ["string", "null"] },
+            "updated_at": { "type": ["string", "null"] },
+            "is_featured": { "type": "boolean" },
+            "description": { "type": ["string", "null"] },
+            "description_ur": { "type": ["string", "null"] },
+            "category": { "type": ["number", "null"] },
+            "url_slug": { "type": "string" },
+            "youtube_id": { "type": "string" },
+            "deleted_at": { "type": ["string", "null"] },
+            "title_ur": { "type": ["string", "null"] },
+            "ctg_id": { "type": ["number", "null"] },
+            "sctg_id": { "type": ["number", "null"] }
+          }
+        }
+      }
+    },
+    "otherModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "price", "review_rating", "display_pic", "link", "used_listing_link", "used_listing_title", "used_listing_link_text"],
+      "properties": {
+        "title": { "type": "string" },
+        "price": { "type": "string" },
+        "review_rating": { "type": "number" },
+        "display_pic": { "$ref": "#/$defs/pictureSet" },
+        "link": { "type": "string" },
+        "used_listing_link": { "type": "string" },
+        "used_listing_title": { "type": "string" },
+        "used_listing_link_text": { "type": "string" },
+        "price_specification": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["@type", "priceCurrency"],
+          "properties": {
+            "@type": { "type": "string" },
+            "minPrice": { "type": ["number", "null"] },
+            "maxPrice": { "type": ["number", "null"] },
+            "price": { "type": ["number", "null"] },
+            "priceCurrency": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}
