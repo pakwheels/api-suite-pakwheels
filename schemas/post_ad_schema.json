@@ -1,0 +1,45 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Post Ad API Response Schema",
+    "type": "object",
+    "properties": {
+      "error": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "success": {
+        "type": ["string", "null"]
+      },
+      "ad_listing_id": {
+        "type": ["integer", "null"]
+      },
+      "show_support_pw_post_ad_pitch": {
+        "type": ["boolean", "null"]
+      },
+      "ad_id": {
+        "type": ["integer", "null"]
+      },
+      "ad_listing": {
+        "type": ["object", "null"]
+      },
+      "custom_dimensions": {
+        "type": ["object", "null"],
+        "properties": {
+          "user_type": { "type": ["string", "null"] },
+          "newsletter_subsriber": { "type": ["boolean", "null"] },
+          "car_listings": { "type": ["string", "null"] },
+          "bike_listings": { "type": ["string", "null"] },
+          "parts_listings": { "type": ["string", "null"] },
+          "private_rides": { "type": ["string", "null"] },
+          "public_rides": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "required": [
+      "error",
+      "success",
+      "ad_listing_id",
+      "show_support_pw_post_ad_pitch"
+    ],
+    "additionalProperties": true
+  }

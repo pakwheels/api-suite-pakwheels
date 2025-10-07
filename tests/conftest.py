@@ -5,41 +5,18 @@ from utils.api_client import APIClient
 from utils.validator import Validator
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
-
-@pytest.fixture(scope="session")
-def base_url():
-    return os.getenv("BASE_URL")
-
-@pytest.fixture(scope="session")
-def creds():
-    return {
-        "id": os.getenv("CLIENT_ID"),
-        "secret": os.getenv("CLIENT_SECRET")
-    }
-
-@pytest.fixture(scope="session")
-def email():
-    return os.getenv("EMAIL")
-
-@pytest.fixture(scope="session")
-def password():
-    return os.getenv("PASSWORD")
-
-@pytest.fixture(scope="session")
-def api_ver():
-    return os.getenv("API_VERSION")
 
 @pytest.fixture(scope="session")
 def api_client(base_url, creds, email, password, api_ver):
     """Initialize API client with environment configs."""
     return APIClient(base_url, creds, email, password, api_ver)
 
+
 @pytest.fixture(scope="session")
 def validator():
     """Provide reusable validator instance."""
     return Validator()
+
 
 @pytest.fixture
 def api_request(api_client):
