@@ -1,14 +1,39 @@
 import os
-import json
 import requests
+from datetime import datetime, timedelta
+from typing import Optional
+
 from dotenv import load_dotenv
 
 load_dotenv()
 
-def get_auth_token(token_path="auth_token.json"):
+_TOKEN_CACHE: dict[str, Optional[str | datetime]] = {
+    "token": None,
+    "expires_at": None,
+}
+
+
+def _token_is_valid() -> bool:
+    token = _TOKEN_CACHE.get("token")
+    expires_at = _TOKEN_CACHE.get("expires_at")
+    if not token:
+        return False
+
+    if isinstance(expires_at, datetime):
+        return datetime.utcnow() < expires_at
+    return True
+
+
+def get_auth_token(force_refresh: bool = False) -> str:
+    """Return a reusable bearer token for the Marketplace API.
+
+    Tokens are cached in-process to avoid writing ``auth_token.json`` and to
+    keep the test suite free from filesystem side effects. A caller can
+    optionally force a refresh by passing ``force_refresh=True``.
     """
-    Fetch and save bearer token using /oauth/token.json endpoint.
-    """
+    if not force_refresh and _token_is_valid():
+        return _TOKEN_CACHE["token"]  # type: ignore[return-value]
+
     base_url = os.getenv("BASE_URL")
     email = os.getenv("EMAIL")
     password = os.getenv("PASSWORD")
@@ -34,8 +59,8 @@ def get_auth_token(token_path="auth_token.json"):
 
     try:
         response = requests.post(login_url, params=params, json=payload, timeout=30)
-    except Exception as e:
-        raise Exception(f"❌ Auth request failed: {e}")
+    except Exception as exc:
+        raise Exception(f"❌ Auth request failed: {exc}") from exc
 
     print(f"📥 Response Status: {response.status_code} | Body: {response.text[:400]}")
 
@@ -48,8 +73,13 @@ def get_auth_token(token_path="auth_token.json"):
     if not token:
         raise ValueError(f"⚠️ Token not found in response. Got keys: {list(data.keys())}")
 
-    with open(token_path, "w") as f:
-        json.dump({"token": token}, f)
+    expires_at: Optional[datetime] = None
+    expires_in = data.get("expires_in")
+    if isinstance(expires_in, (int, float)) and expires_in > 0:
+        expires_at = datetime.utcnow() + timedelta(seconds=float(expires_in))
 
-    print("✅ Auth token fetched and saved successfully.")
+    _TOKEN_CACHE["token"] = token
+    _TOKEN_CACHE["expires_at"] = expires_at
+
+    print("✅ Auth token fetched and cached successfully.")
     return token
