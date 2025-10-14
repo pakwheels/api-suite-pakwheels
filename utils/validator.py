@@ -26,22 +26,34 @@ class Validator:
         with open(expected_path, "r", encoding="utf-8") as f:
             expected_data = json.load(f)
 
+        # Work on shallow copies so callers keep the original payload intact.
+        actual_snapshot = actual_data.copy() if isinstance(actual_data, dict) else actual_data
+        expected_snapshot = expected_data.copy() if isinstance(expected_data, dict) else expected_data
+
         # Ignore dynamic fields
         dynamic_fields = ["ad_listing_id", "ad_id", "success"]
         for field in dynamic_fields:
-            actual_data.pop(field, None)
-            expected_data.pop(field, None)
+            if isinstance(actual_snapshot, dict):
+                actual_snapshot.pop(field, None)
+            if isinstance(expected_snapshot, dict):
+                expected_snapshot.pop(field, None)
 
         # Compare only keys that exist in expected_data
         mismatches = {}
-        for key, expected_value in expected_data.items():
-            if key not in actual_data:
+        if not isinstance(expected_snapshot, dict):
+            raise AssertionError("Expected data must be a JSON object for comparison.")
+
+        if not isinstance(actual_snapshot, dict):
+            raise AssertionError("Actual data must be a JSON object for comparison.")
+
+        for key, expected_value in expected_snapshot.items():
+            if key not in actual_snapshot:
                 print(f"⚠ Warning: Missing key in actual response: {key}")
                 continue
-            if actual_data[key] != expected_value:
+            if actual_snapshot[key] != expected_value:
                 mismatches[key] = {
                     "expected": expected_value,
-                    "actual": actual_data[key]
+                    "actual": actual_snapshot[key]
                 }
 
         if mismatches:

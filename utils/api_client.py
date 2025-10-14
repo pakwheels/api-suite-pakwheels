@@ -67,3 +67,22 @@ class APIClient:
             "json": json_data,
             "elapsed": elapsed
         }
+
+    def verify_ad_phone(self, ad_id, otp_code, phone=None, otp_field="otp_code", **extra):
+        """Submit OTP to complete phone verification for a posted ad."""
+        payload = {"ad_id": ad_id, otp_field: otp_code}
+        if phone:
+            payload["phone"] = phone
+        payload.update({k: v for k, v in extra.items() if v is not None})
+        return self.request(
+            method="POST",
+            endpoint="/used-cars/verify.json",
+            json_body=payload,
+        )
+
+    def get_ad(self, ad_id):
+        """Fetch the latest state of a used-car ad."""
+        return self.request(
+            method="GET",
+            endpoint=f"/used-cars/{ad_id}"
+        )
