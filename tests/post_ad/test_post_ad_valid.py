@@ -1,19 +1,35 @@
+import json
 import pytest
+
+from utils.auth import get_auth_token
 
 @pytest.mark.post_ad
 def test_post_car_ad(api_client, validator, load_payload):
+
+    token = get_auth_token()
+
     payload = load_payload("post_ad_valid.json")
+
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
 
     response = api_client.request(
         method="POST",
         endpoint="/used-cars",
-        json_body=payload
+        json_body=payload,
+        headers=headers
     )
+
+    print("\n🔍 STATUS CODE:", response.get("status_code"))
+    print("🔍 RESPONSE JSON:", json.dumps(response.get("json"), indent=2))
 
     validator.assert_status_code(response["status_code"], 200)
     validator.assert_response_time(response["elapsed"], 2.0)
     validator.assert_json_schema(response["json"], "schemas/post_ad_schema.json")
     validator.compare_with_expected(response["json"], "data/expected_responses/post_ad_success.json")
+
+
 
     # ✅ Log full response for debugging
     print(f"📦 Full Response: {response['json']}")

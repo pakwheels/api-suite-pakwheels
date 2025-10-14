@@ -5,6 +5,30 @@ from utils.api_client import APIClient
 from utils.validator import Validator
 from dotenv import load_dotenv
 
+load_dotenv()
+
+@pytest.fixture(scope="session")
+def base_url():
+    return os.getenv("BASE_URL")
+
+@pytest.fixture(scope="session")
+def creds():
+    return {
+        "id": os.getenv("CLIENT_ID"),
+        "secret": os.getenv("CLIENT_SECRET")
+    }
+
+@pytest.fixture(scope="session")
+def email():
+    return os.getenv("EMAIL")
+
+@pytest.fixture(scope="session")
+def password():
+    return os.getenv("PASSWORD")
+
+@pytest.fixture(scope="session")
+def api_ver():
+    return os.getenv("API_VERSION")
 
 @pytest.fixture(scope="session")
 def api_client(base_url, creds, email, password, api_ver):
