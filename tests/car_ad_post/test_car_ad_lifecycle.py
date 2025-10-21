@@ -5,12 +5,14 @@ import sys
 import time
 from datetime import datetime
 from typing import Optional, Tuple
+from dotenv import load_dotenv
 
 import pytest
 
 from utils.auth import get_auth_token
 
 
+load_dotenv()
 STATUS_LABELS = {
     1: "WAITING_FOR_EMAIL_CONFIRMATION",
     2: "WAITING_FOR_PHONE_CONFIRMATION",

@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "oauth_token_response",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["access_token", "user"],
+  "properties": {
+    "access_token": { "type": "string" },
+    "refresh_token": { "type": ["string", "null", "boolean"] },
+    "expires_in": { "type": ["integer", "boolean", "null"] },
+    "token_type": { "type": ["string", "null"] },
+    "user": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "display_name": { "type": ["string", "null"] },
+        "email": { "type": ["string", "null"] },
+        "username": { "type": ["string", "null"] },
+        "mobile_verified": { "type": ["boolean", "null"] },
+        "mobile_numbers": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "properties": {
+              "mobile_number_id": { "type": ["integer", "string", "null"] },
+              "number": { "type": ["string", "null"] },
+              "verified": { "type": ["boolean", "null"] },
+              "uuid": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    }
+  }
+}

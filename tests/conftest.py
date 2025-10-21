@@ -3,10 +3,12 @@ import pytest
 import json
 from utils.api_client import APIClient
 from utils.validator import Validator
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
-
+# load the repo-level .env exactly once
+ENV_PATH = Path(__file__).resolve().parent / ".env"
+load_dotenv(dotenv_path=ENV_PATH, override=False)
 @pytest.fixture(scope="session")
 def base_url():
     return os.getenv("BASE_URL")

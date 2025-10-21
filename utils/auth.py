@@ -1,13 +1,15 @@
 import os
 import requests
+from typing import Dict, Optional, Union
 from datetime import datetime, timedelta
-from typing import Optional
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
-_TOKEN_CACHE: dict[str, Optional[str | datetime]] = {
+
+
+_TOKEN_CACHE: Dict[str, Optional[Union[str, datetime]]] = {
     "token": None,
     "expires_at": None,
 }

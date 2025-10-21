@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "used_car_post_response_ack",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["success", "ad_id", "ad_listing_id"],
+  "properties": {
+    "success": { "type": "string" },
+    "ad_id": { "type": ["integer", "string"] },
+    "ad_listing_id": { "type": ["integer", "string"] },
+    "ad_listing": { "type": ["object", "null"] },
+    "error": { "type": ["array", "object", "string", "null"] },
+    "show_support_pw_post_ad_pitch": { "type": ["boolean", "null"] },
+    "custom_dimensions": { "type": ["object", "null"], "additionalProperties": true }
+  }
+}

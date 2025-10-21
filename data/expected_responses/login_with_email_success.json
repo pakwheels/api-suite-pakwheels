@@ -1,0 +1,7 @@
+{
+  "token_type": "Bearer",
+  "user": {
+    "email": "testapi@mailinator.com",
+    "username": "testapi"
+  }
+}
