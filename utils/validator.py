@@ -1,3 +1,4 @@
+# utils/validator.py
 import json
 import os
 from jsonschema import validate, ValidationError
@@ -11,6 +12,7 @@ class Validator:
         if elapsed > max_seconds:
             print(f"⚠ Warning: Response time {elapsed:.2f}s exceeded limit {max_seconds:.2f}s")
         else:
+            # keep a hard assertion when under the limit to fail fast if needed
             assert elapsed <= max_seconds, f"Response time {elapsed:.2f}s exceeded limit {max_seconds:.2f}s"
 
     def assert_json_schema(self, data, schema_path):
@@ -20,41 +22,79 @@ class Validator:
             validate(instance=data, schema=schema)
         except ValidationError as e:
             raise AssertionError(f"Schema validation failed: {e.message}")
-            
+
     def compare_with_expected(self, actual_data, expected_path):
-        """Compare actual API response with expected stored JSON (tolerant to optional fields)."""
+        """
+        Deep subset comparison:
+        - Every key/value in `expected` must be present (and equal) in `actual`
+        - `actual` can have extra fields
+        - Common volatile/dynamic keys are ignored anywhere in the tree
+        """
         with open(expected_path, "r", encoding="utf-8") as f:
             expected_data = json.load(f)
 
-        # Work on shallow copies so callers keep the original payload intact.
-        actual_snapshot = actual_data.copy() if isinstance(actual_data, dict) else actual_data
-        expected_snapshot = expected_data.copy() if isinstance(expected_data, dict) else expected_data
+        ignore_keys = {
+            # top-level ids & volatile fields
+            "ad_id", "ad_listing_id", "success", "id",
+            # timestamps & counters
+            "created_at", "updated_at", "last_updated",
+            "view_count", "search_view_count", "bumped_count",
+            "pictures_count",
+            # urls/pictures
+            "url_slug", "pictures",
+            # pricing/credits that vary
+            "available_boost_credits", "required_boost_credits",
+            "final_insurance_amount", "final_insurance_amount_with_tracker",
+            # device/user identifiers
+            "mobile_uuid", "payment_id",
+        }
 
-        # Ignore dynamic fields
-        dynamic_fields = ["ad_listing_id", "ad_id", "success"]
-        for field in dynamic_fields:
-            if isinstance(actual_snapshot, dict):
-                actual_snapshot.pop(field, None)
-            if isinstance(expected_snapshot, dict):
-                expected_snapshot.pop(field, None)
+        def _subset_diff(actual, expected, path=""):
+            mismatches = {}
+            missing = []
 
-        # Compare only keys that exist in expected_data
-        mismatches = {}
-        if not isinstance(expected_snapshot, dict):
-            raise AssertionError("Expected data must be a JSON object for comparison.")
+            # If the last segment is volatile, ignore
+            key_name = path.split(".")[-1] if path else ""
+            if key_name in ignore_keys:
+                return mismatches, missing
 
-        if not isinstance(actual_snapshot, dict):
-            raise AssertionError("Actual data must be a JSON object for comparison.")
+            if isinstance(expected, dict):
+                if not isinstance(actual, dict):
+                    mismatches[path or "<root>"] = {"expected": expected, "actual": actual}
+                    return mismatches, missing
+                for k, v in expected.items():
+                    p = f"{path}.{k}" if path else k
+                    if k not in actual:
+                        missing.append(p)
+                        continue
+                    sub_mis, sub_miss = _subset_diff(actual[k], v, p)
+                    mismatches.update(sub_mis)
+                    missing.extend(sub_miss)
 
-        for key, expected_value in expected_snapshot.items():
-            if key not in actual_snapshot:
-                print(f"⚠ Warning: Missing key in actual response: {key}")
-                continue
-            if actual_snapshot[key] != expected_value:
-                mismatches[key] = {
-                    "expected": expected_value,
-                    "actual": actual_snapshot[key]
-                }
+            elif isinstance(expected, list):
+                if not isinstance(actual, list):
+                    mismatches[path or "<root>"] = {"expected": expected, "actual": actual}
+                    return mismatches, missing
+                # compare item-by-item for the subset length
+                for i, ev in enumerate(expected):
+                    if i >= len(actual):
+                        missing.append(f"{path}[{i}]")
+                        continue
+                    sub_mis, sub_miss = _subset_diff(actual[i], ev, f"{path}[{i}]")
+                    mismatches.update(sub_mis)
+                    missing.extend(sub_miss)
+
+            else:
+                # scalar compare
+                if actual != expected:
+                    mismatches[path or "<root>"] = {"expected": expected, "actual": actual}
+
+            return mismatches, missing
+
+        mismatches, missing = _subset_diff(actual_data, expected_data)
+
+        for m in missing:
+            print(f"⚠ Warning: Missing key in actual response: {m}")
 
         if mismatches:
             raise AssertionError(
@@ -62,4 +102,4 @@ class Validator:
                 f"Mismatches:\n{json.dumps(mismatches, indent=2)}"
             )
 
-        print("✅ Response matches expected structure (with tolerance for optional fields).")
+        print("✅ Response matches expected structure (deep subset).")

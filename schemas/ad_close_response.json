@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ad_close_response",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["success"],
+  "properties": {
+    "success": { "type": "string" },
+    "error": {
+      "type": ["null", "string", "object", "array"]
+    }
+  }
+}

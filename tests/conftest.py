@@ -1,68 +1,35 @@
-import os
-import pytest
+# conftest.py
 import json
-from utils.api_client import APIClient
-from utils.validator import Validator
+import pytest
 from pathlib import Path
-from dotenv import load_dotenv
 
-# load the repo-level .env exactly once
-ENV_PATH = Path(__file__).resolve().parent / ".env"
-load_dotenv(dotenv_path=ENV_PATH, override=False)
-@pytest.fixture(scope="session")
-def base_url():
-    return os.getenv("BASE_URL")
+API_VERSION = "22"
+POST_ENDPOINT = "/used-cars.json"
 
-@pytest.fixture(scope="session")
-def creds():
-    return {
-        "id": os.getenv("CLIENT_ID"),
-        "secret": os.getenv("CLIENT_SECRET")
-    }
+def _load_payload_session(name: str):
+    path = Path("data/payloads") / name
+    with path.open("r", encoding="utf-8") as f:
+        return json.load(f)
 
 @pytest.fixture(scope="session")
-def email():
-    return os.getenv("EMAIL")
+def posted_ad(api_client, validator):
+    """POST once per session; share ad_id/ad_listing_id/slug."""
+    body = _load_payload_session("used_car.json")
+    via_whatsapp = "true" if (
+        body.get("used_car", {}).get("ad_listing_attributes", {}).get("allow_whatsapp") is True
+    ) else "false"
 
-@pytest.fixture(scope="session")
-def password():
-    return os.getenv("PASSWORD")
+    resp = api_client.request(
+        "POST",
+        f"{POST_ENDPOINT}?api_version={API_VERSION}&via_whatsapp={via_whatsapp}",
+        json_body=body,
+    )
+    print("\n🚗 [SESSION] Post Used Car:", resp["status_code"])
+    print(json.dumps(resp.get("json"), indent=2))
 
-@pytest.fixture(scope="session")
-def api_ver():
-    return os.getenv("API_VERSION")
+    validator.assert_status_code(resp["status_code"], 200)
+    validator.assert_json_schema(resp["json"], "schemas/used_car_post_response_ack.json")
 
-@pytest.fixture(scope="session")
-def api_client(base_url, creds, email, password, api_ver):
-    """Initialize API client with environment configs."""
-    return APIClient(base_url, creds, email, password, api_ver)
-
-
-@pytest.fixture(scope="session")
-def validator():
-    """Provide reusable validator instance."""
-    return Validator()
-
-
-@pytest.fixture
-def api_request(api_client):
-    """Generic fixture to make API requests easily."""
-    def _request(method, endpoint, json_body=None, params=None, headers=None):
-        return api_client.request(
-            method=method,
-            endpoint=endpoint,
-            json_body=json_body,
-            params=params,
-            headers=headers
-        )
-    return _request  
-
-@pytest.fixture
-def load_payload():
-    def _loader(filename: str):
-        path = os.path.join("data", "payloads", filename)
-        if not os.path.exists(path):
-            raise FileNotFoundError(f"Payload file not found: {path}")
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return _loader
+    ack = resp["json"]
+    slug = ack["success"]
+    return {"ad_id": ack["ad_id"], "ad_listing_id": ack["ad_listing_id"], "slug": slug, "api_version": API_VERSION}

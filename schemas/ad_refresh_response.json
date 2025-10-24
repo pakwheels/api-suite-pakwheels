@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ad_refresh_response",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["ad_listing"],
+  "properties": {
+    "ad_listing": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["status", "klass"],
+      "properties": {
+        "ad_id": { "type": ["integer", "string"] },
+        "ad_listing_id": { "type": ["integer", "string"] },
+        "url_slug": { "type": ["string", "null"] },
+        "status": { "type": ["integer", "string"] },
+        "klass": { "type": "string" },
+        "price": { "type": ["string", "integer", "null"] },
+        "exterior_color": { "type": ["string", "null"] },
+        "model_year": { "type": ["integer", "string", "null"] },
+        "user": { "type": ["object", "null"] }
+      }
+    },
+    "error": { "type": ["string", "null"] }
+  }
+}

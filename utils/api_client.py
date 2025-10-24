@@ -241,3 +241,37 @@ class APIClient:
             endpoint=endpoint_template,
             params=params,
         )
+    def add_mobile_number(self, mobile_number: str, api_version: str = "22"):
+        """Request an OTP SMS for this mobile number."""
+        return self.request(
+            method="POST",
+            endpoint="/add-mobile-number.json",
+            params={"api_version": api_version, "mobile_number": mobile_number},
+        )
+
+    def verify_mobile_number(self, pin_id: str, pin: str = "123456", api_version: str = "22"):
+        """Submit the OTP to verify the mobile number."""
+        return self.request(
+            method="POST",
+            endpoint="/add-mobile-number/verify.json",
+            params={"api_version": api_version, "pin_id": pin_id, "pin": pin},
+        )
+    def clear_mobile_number(self, number: str, full_url: str = None):
+        """
+        Clears a phone number from any existing accounts so it can be verified again.
+        Default uses https://www.pakgari.com/clear-number?numbers=...
+        If your APIClient.request supports absolute URLs, we can call it directly.
+        """
+        url = full_url or f"https://www.pakgari.com/clear-number?numbers={number}"
+        # If your request() handles absolute URLs, this is enough:
+        try:
+            return self.request("GET", url)
+        except Exception:
+            # If your request() *doesn't* support absolute URLs, fall back to raw session:
+            resp = self.session.get(url, timeout=30)
+            payload = {}
+            try:
+                payload = resp.json()
+            except Exception:
+                pass
+            return {"status_code": resp.status_code, "json": payload, "elapsed": 0.0}

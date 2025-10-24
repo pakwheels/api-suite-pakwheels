@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-BASE_URL: str = os.getenv("BASE_URL", "https://marketplace.pakkey.com")
+BASE_URL: str = os.getenv("BASE_URL", "https://core.pakkey.com")
 
 DEFAULT_HEADERS: dict[str, str] = {
     "Content-Type": "application/json",
