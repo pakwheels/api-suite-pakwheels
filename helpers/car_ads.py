@@ -9,6 +9,7 @@ assertions they care about.
 from __future__ import annotations
 
 import json
+import mimetypes
 import os
 import re
 import time
@@ -95,38 +96,43 @@ def close_used_car_existing(
     api_version: str = DEFAULT_API_VERSION,
 ):
     """
-    Close an existing ad using any of slug / ad_listing_id / ad_id.
-
-    Returns the JSON body of the successful response.
+    Close an existing ad using its slug. Simplified to use a single URL:
+    {CORE}{slug_path}/close.json with access_token & api_version params.
     """
     slug = ad_ref.get("slug")
-    ad_listing_id = ad_ref.get("ad_listing_id")
-    ad_id = ad_ref.get("ad_id")
+    assert slug, "ad_ref must include a slug when using simplified close."
 
-    variants = []
-    if slug:
-        s = _normalize_slug(slug)
-        variants.append(("POST", f"{s}/close.json", {"api_version": api_version}))
-    if ad_listing_id:
-        variants.append(("POST", f"/ad-listings/{ad_listing_id}/close.json", {"api_version": api_version}))
-    if ad_id:
-        variants.append(("POST", f"/used-cars/{ad_id}/close.json", {"api_version": api_version}))
-
-    assert variants, "Need at least one of slug, ad_listing_id, or ad_id to close."
-
+    slug_path = _ensure_slug_path(slug)
     close_body = load_payload("close_used_car.json")
 
-    last = None
-    for method, endpoint, params in variants:
-        resp = api_client.request(method, endpoint, params=params, json_body=close_body)
-        last = resp
-        print(f"\n🗑️ Close attempt: {method} {endpoint} → {resp['status_code']}")
-        print(json.dumps(resp.get("json"), indent=2))
-        if resp["status_code"] == 200:
-            validator.assert_json_schema(resp["json"], "schemas/ad_close_response.json")
-            return resp.get("json") or {}
+    access_token = get_auth_token()
+    fcm_token = os.getenv("FCM_TOKEN")
 
-    raise AssertionError(f"All close variants failed (last={last['status_code'] if last else 'n/a'})")
+    params = {"api_version": api_version, "access_token": access_token}
+    if fcm_token:
+        params["fcm_token"] = fcm_token
+
+    url = f"{CORE}{slug_path}/close.json"
+    resp = api_client.session.post(
+        url,
+        params=params,
+        json=close_body,
+        headers={"Accept": "application/json"},
+        timeout=30,
+    )
+
+    _log_http("CLOSE (single)", resp)
+
+    try:
+        body = resp.json()
+    except Exception:
+        body = {"raw": resp.text}
+
+    if resp.status_code != 200:
+        raise AssertionError(f"Close failed: status={resp.status_code} body={body}")
+
+    validator.assert_json_schema(body, "schemas/ad_close_response.json")
+    return body or {}
 
 
 def edit_used_car_existing(
@@ -305,12 +311,7 @@ def wait_for_ad_state(
     Returns the state name if found, otherwise None.
     """
     desired_states = tuple(desired_states)
-    for attempt in range(1, attempts + 1):
-        state = verify_live_or_pending(api_client, slug_or_url)
-        print(f"🔎 Poll attempt {attempt}: {state}")
-        if state in desired_states:
-            return state
-        time.sleep(delay)
+
     return None
 
 
@@ -391,76 +392,6 @@ def refresh_only(api_client, slug_or_url: str, api_version: str = "23") -> reque
     return resp
 
 
-def verify_live_or_pending(api_client, slug_or_url: str) -> Optional[str]:
-    """
-    Search the ad in my-ads lists (st_live, st_pending, st_listing); return the state name if found.
-    """
-    slug_path = _ensure_slug_path(slug_or_url)
-    access_token = get_auth_token()
-    fcm_token = os.getenv("FCM_TOKEN")
-
-    headers = {"Accept": "application/json"}
-    base = {
-        "api_version": "22",
-        "access_token": access_token,
-        "page": "1",
-        "extra_info": "true",
-    }
-    if fcm_token:
-        base["fcm_token"] = fcm_token
-
-    for state in ("st_live", "st_pending", "st_listing"):
-        url = f"{CORE}/users/my-ads/{state}.json"
-        resp = api_client.session.get(url, params=base, headers=headers, timeout=30)
-        print(f"\n📄 {state}.json → {resp.status_code} | URL: {resp.url}")
-        if resp.status_code != 200:
-            continue
-
-        try:
-            body = resp.json()
-        except Exception:
-            continue
-
-        for ad in body.get("ads") or []:
-            detail = (ad.get("detail_url") or "") + (ad.get("slug") or "")
-            if slug_path in detail:
-                print(f"✅ Found {slug_path} in {state}.json")
-                return state
-
-    print("⚠️ Not found in st_live/st_pending/st_listing.")
-    return None
-
-
-def inject_uploaded_picture_id(
-    api_client,
-    payload: dict,
-    file_path: str,
-    api_version_upload: str = "18",
-    access_token: Optional[str] = None,
-    fcm_token: Optional[str] = None,
-) -> dict:
-    """
-    Upload an image via multi_file_uploader and inject the returned id into pictures_attributes[0].
-    """
-    if access_token is None:
-        access_token = get_auth_token()
-
-    if not os.path.isfile(file_path):
-        raise FileNotFoundError(f"Image not found at: {file_path}")
-
-    pic_id = api_client.upload_ad_picture(
-        file_path=file_path,
-        api_version=api_version_upload,
-        access_token=access_token,
-        fcm_token=fcm_token,
-        new_version=True,
-    )
-
-    used_car = payload.setdefault("used_car", {})
-    ad_attrs = used_car.setdefault("ad_listing_attributes", {})
-    pics_attrs = ad_attrs.setdefault("pictures_attributes", {})
-    pics_attrs["0"] = {"pictures_ids": str(pic_id)}
-    return payload
 
 
 def verify_posted_ad_phone(
@@ -488,17 +419,17 @@ def verify_posted_ad_phone(
     )
     assert phone, "No phone number found in used_car payload."
 
-    cleared = api_client.clear_mobile_number(phone)
+    cleared = clear_mobile_number(api_client, phone)
     validator.assert_status_code(cleared["status_code"], 200)
 
-    send_otp = api_client.add_mobile_number(mobile_number=phone, api_version=api_ver)
+    send_otp = add_mobile_number(api_client, mobile_number=phone, api_version=api_ver)
     validator.assert_status_code(send_otp["status_code"], 200)
     send_body = send_otp.get("json") or {}
     assert not send_body.get("number_already_exist"), "Phone number already exists."
     pin_id = send_body.get("pin_id")
     assert pin_id, "pin_id missing from add_mobile_number response."
 
-    verify = api_client.verify_mobile_number(pin_id=pin_id, pin=otp_pin, api_version=api_ver)
+    verify = verify_mobile_number(api_client, pin_id=pin_id, pin=otp_pin, api_version=api_ver)
     validator.assert_status_code(verify["status_code"], 200)
 
     details = api_client.request(
@@ -587,13 +518,16 @@ __all__ = [
     "get_posted_ad",
     "get_ad_ref",
     "get_ad_ids",
-    "attach_pictures_and_update_ad",
+    "upload_ad_picture",
     "reactivate_used_car_existing",
     "wait_for_ad_state",
     "refresh_first",
     "refresh_only",
     "verify_live_or_pending",
-    "inject_uploaded_picture_id",
+    "verify_posted_ad_phone",
+    "clear_mobile_number",
+    "add_mobile_number",
+    "verify_mobile_number",
 ]
 def _read_json(path: Path) -> dict:
     with path.open("r", encoding="utf-8") as fh:
@@ -631,7 +565,8 @@ def get_posted_ad(
             fcm_token = os.getenv("FCM_TOKEN")
 
             for idx, file_path in enumerate(files):
-                pic_id = api_client.upload_ad_picture(
+                pic_id = upload_ad_picture(
+                    api_client,
                     file_path=str(file_path),
                     api_version=os.getenv("PICTURE_UPLOAD_API_VERSION", "18"),
                     access_token=token,
@@ -646,7 +581,7 @@ def get_posted_ad(
             .get("phone")
     )
     if phone:
-        clr = api_client.clear_mobile_number(phone)
+        clr = clear_mobile_number(api_client, phone)
         print(f"\n🧹 [SESSION] Clear number {phone}: {clr['status_code']}")
 
     via_whatsapp = "true" if (
@@ -692,54 +627,174 @@ def get_ad_ids(posted_ad: dict) -> dict:
     }
 
 
-def attach_pictures_and_update_ad(
-    api_client,
-    ad_id: int,
-    ad_listing_id: Optional[int] = None,
-    payload_path: Path | str = "data/payloads/used_car.json",
-    pictures_path: Path | str = "data/pictures",
-    api_version_upload: str = "18",
-) -> dict:
-    """
-    Upload every image found in ``pictures_path`` and update the ad's payload so
-    ``pictures_attributes`` references the returned picture_ids. Returns the
-    response body from the update request.
-    """
-    payload_path = Path(payload_path)
-    pictures_dir = Path(pictures_path)
+def _build_upload_params(api_version: str, access_token: Optional[str], fcm_token: Optional[str], new_version: bool) -> dict:
+    params = {"api_version": api_version}
+    if access_token:
+        params["access_token"] = access_token
+    if fcm_token:
+        params["fcm_token"] = fcm_token
+    if new_version:
+        params["new_version"] = "true"
+    return params
 
-    if not payload_path.exists():
-        raise FileNotFoundError(f"Payload not found: {payload_path}")
-    if not pictures_dir.exists():
-        raise FileNotFoundError(f"Pictures directory not found: {pictures_dir}")
 
-    payload = json.loads(payload_path.read_text(encoding="utf-8"))
-    pics_attr = (
-        payload.setdefault("used_car", {})
-        .setdefault("ad_listing_attributes", {})
-        .setdefault("pictures_attributes", {})
-    )
-    pics_attr.clear()
+def _upload_picture_raw(api_client, endpoint: str, file_path: Path, params: dict):
+    url = f"{api_client.base_url}{endpoint}"
+    filename = file_path.name
+    mime = mimetypes.guess_type(filename)[0] or "application/octet-stream"
 
-    files = sorted(p for p in pictures_dir.iterdir() if p.is_file())
-    if not files:
-        raise ValueError(f"No picture files found in {pictures_dir}")
-
-    access_token = get_auth_token()
-    fcm_token = os.getenv("FCM_TOKEN")
-
-    for idx, file_path in enumerate(files):
-        pic_id = api_client.upload_ad_picture(
-            file_path=str(file_path),
-            api_version=api_version_upload,
-            access_token=access_token,
-            fcm_token=fcm_token,
-            new_version=True,
+    with file_path.open("rb") as fh:
+        resp = api_client.session.post(
+            url,
+            params=params,
+            data=fh,
+            headers={
+                "Content-Type": mime,
+                "Accept": "application/json",
+            },
+            timeout=90,
         )
-        pics_attr[str(idx)] = {"pictures_ids": str(pic_id)}
+    try:
+        body = resp.json()
+    except Exception:
+        body = {"raw": resp.text}
+    return {"status_code": resp.status_code, "json": body}
 
-    if ad_listing_id is not None:
-        payload.setdefault("used_car", {}).setdefault("ad_listing_attributes", {})["id"] = ad_listing_id
 
-    resp = api_client.update_ad(ad_id, payload)
-    return resp
+def _upload_picture_multipart(api_client, endpoint: str, file_path: Path, params: dict):
+    url = f"{api_client.base_url}{endpoint}"
+    filename = file_path.name
+    mime = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+
+    last = None
+    for field_name in ("file", "pictures[]"):
+        try:
+            with file_path.open("rb") as fh:
+                files = {field_name: (filename, fh, mime)}
+                resp = api_client.session.post(
+                    url,
+                    params=params,
+                    files=files,
+                    headers={"Accept": "application/json"},
+                    timeout=90,
+                )
+            try:
+                body = resp.json()
+            except Exception:
+                body = {"raw": resp.text}
+            last = {"status_code": resp.status_code, "json": body}
+            if 200 <= resp.status_code < 300:
+                return last
+        except Exception as exc:
+            last = {"status_code": 0, "json": {"error": str(exc)}}
+    return last
+
+
+def upload_ad_picture(
+    api_client,
+    file_path: str,
+    api_version: str = "18",
+    access_token: Optional[str] = None,
+    fcm_token: Optional[str] = None,
+    new_version: bool = True,
+) -> int:
+    """
+    Upload a local image and return its picture_id.
+    Mirrors the UI behaviour: tries the raw upload first, then multipart.
+    """
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Picture file not found: {file_path}")
+
+    params = _build_upload_params(api_version, access_token, fcm_token, new_version)
+
+    endpoints = [
+        "/pictures/multi_file_uploader/ad_listing.json",
+        "/multi_file_uploader/ad_listing.json",
+    ]
+
+    last = None
+    for endpoint in endpoints:
+        raw = _upload_picture_raw(api_client, endpoint, path, params)
+        last = raw
+        if 200 <= raw["status_code"] < 300:
+            pic_id = _extract_picture_id(raw.get("json") or {})
+            if pic_id is not None:
+                return pic_id
+
+        multipart = _upload_picture_multipart(api_client, endpoint, path, params)
+        last = multipart
+        if multipart and 200 <= multipart["status_code"] < 300:
+            pic_id = _extract_picture_id(multipart.get("json") or {})
+            if pic_id is not None:
+                return pic_id
+
+    raise AssertionError(
+        f"Picture upload failed or no picture_id found. "
+        f"Last status={last['status_code'] if last else 'n/a'} body={last and last.get('json')}"
+    )
+
+
+def _extract_picture_id(payload: dict) -> Optional[int]:
+    if not isinstance(payload, dict):
+        return None
+    for key in ("picture_id", "id"):
+        value = payload.get(key)
+        if value is not None:
+            try:
+                return int(value)
+            except Exception:
+                pass
+    for key in ("picture", "image", "photo"):
+        nested = payload.get(key)
+        if isinstance(nested, dict):
+            for inner in ("picture_id", "id"):
+                value = nested.get(inner)
+                if value is not None:
+                    try:
+                        return int(value)
+                    except Exception:
+                        pass
+    for arr_key in ("pictures", "data", "items", "results"):
+        arr = payload.get(arr_key)
+        if isinstance(arr, list) and arr:
+            first = arr[0]
+            if isinstance(first, dict):
+                for inner in ("picture_id", "id"):
+                    value = first.get(inner)
+                    if value is not None:
+                        try:
+                            return int(value)
+                        except Exception:
+                            pass
+    return None
+
+
+def clear_mobile_number(api_client, number: str, full_url: Optional[str] = None):
+    url = full_url or f"https://www.pakgari.com/clear-number?numbers={number}"
+    try:
+        return api_client.request("GET", url)
+    except Exception:
+        resp = api_client.session.get(url, timeout=30)
+        payload = {}
+        try:
+            payload = resp.json()
+        except Exception:
+            pass
+        return {"status_code": resp.status_code, "json": payload, "elapsed": 0.0}
+
+
+def add_mobile_number(api_client, mobile_number: str, api_version: str = "22"):
+    return api_client.request(
+        method="POST",
+        endpoint="/add-mobile-number.json",
+        params={"api_version": api_version, "mobile_number": mobile_number},
+    )
+
+
+def verify_mobile_number(api_client, pin_id: str, pin: str = "123456", api_version: str = "22"):
+    return api_client.request(
+        method="POST",
+        endpoint="/add-mobile-number/verify.json",
+        params={"api_version": api_version, "pin_id": pin_id, "pin": pin},
+    )
