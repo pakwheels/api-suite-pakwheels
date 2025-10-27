@@ -210,52 +210,6 @@ class APIClient:
                 pass
             return {"status_code": resp.status_code, "json": payload, "elapsed": 0.0}
         
-    def _try_upload_picture(self, endpoint_path: str, file_path: str, api_version: str, access_token: str = None,
-                            fcm_token: str = None, new_version: bool = True):
-        """
-        Low-level: POST multipart/form-data to a single endpoint path.
-        Tries common field names ('file', 'pictures[]') and returns the raw response dict.
-        """
-        url = f"{self.base_url}{endpoint_path}"
-        params = {"api_version": api_version}
-        if access_token:
-            params["access_token"] = access_token
-        if fcm_token:
-            params["fcm_token"] = fcm_token
-        if new_version is True:
-            params["new_version"] = "true"
-
-        # Guess mime type
-        file_path = str(file_path)
-        filename = Path(file_path).name
-        mime = mimetypes.guess_type(filename)[0] or "application/octet-stream"
-
-        # Try the most common field names
-        candidates = [
-            ("file", ("file", open(file_path, "rb"), mime)),
-            ("pictures[]", ("pictures[]", open(file_path, "rb"), mime)),
-        ]
-
-        last = None
-        for field_name, file_tuple in candidates:
-            try:
-                with open(file_path, "rb") as fh:
-                    files = {field_name: (filename, fh, mime)}
-                    # requests.Session handles multipart automatically if 'files' is passed
-                    resp = self.session.post(url, params=params, files=files, timeout=90,
-                                             headers={"Accept": "application/json"})
-                try:
-                    body = resp.json()
-                except Exception:
-                    body = {"raw": resp.text}
-
-                last = {"status_code": resp.status_code, "json": body, "elapsed": None}
-                if 200 <= resp.status_code < 300:
-                    return last
-            except Exception as e:
-                last = {"status_code": 0, "json": {"error": str(e)}, "elapsed": None}
-
-        return last
 
     def upload_ad_picture(self, file_path: str, api_version: str = "18",
                           access_token: str = None, fcm_token: str = None, new_version: bool = True):
@@ -284,6 +238,151 @@ class APIClient:
                 # We'll fall through and try the next endpoint if we can't parse
         raise AssertionError(f"Picture upload failed or no picture_id found. "
                              f"Last status={last['status_code'] if last else 'n/a'} body={last and last.get('json')}")
+
+    def _build_upload_params(self, api_version: str, access_token: str = None,
+                              fcm_token: str = None, new_version: bool = True) -> dict:
+        params = {"api_version": api_version}
+        if access_token:
+            params["access_token"] = access_token
+        if fcm_token:
+            params["fcm_token"] = fcm_token
+        if new_version:
+            params["new_version"] = "true"
+        return params
+
+    def _try_upload_picture_raw(self, endpoint_path: str, file_path: str, params: dict):
+        url = f"{self.base_url}{endpoint_path}"
+        file_path = str(file_path)
+        filename = Path(file_path).name
+        mime = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+
+        with open(file_path, "rb") as fh:
+            resp = self.session.post(
+                url,
+                params=params,
+                data=fh,
+                headers={
+                    "Content-Type": mime,
+                    "Accept": "application/json",
+                },
+                timeout=90,
+            )
+
+        try:
+            body = resp.json()
+        except Exception:
+            body = {"raw": resp.text}
+
+        return {"status_code": resp.status_code, "json": body, "elapsed": None}
+
+    def _try_upload_picture_multipart(self, endpoint_path: str, file_path: str, params: dict):
+        url = f"{self.base_url}{endpoint_path}"
+        file_path = str(file_path)
+        filename = Path(file_path).name
+        mime = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+
+        last = None
+        for field_name in ("file", "pictures[]"):
+            try:
+                with open(file_path, "rb") as fh:
+                    files = {field_name: (filename, fh, mime)}
+                    resp = self.session.post(
+                        url,
+                        params=params,
+                        files=files,
+                        timeout=90,
+                        headers={"Accept": "application/json"},
+                    )
+                try:
+                    body = resp.json()
+                except Exception:
+                    body = {"raw": resp.text}
+                last = {"status_code": resp.status_code, "json": body, "elapsed": None}
+                if 200 <= resp.status_code < 300:
+                    return last
+            except Exception as exc:
+                last = {"status_code": 0, "json": {"error": str(exc)}, "elapsed": None}
+        return last
+
+    # def upload_ad_picture(self, file_path: str, api_version: str = "18",
+    #                       access_token: str = None, fcm_token: str = None, new_version: bool = True):
+    #     """
+    #     High-level helper:
+    #     - Tries '/pictures/multi_file_uploader/ad_listing.json'
+    #     - Falls back to '/multi_file_uploader/ad_listing.json'
+    #     - Sends the file once as raw binary (XHR send(file)) and once as multipart form
+    #     - Returns the parsed picture_id (int) if found, else raises AssertionError.
+    #     """
+    #     endpoints = [
+    #         "/pictures/multi_file_uploader/ad_listing.json",
+    #         "/multi_file_uploader/ad_listing.json",
+    #     ]
+
+    #     params = self._build_upload_params(api_version, access_token, fcm_token, new_version)
+    #     last = None
+    #     for ep in endpoints:
+    #         raw_attempt = self._try_upload_picture_raw(ep, file_path, params)
+    #         last = raw_attempt
+    #         if 200 <= raw_attempt["status_code"] < 300:
+    #             pic_id = self._extract_picture_id_flexible(raw_attempt.get("json") or {})
+    #             if pic_id is not None:
+    #                 return int(pic_id)
+
+    #         multipart_attempt = self._try_upload_picture_multipart(ep, file_path, params)
+    #         last = multipart_attempt
+    #         if multipart_attempt and 200 <= multipart_attempt["status_code"] < 300:
+    #             pic_id = self._extract_picture_id_flexible(multipart_attempt.get("json") or {})
+    #             if pic_id is not None:
+    #                 return int(pic_id)
+
+    #     raise AssertionError(f"Picture upload failed or no picture_id found. "
+    #                          f"Last status={last['status_code'] if last else 'n/a'} body={last and last.get('json')}")
+
+
+    def upload_ad_picture(self, file_path: str, api_version: str = "18",
+                          access_token: str = None, fcm_token: str = None, new_version: bool = True):
+        """
+        Upload a picture using multipart/form-data (FormData) to the
+        '/multi_file_uploader/ad_listing.json' endpoint using the 'file' field.
+        Returns parsed picture_id (int) or raises AssertionError.
+        """
+        endpoint = "/multi_file_uploader/ad_listing.json"
+        params = self._build_upload_params(api_version, access_token, fcm_token, new_version)
+
+        file_path = str(file_path)
+        if not os.path.isfile(file_path):
+            raise FileNotFoundError(f"Image not found at: {file_path}")
+
+        filename = Path(file_path).name
+        mime = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+        url = f"{self.base_url}{endpoint}"
+
+        try:
+            with open(file_path, "rb") as fh:
+                files = {"file": (filename, fh, mime)}
+                resp = self.session.post(
+                    url,
+                    params=params,
+                    files=files,
+                    timeout=90,
+                    headers={"Accept": "application/json"},
+                )
+        except Exception as exc:
+            raise AssertionError(f"Picture upload failed: {exc}") from exc
+
+        try:
+            body = resp.json()
+        except Exception:
+            body = {"raw": resp.text}
+
+        if not (200 <= resp.status_code < 300):
+            raise AssertionError(f"Picture upload failed: status={resp.status_code} body={body}")
+
+        pic_id = self._extract_picture_id_flexible(body or {})
+        if pic_id is None:
+            raise AssertionError(f"Picture uploaded but no picture_id found. Body={body}")
+
+        return int(pic_id)
 
     @staticmethod
     def _extract_picture_id_flexible(payload: dict):
