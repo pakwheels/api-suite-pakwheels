@@ -3,6 +3,7 @@ import pytest
 import json
 from utils.api_client import APIClient
 from utils.validator import Validator
+from helpers.car_ads import get_posted_ad
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -77,43 +78,7 @@ def _load_payload_session(name: str):
 @pytest.fixture(scope="session")
 def posted_ad(api_client, validator):
     """POST once per session; share ad_id/ad_listing_id/slug."""
-    body = _load_payload_session("used_car.json")
-
-    # 1) clear phone BEFORE posting (so OTP can be re-used)
-    phone = (
-        body.get("used_car", {})
-            .get("ad_listing_attributes", {})
-            .get("phone")
-    )
-    if phone:
-        clr = api_client.clear_mobile_number(phone)
-        print(f"\n🧹 [SESSION] Clear number {phone}: {clr['status_code']}")
-
-    # 2) post once
-    via_whatsapp = "true" if (
-        body.get("used_car", {}).get("ad_listing_attributes", {}).get("allow_whatsapp") is True
-    ) else "false"
-
-    resp = api_client.request(
-        "POST",
-        f"{POST_ENDPOINT}",
-        params={"api_version": API_VERSION, "via_whatsapp": via_whatsapp},
-        json_body=body,
-    )
-    print("\n🚗 [SESSION] Post Used Car:", resp["status_code"])
-    print(json.dumps(resp.get("json"), indent=2))
-
-    validator.assert_status_code(resp["status_code"], 200)
-    validator.assert_json_schema(resp["json"], "schemas/used_car_post_response_ack.json")
-
-    ack = resp["json"] or {}
-    slug = ack.get("success") or ack.get("slug")
-    return {
-        "ad_id": ack["ad_id"],
-        "ad_listing_id": ack["ad_listing_id"],
-        "slug": slug,
-        "api_version": API_VERSION,
-    }
+    return get_posted_ad(api_client, validator)
 @pytest.fixture
 def ad_ref(posted_ad):
     """

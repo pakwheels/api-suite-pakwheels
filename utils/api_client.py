@@ -1,5 +1,7 @@
 import os
 import time
+from pathlib import Path
+import mimetypes
 
 import requests
 
@@ -173,74 +175,6 @@ class APIClient:
             params=params,
         )
 
-    def list_feature_products(self, ad_id, product_id=None, discount_code=None, s_id=None, s_type=None):
-        endpoint_template = os.getenv("FEATURE_PRODUCTS_ENDPOINT", "/products/products_list.json")
-        params = self._env_params("FEATURE_PRODUCTS_QUERY") or {}
-        params.setdefault("used_car_id", str(ad_id))
-        if product_id is not None:
-            params["product_id"] = product_id
-        if discount_code is not None:
-            params["discount_code"] = discount_code
-        if s_id is not None:
-            params["s_id"] = s_id
-        if s_type is not None:
-            params["s_type"] = s_type
-        return self.request(
-            method=os.getenv("FEATURE_PRODUCTS_METHOD", "GET"),
-            endpoint=endpoint_template,
-            params=params,
-        )
-
-    def get_my_credits(self):
-        endpoint_template = os.getenv("FEATURE_CREDITS_ENDPOINT", "/users/my-credits.json")
-        params = self._env_params("FEATURE_CREDITS_QUERY")
-        return self.request(
-            method=os.getenv("FEATURE_CREDITS_METHOD", "GET"),
-            endpoint=endpoint_template,
-            params=params,
-        )
-
-    def proceed_checkout(self, product_id, s_id, s_type="ad", discount_code=""):
-        endpoint_template = os.getenv("FEATURE_CHECKOUT_ENDPOINT", "/payments/proceed_checkout.json")
-        params = self._env_params("FEATURE_CHECKOUT_QUERY")
-        payload = {
-            "product_id": product_id,
-            "s_id": str(s_id),
-            "s_type": s_type,
-            "discount_code": discount_code or "",
-        }
-        return self.request(
-            method=os.getenv("FEATURE_CHECKOUT_METHOD", "POST"),
-            endpoint=endpoint_template,
-            json_body=payload,
-            params=params,
-        )
-
-    def initiate_jazz_cash(self, payment_id, mobile_number, cnic_number, save_payment_info=False):
-        endpoint_template = os.getenv("FEATURE_JAZZ_CASH_ENDPOINT", "/payments/initiate_jazz_cash_mobile_account.json")
-        params = self._env_params("FEATURE_JAZZ_CASH_QUERY")
-        payload = {
-            "payment_id": payment_id,
-            "mobile_number": mobile_number,
-            "cnic_number": cnic_number,
-            "save_payment_info": bool(save_payment_info),
-        }
-        return self.request(
-            method=os.getenv("FEATURE_JAZZ_CASH_METHOD", "POST"),
-            endpoint=endpoint_template,
-            json_body=payload,
-            params=params,
-        )
-
-    def payment_status(self, payment_id):
-        endpoint_template = os.getenv("FEATURE_PAYMENT_STATUS_ENDPOINT", "/payments/status.json")
-        params = self._env_params("FEATURE_PAYMENT_STATUS_QUERY") or {}
-        params["payment_id"] = payment_id
-        return self.request(
-            method=os.getenv("FEATURE_PAYMENT_STATUS_METHOD", "GET"),
-            endpoint=endpoint_template,
-            params=params,
-        )
     def add_mobile_number(self, mobile_number: str, api_version: str = "22"):
         """Request an OTP SMS for this mobile number."""
         return self.request(
@@ -275,3 +209,127 @@ class APIClient:
             except Exception:
                 pass
             return {"status_code": resp.status_code, "json": payload, "elapsed": 0.0}
+        
+    def _try_upload_picture(self, endpoint_path: str, file_path: str, api_version: str, access_token: str = None,
+                            fcm_token: str = None, new_version: bool = True):
+        """
+        Low-level: POST multipart/form-data to a single endpoint path.
+        Tries common field names ('file', 'pictures[]') and returns the raw response dict.
+        """
+        url = f"{self.base_url}{endpoint_path}"
+        params = {"api_version": api_version}
+        if access_token:
+            params["access_token"] = access_token
+        if fcm_token:
+            params["fcm_token"] = fcm_token
+        if new_version is True:
+            params["new_version"] = "true"
+
+        # Guess mime type
+        file_path = str(file_path)
+        filename = Path(file_path).name
+        mime = mimetypes.guess_type(filename)[0] or "application/octet-stream"
+
+        # Try the most common field names
+        candidates = [
+            ("file", ("file", open(file_path, "rb"), mime)),
+            ("pictures[]", ("pictures[]", open(file_path, "rb"), mime)),
+        ]
+
+        last = None
+        for field_name, file_tuple in candidates:
+            try:
+                with open(file_path, "rb") as fh:
+                    files = {field_name: (filename, fh, mime)}
+                    # requests.Session handles multipart automatically if 'files' is passed
+                    resp = self.session.post(url, params=params, files=files, timeout=90,
+                                             headers={"Accept": "application/json"})
+                try:
+                    body = resp.json()
+                except Exception:
+                    body = {"raw": resp.text}
+
+                last = {"status_code": resp.status_code, "json": body, "elapsed": None}
+                if 200 <= resp.status_code < 300:
+                    return last
+            except Exception as e:
+                last = {"status_code": 0, "json": {"error": str(e)}, "elapsed": None}
+
+        return last
+
+    def upload_ad_picture(self, file_path: str, api_version: str = "18",
+                          access_token: str = None, fcm_token: str = None, new_version: bool = True):
+        """
+        High-level helper:
+        - Tries '/pictures/multi_file_uploader/ad_listing.json'
+        - Falls back to '/multi_file_uploader/ad_listing.json'
+        - Returns the parsed picture_id (int) if found, else raises AssertionError.
+        """
+        # 1) Try the path that MUST include '/pictures' (as per your requirement)
+        endpoints = [
+            "/pictures/multi_file_uploader/ad_listing.json",
+            "/multi_file_uploader/ad_listing.json",
+        ]
+
+        last = None
+        for ep in endpoints:
+            attempt = self._try_upload_picture(ep, file_path, api_version, access_token, fcm_token, new_version)
+            last = attempt
+            if attempt and 200 <= attempt["status_code"] < 300:
+                # Parse picture_id(s) flexibly
+                pic_id = self._extract_picture_id_flexible(attempt.get("json") or {})
+                if pic_id is not None:
+                    return int(pic_id)
+                # Sometimes the backend returns ids under 'pictures' list
+                # We'll fall through and try the next endpoint if we can't parse
+        raise AssertionError(f"Picture upload failed or no picture_id found. "
+                             f"Last status={last['status_code'] if last else 'n/a'} body={last and last.get('json')}")
+
+    @staticmethod
+    def _extract_picture_id_flexible(payload: dict):
+        """
+        Tries multiple shapes to extract a picture id from the uploader response:
+          - payload['picture_id'] or payload['id']
+          - payload['picture']['id'] / ['picture_id']
+          - payload['pictures'][0]['id'] / ['picture_id']
+          - payload['data'][0]['id'] / etc.
+        """
+        if not isinstance(payload, dict):
+            return None
+
+        # Direct id fields
+        for k in ("picture_id", "id"):
+            v = payload.get(k)
+            if v is not None:
+                try:
+                    return int(v)
+                except Exception:
+                    pass
+
+        # Nested single object
+        for k in ("picture", "image", "photo"):
+            obj = payload.get(k)
+            if isinstance(obj, dict):
+                for kk in ("picture_id", "id"):
+                    v = obj.get(kk)
+                    if v is not None:
+                        try:
+                            return int(v)
+                        except Exception:
+                            pass
+
+        # Arrays
+        for arr_key in ("pictures", "data", "items", "results"):
+            arr = payload.get(arr_key)
+            if isinstance(arr, list) and arr:
+                first = arr[0]
+                if isinstance(first, dict):
+                    for kk in ("picture_id", "id"):
+                        v = first.get(kk)
+                        if v is not None:
+                            try:
+                                return int(v)
+                            except Exception:
+                                pass
+
+        return None

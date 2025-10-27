@@ -9,7 +9,13 @@ from dotenv import load_dotenv
 
 import pytest
 
-from utils.auth import get_auth_token
+from helpers import (
+    initiate_jazz_cash,
+    list_feature_products,
+    payment_status,
+    proceed_checkout,
+)
+from helpers import get_auth_token
 
 
 load_dotenv()
@@ -395,7 +401,7 @@ def test_ad_lifecycle(api_client, validator, load_payload):
     price_value = int(str(price_str)) if price_str is not None else 0
     expected_weeks = _expected_weeks_for_price(price_value)
 
-    products_response = api_client.list_feature_products(ad_id)
+    products_response = list_feature_products(api_client, ad_id)
     _log_status("Feature Products", products_response)
     products = _extract_products(products_response.get("json", {}))
     assert products, "Expected feature products list to be non-empty"
@@ -425,7 +431,7 @@ def test_ad_lifecycle(api_client, validator, load_payload):
     product_label = _product_label(selected_product)
     print(f"🎯 Selecting product {selected_product_id} ({product_label})")
 
-    products_confirm = api_client.list_feature_products(
+    products_confirm = list_feature_products(
         ad_id,
         product_id=selected_product_id,
         discount_code="",
@@ -434,7 +440,7 @@ def test_ad_lifecycle(api_client, validator, load_payload):
     )
     _log_status("Feature Product Confirm", products_confirm)
 
-    checkout_response = api_client.proceed_checkout(
+    checkout_response = proceed_checkout(
         product_id=selected_product_id,
         s_id=ad_listing_id,
         s_type="ad",
@@ -448,7 +454,7 @@ def test_ad_lifecycle(api_client, validator, load_payload):
     jazz_mobile = os.getenv("JAZZ_CASH_MOBILE", "03123456789")
     save_info = os.getenv("JAZZ_CASH_SAVE_INFO", "false").lower() == "true"
 
-    initiate_response = api_client.initiate_jazz_cash(
+    initiate_response = initiate_jazz_cash(
         payment_id=payment_id,
         mobile_number=jazz_mobile,
         cnic_number=jazz_cnic,
@@ -461,7 +467,7 @@ def test_ad_lifecycle(api_client, validator, load_payload):
     final_status = None
 
     for attempt in range(1, status_attempts + 1):
-        status_response = api_client.payment_status(payment_id)
+        status_response = payment_status(api_client, payment_id)
         _log_status(f"Payment Status (attempt {attempt})", status_response)
         final_status = _extract_payment_status(status_response.get("json", {}))
         if final_status in {"paid", "success", "completed"}:
