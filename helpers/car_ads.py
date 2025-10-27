@@ -587,6 +587,7 @@ __all__ = [
     "get_posted_ad",
     "get_ad_ref",
     "get_ad_ids",
+    "attach_pictures_and_update_ad",
     "reactivate_used_car_existing",
     "wait_for_ad_state",
     "refresh_first",
@@ -615,10 +616,34 @@ def get_posted_ad(
 
     body = _read_json(payload_path)
 
+    pictures_dir = Path("data/pictures")
+    if pictures_dir.exists():
+        files = sorted(p for p in pictures_dir.iterdir() if p.is_file())
+        if files:
+            pics_attr = (
+                body.setdefault("used_car", {})
+                .setdefault("ad_listing_attributes", {})
+                .setdefault("pictures_attributes", {})
+            )
+            pics_attr.clear()
+
+            token = get_auth_token()
+            fcm_token = os.getenv("FCM_TOKEN")
+
+            for idx, file_path in enumerate(files):
+                pic_id = api_client.upload_ad_picture(
+                    file_path=str(file_path),
+                    api_version=os.getenv("PICTURE_UPLOAD_API_VERSION", "18"),
+                    access_token=token,
+                    fcm_token=fcm_token,
+                    new_version=True,
+                )
+                pics_attr[str(idx)] = {"pictures_ids": str(pic_id)}
+
     phone = (
         body.get("used_car", {})
-        .get("ad_listing_attributes", {})
-        .get("phone")
+            .get("ad_listing_attributes", {})
+            .get("phone")
     )
     if phone:
         clr = api_client.clear_mobile_number(phone)
@@ -665,3 +690,56 @@ def get_ad_ids(posted_ad: dict) -> dict:
         "ad_id": int(posted_ad["ad_id"]),
         "ad_listing_id": int(posted_ad["ad_listing_id"]),
     }
+
+
+def attach_pictures_and_update_ad(
+    api_client,
+    ad_id: int,
+    ad_listing_id: Optional[int] = None,
+    payload_path: Path | str = "data/payloads/used_car.json",
+    pictures_path: Path | str = "data/pictures",
+    api_version_upload: str = "18",
+) -> dict:
+    """
+    Upload every image found in ``pictures_path`` and update the ad's payload so
+    ``pictures_attributes`` references the returned picture_ids. Returns the
+    response body from the update request.
+    """
+    payload_path = Path(payload_path)
+    pictures_dir = Path(pictures_path)
+
+    if not payload_path.exists():
+        raise FileNotFoundError(f"Payload not found: {payload_path}")
+    if not pictures_dir.exists():
+        raise FileNotFoundError(f"Pictures directory not found: {pictures_dir}")
+
+    payload = json.loads(payload_path.read_text(encoding="utf-8"))
+    pics_attr = (
+        payload.setdefault("used_car", {})
+        .setdefault("ad_listing_attributes", {})
+        .setdefault("pictures_attributes", {})
+    )
+    pics_attr.clear()
+
+    files = sorted(p for p in pictures_dir.iterdir() if p.is_file())
+    if not files:
+        raise ValueError(f"No picture files found in {pictures_dir}")
+
+    access_token = get_auth_token()
+    fcm_token = os.getenv("FCM_TOKEN")
+
+    for idx, file_path in enumerate(files):
+        pic_id = api_client.upload_ad_picture(
+            file_path=str(file_path),
+            api_version=api_version_upload,
+            access_token=access_token,
+            fcm_token=fcm_token,
+            new_version=True,
+        )
+        pics_attr[str(idx)] = {"pictures_ids": str(pic_id)}
+
+    if ad_listing_id is not None:
+        payload.setdefault("used_car", {}).setdefault("ad_listing_attributes", {})["id"] = ad_listing_id
+
+    resp = api_client.update_ad(ad_id, payload)
+    return resp

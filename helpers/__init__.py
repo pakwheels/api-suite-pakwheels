@@ -10,6 +10,7 @@ from .auth import (  # noqa: F401
     request_oauth_token,
 )
 from .car_ads import (  # noqa: F401
+    attach_pictures_and_update_ad,
     close_used_car_existing,
     edit_used_car_existing,
     feature_used_car_existing,
@@ -30,6 +31,7 @@ __all__ = [
     "get_auth_token",
     "login_with_email",
     "request_oauth_token",
+    "attach_pictures_and_update_ad",
     "close_used_car_existing",
     "edit_used_car_existing",
     "feature_used_car_existing",

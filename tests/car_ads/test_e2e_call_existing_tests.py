@@ -3,6 +3,7 @@
 import pytest
 
 from helpers import (
+    attach_pictures_and_update_ad,
     close_used_car_existing,
     edit_used_car_existing,
     feature_used_car_existing,
@@ -64,6 +65,18 @@ def test_feature_used_car(api_client, validator):
         ad_ref=posted_ad,
         api_version=posted_ad["api_version"],
     )
+
+
+# @pytest.mark.car_ad_post
+# def test_attach_pictures_and_update_ad(api_client, validator):
+#     posted_ad = get_posted_ad(api_client, validator)
+#     resp = attach_pictures_and_update_ad(
+#         api_client,
+#         ad_id=posted_ad["ad_id"],
+#         ad_listing_id=posted_ad["ad_listing_id"],
+#     )
+#     assert resp["status_code"] == 200, f"Picture attach failed: {resp['status_code']} → {resp.get('json')}"
+
 
 
 # @pytest.mark.car_ad_post
