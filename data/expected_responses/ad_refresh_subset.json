@@ -1,0 +1,11 @@
+{
+  "ad_listing": {
+    "status": 2,
+    "klass": "UsedCar",
+    "sell_it_for_me_ad": false,
+    "is_featured": false,
+    "is_certified": false,
+    "allow_whatsapp": true
+  },
+  "error": ""
+}

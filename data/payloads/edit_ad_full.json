@@ -1,69 +1,11 @@
 {
-    "used_car": {
-        "model_year": 2018,
-        "car_manufacturer_id": 41,
-        "car_model_id": 47,
-        "car_version_id": 960,
-        "car_model_generation_id": 492,
-        "abs": 0,
-        "air_bags": 0,
-        "air_conditioning": 1,
-        "alloy_rims": 1,
-        "android_auto": 0,
-        "apple_carplay": 0,
-        "assembly": "Imported",
-        "camera_360": 0,
-        "climate_control": 0,
-        "cruise_control": 0,
-        "drls": 0,
-        "engine_capacity": "660",
-        "engine_type": "Petrol",
-        "exterior_color": "red",
-        "fog_lights": 1,
-        "front_camera": 0,
-        "front_speakers": 0,
-        "head_up_display": 0,
-        "heated_seats": 0,
-        "immobilizer_key": 1,
-        "infotainment_system": 0,
-        "keyless_entry": 1,
-        "led_headlights": 0,
-        "mileage": "250005",
-        "paddle_shifters": 0,
-        "panoramic_sunroof": 0,
-        "parking_sensors": 0,
-        "power_locks": 1,
-        "power_mirrors": 1,
-        "power_seats": 0,
-        "power_steering": 1,
-        "power_windows": 0,
-        "push_start": 0,
-        "rear_ac_vents": 0,
-        "rear_camera": 0,
-        "rear_speakers": 0,
-        "reg_province_id": 1,
-        "sun_roof": 0,
-        "tpms": 0,
-        "traction_control": 1,
-        "transmission": "manual",
-        "ventilated_seats": 0,
-        "ad_listing_attributes": {
-            "id": 0,
-            "allow_whatsapp": true,
-            "category_id": 24,
-            "city_id": 409,
-            "city_area_id": 57,
-            "description": "Everything is in genuine condition. As good as a brand new car. Authorized dealership maintained Everything is in genuine condition. 100% maintained by dealership. Lightweight alloy rims.",
-            "display_name": "Anam",
-            "phone": "03935134568",
-            "pictures_attributes": {
-                "0": {
-                    "pictures_ids": "20165465"
-                }
-            },
-            "price": "1800006",
-            "reg_city_id": null,
-            "via_whatsapp": true
-        }
+  "used_car": {
+    "exterior_color": "white",
+    "ad_listing_attributes": {
+      "price": "5600000",
+      "display_name": "Taimoor",
+      "phone": "03601234567"
     }
+  }
 }
+

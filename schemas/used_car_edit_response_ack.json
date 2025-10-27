@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "used_car_edit_response_ack",
+  "type": "object",
+  "additionalProperties": true,
+  "anyOf": [
+    {
+      "required": ["ad_id", "ad_listing_id"],
+      "properties": {
+        "success": { "type": "string", "minLength": 1 },
+        "ad_listing_id": { "type": ["integer", "string"] },
+        "ad_id": { "type": ["integer", "string"] },
+        "ad_listing": { "type": ["object", "null"], "additionalProperties": true },
+        "custom_dimensions": { "type": ["object", "null"], "additionalProperties": true },
+        "error": { "type": ["array", "object", "string", "null"] }
+      }
+    },
+    {
+      "required": ["error"],
+      "properties": {
+        "error": { "type": ["array", "object", "string"] },
+        "custom_dimensions": { "type": ["object", "null"], "additionalProperties": true }
+      }
+    }
+  ]
+}
