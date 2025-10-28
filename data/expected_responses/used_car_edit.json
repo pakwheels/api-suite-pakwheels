@@ -1,24 +1,24 @@
 {
   "used_car": {
     "model_year": 2000,
-    "car_manufacturer_id": 42,
-    "car_model_id": 118,
-    "car_version_id": 54,
+    "car_manufacturer_id": 49,
+    "car_model_id": 110,
+    "car_version_id": 94,
     "car_model_generation_id": 8,
     "reg_province_id": 1,
     "reg_city_id": null,
-    "mileage": "115000",
+    "mileage": "117000",
     "transmission": "Manual",
     "engine_type": "Petrol",
-    "assembly": "Local",
-    "exterior_color": "black",
+    "assembly": "Imported",
+    "exterior_color": "white",
     "engine_capacity": "1300",
     "ad_listing_attributes": {
       "city_id": 408,
       "city_area_id": 579,
-      "description": "100% original. As good as a brand new car. 100% maintained by dealership.",
+      "description": "107% original. As good as a brand new car. 100% maintained by dealership.",
       "display_name": "Test through Postman",
-      "price": "5400000",
+      "price": "5900000",
       "phone": "03601234567",
       "pictures_attributes": {
         "0": { "pictures_ids": "20163143" }
@@ -46,7 +46,7 @@
     "sun_roof": 0,
     "price_calculator_params": {
       "initial_price": 5400000,
-      "estimated_price": 7000000,
+      "estimated_price": 7700000,
       "estimated_price_lower_bound": 7000000,
       "estimated_price_upper_bound": 7490000
     }

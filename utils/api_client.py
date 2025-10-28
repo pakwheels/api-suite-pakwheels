@@ -4,40 +4,14 @@ import time
 import requests
 
 class APIClient:
-    def __init__(self, base_url, creds, email, password, api_ver):
+    def __init__(self, base_url, token, api_ver):
         self.base_url = base_url.rstrip("/")
-        self.creds = creds
-        self.email = email
-        self.password = password
         self.api_ver = api_ver
         self.session = requests.Session()
-        self.token = self._authenticate()
         self.session.headers.update({
-            "Authorization": self.token,
-            "Accept": "application/json"
+            "Authorization": token if token.startswith("Bearer ") else f"Bearer {token}",
+            "Accept": "application/json",
         })
-
-    def _authenticate(self):
-        """Authenticate user and return bearer token"""
-        path = "/oauth/token.json"
-        url = f"{self.base_url}{path}"
-
-        payload = {
-            "username": self.email,
-            "password": self.password,
-            "client_id": self.creds["id"],
-            "client_secret": self.creds["secret"],
-            "api_version": self.api_ver
-        }
-
-        resp = self.session.post(url, json=payload, timeout=30)
-        if resp.status_code != 200:
-            raise AssertionError(f"Auth failed: {resp.status_code} → {resp.text[:300]}")
-
-        data = resp.json()
-        token = data.get("access_token")
-        token_type = data.get("token_type", "Bearer")
-        return f"{token_type} {token}"
 
     def request(self, method, endpoint, json_body=None, params=None, headers=None):
         """Universal request handler (works for GET, POST, PUT, DELETE)"""
@@ -69,7 +43,7 @@ class APIClient:
             "elapsed": elapsed
         }
 
-    def _env_params(self, env_var: str):
+    def env_params(self, env_var: str):
         raw = os.getenv(env_var)
         if not raw:
             return None
@@ -83,5 +57,4 @@ class APIClient:
                 key, value = part, ""
             params[key] = value
         return params
-
 

@@ -3,11 +3,12 @@
 import pytest
 
 from helpers import (
-
     close_used_car_existing,
     edit_used_car_existing,
     feature_used_car_existing,
     get_posted_ad,
+    logout_user,
+    request_oauth_token,
     reactivate_used_car_existing,
     verify_posted_ad_phone,
 )
@@ -51,6 +52,7 @@ def test_refresh_used_car(api_client, validator):
     resp = reactivate_used_car_existing(
         api_client,
         ad_ref=posted_ad,
+        validator=validator,
         api_version_refresh="23",
     )
     assert resp.status_code in (200, 304)
@@ -66,3 +68,14 @@ def test_feature_used_car(api_client, validator):
         api_version=posted_ad["api_version"],
     )
 
+
+@pytest.mark.auth
+def test_logout_user_e2e(api_client, validator, load_payload):
+    body = logout_user(api_client, validator)
+
+    assert isinstance(body, dict), "Expected JSON body from logout"
+    assert api_client.session.headers.get("Authorization") is None
+
+    payload = load_payload("oauth_token.json")
+    _, token, token_type = request_oauth_token(api_client, validator, payload)
+    assert api_client.session.headers.get("Authorization") == f"{token_type} {token}"

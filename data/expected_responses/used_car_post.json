@@ -21,9 +21,7 @@
       "price": "5400000",
       "phone": "03601234567",
       "pictures_attributes": {
-        "0": {
-          "pictures_ids": "20163143"
-        }
+        "0": { "pictures_ids": "20163143" }
       },
       "allow_whatsapp": true,
       "category_id": 24

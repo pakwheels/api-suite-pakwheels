@@ -5,7 +5,7 @@ from utils.api_client import APIClient
 from utils.validator import Validator
 from helpers.car_ads import get_posted_ad
 from dotenv import load_dotenv
-
+from helpers.auth import get_auth_token
 # Load environment variables
 load_dotenv()
 
@@ -32,10 +32,14 @@ def password():
 def api_ver():
     return os.getenv("API_VERSION")
 
+
 @pytest.fixture(scope="session")
-def api_client(base_url, creds, email, password, api_ver):
-    """Initialize API client with environment configs."""
-    return APIClient(base_url, creds, email, password, api_ver)
+def auth_token():
+    return get_auth_token()
+
+@pytest.fixture(scope="session")
+def api_client(base_url, auth_token, api_ver):
+    return APIClient(base_url, auth_token, api_ver)
 
 @pytest.fixture(scope="session")
 def validator():
@@ -70,10 +74,10 @@ def _normalize_slug(slug: str) -> str:
     s = slug.strip()
     return s if s.startswith("/used-cars/") else f"/used-cars/{s.lstrip('/')}"
 
-def _load_payload_session(name: str):
-    path = Path("data/payloads") / name
-    with path.open("r", encoding="utf-8") as f:
-        return json.load(f)
+# def _load_payload_session(name: str):
+#     path = Path("data/payloads") / name
+#     with path.open("r", encoding="utf-8") as f:
+#         return json.load(f)
 
 @pytest.fixture(scope="session")
 def posted_ad(api_client, validator):
