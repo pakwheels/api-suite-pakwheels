@@ -18,6 +18,8 @@ load_dotenv()
 
 LOGIN_ENDPOINT = "/login-with-email.json"
 OAUTH_ENDPOINT = "/oauth/token.json"
+LOGOUT_ENDPOINT = "/oauth/expire.json"
+
 DEFAULT_API_VERSION = os.getenv("API_VERSION", "22")
 
 _TOKEN_CACHE: Dict[str, Optional[Union[str, datetime]]] = {
@@ -165,6 +167,32 @@ def request_oauth_token(
     return resp_json, token, token_type
 
 
+def logout_user(
+    api_client,
+    validator: Validator,
+    api_version: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Call the OAuth expire endpoint to invalidate the current token and reset
+    cached auth state.
+    """
+    version = str(api_version or DEFAULT_API_VERSION)
+    endpoint = f"{LOGOUT_ENDPOINT}?api_version={version}"
+    resp = api_client.request("GET", endpoint)
+
+    validator.assert_status_code(resp["status_code"], 200)
+    validator.assert_response_time(resp["elapsed"], 5.0)
+
+    body = resp.get("json") or {}
+    if not isinstance(body, dict):
+        body = {"raw": body}
+
+    api_client.session.headers.pop("Authorization", None)
+    _TOKEN_CACHE["token"] = None
+    _TOKEN_CACHE["expires_at"] = None
+
+    return body
+
 def login_with_email(
     api_client,
     validator: Validator,
@@ -221,4 +249,5 @@ __all__ = [
     "get_auth_token",
     "login_with_email",
     "request_oauth_token",
+    "logout_user",
 ]

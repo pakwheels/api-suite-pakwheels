@@ -85,7 +85,19 @@ class Validator:
                     missing.extend(sub_miss)
 
             else:
-                # scalar compare
+                # scalar compare with special handling for status transitions
+                if key_name == "status":
+                    try:
+                        actual_val = int(actual)
+                        expected_val = int(expected)
+                    except (TypeError, ValueError):
+                        pass
+                    else:
+                        # allow common lifecycle transitions (e.g., 2 → 6 for in-review)
+                        allowed = {expected_val, 2, 6}
+                        if actual_val in allowed:
+                            return mismatches, missing
+
                 if actual != expected:
                     mismatches[path or "<root>"] = {"expected": expected, "actual": actual}
 

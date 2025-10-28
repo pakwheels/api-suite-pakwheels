@@ -3,11 +3,12 @@
 import pytest
 
 from helpers import (
-    attach_pictures_and_update_ad,
     close_used_car_existing,
     edit_used_car_existing,
     feature_used_car_existing,
     get_posted_ad,
+    logout_user,
+    request_oauth_token,
     reactivate_used_car_existing,
     verify_posted_ad_phone,
 )
@@ -51,6 +52,7 @@ def test_refresh_used_car(api_client, validator):
     resp = reactivate_used_car_existing(
         api_client,
         ad_ref=posted_ad,
+        validator=validator,
         api_version_refresh="23",
     )
     assert resp.status_code in (200, 304)
@@ -67,58 +69,13 @@ def test_feature_used_car(api_client, validator):
     )
 
 
-# @pytest.mark.car_ad_post
-# def test_attach_pictures_and_update_ad(api_client, validator):
-#     posted_ad = get_posted_ad(api_client, validator)
-#     resp = attach_pictures_and_update_ad(
-#         api_client,
-#         ad_id=posted_ad["ad_id"],
-#         ad_listing_id=posted_ad["ad_listing_id"],
-#     )
-#     assert resp["status_code"] == 200, f"Picture attach failed: {resp['status_code']} → {resp.get('json')}"
+@pytest.mark.auth
+def test_logout_user_e2e(api_client, validator, load_payload):
+    body = logout_user(api_client, validator)
 
+    assert isinstance(body, dict), "Expected JSON body from logout"
+    assert api_client.session.headers.get("Authorization") is None
 
-
-# @pytest.mark.car_ad_post
-# def test_e2e_single_ad_flow(api_client, validator, load_payload):
-#     """Full single-ad E2E: post/verify → edit → close → reactivate → feature."""
-
-#     posted_ad = get_posted_ad(api_client, validator)
-
-#     # 0) Verify phone flow on the newly posted ad
-#     verify_posted_ad_phone(api_client, validator, load_payload, posted_ad)
-
-#     # 1) EDIT
-#     edit_used_car_existing(
-#         api_client,
-#         validator,
-#         load_payload,
-#         ad_id=posted_ad["ad_id"],
-#         ad_listing_id=posted_ad["ad_listing_id"],
-#         api_version=posted_ad["api_version"],
-#     )
-
-#     # 2) CLOSE
-#     close_used_car_existing(
-#         api_client,
-#         validator,
-#         load_payload=load_payload,
-#         ad_ref=posted_ad,
-#         api_version=posted_ad["api_version"],
-#     )
-
-#     # 3) REACTIVATE (browser-style refresh)
-#     resp = reactivate_used_car_existing(
-#         api_client,
-#         ad_ref=posted_ad,
-#         api_version_refresh="23",
-#     )
-#     assert resp.status_code in (200, 304), f"Unexpected refresh status: {resp.status_code}"
-
-#     # 4) FEATURE once the ad is live again
-#     feature_used_car_existing(
-#         api_client,
-#         validator,
-#         ad_ref=posted_ad,
-#         api_version=posted_ad["api_version"],
-#     )
+    payload = load_payload("oauth_token.json")
+    _, token, token_type = request_oauth_token(api_client, validator, payload)
+    assert api_client.session.headers.get("Authorization") == f"{token_type} {token}"
