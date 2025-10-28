@@ -1,4 +1,8 @@
 .vscode/
+.env
 .venv/
 .pytest_cache/
-report.html.env
+.cache/
+.mypy_cache/
+__pycache__/
+reports/
