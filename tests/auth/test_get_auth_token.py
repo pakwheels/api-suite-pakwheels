@@ -1,3 +1,4 @@
+# tests/auth/test_get_auth_token.py
 import os
 
 import pytest
@@ -7,9 +8,9 @@ from utils.api_client import APIClient
 
 
 @pytest.mark.auth
-def test_oauth_token(validator):
+def test_get_auth_token_mobile(validator):
     token = get_auth_token(force_refresh=True, login_method="mobile")
-    assert isinstance(token, str) and token, "Expected non-empty access_token"
+    assert isinstance(token, str) and token, "Expected non-empty access_token from mobile login"
 
     base_url = os.getenv("BASE_URL")
     api_version = os.getenv("API_VERSION") or "22"

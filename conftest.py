@@ -35,7 +35,7 @@ def api_ver():
 
 @pytest.fixture(scope="session")
 def auth_token():
-    return get_auth_token()
+    return get_auth_token(login_method="mobile")
 
 @pytest.fixture(scope="session")
 def api_client(base_url, auth_token, api_ver):

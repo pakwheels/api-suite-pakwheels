@@ -6,9 +6,8 @@ Currently exposes car-ad helpers via ``helpers.car_ads``.
 
 from .auth import (  # noqa: F401
     get_auth_token,
-    login_with_email,
+    # login_with_email,
     logout_user,
-    request_oauth_token,
 )
 from .car_ads import (  # noqa: F401
     assert_edit_payload_reflected_in_response,
@@ -36,9 +35,8 @@ from .number_verification import (  # noqa: F401
 
 __all__ = [
     "get_auth_token",
-    "login_with_email",
+    # "login_with_email",
     "logout_user",
-    "request_oauth_token",
     "add_mobile_number",
     "clear_mobile_number",
     "assert_edit_payload_reflected_in_response",

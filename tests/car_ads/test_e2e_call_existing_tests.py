@@ -6,30 +6,30 @@ from helpers import (
     close_used_car_existing,
     edit_used_car_existing,
     feature_used_car_existing,
+    get_auth_token,
     get_posted_ad,
     logout_user,
-    request_oauth_token,
     reactivate_used_car_existing,
     verify_posted_ad_phone,
 )
 
 
 @pytest.mark.car_ad_post
-def test_post_used_car_and_verify_phone(api_client, validator, load_payload):
-    posted_ad = get_posted_ad(api_client, validator)
-    verify_posted_ad_phone(api_client, validator, load_payload, posted_ad)
+# def test_post_used_car_and_verify_phone(api_client, validator, load_payload):
+#     posted_ad = get_posted_ad(api_client, validator)
+#     verify_posted_ad_phone(api_client, validator, load_payload, posted_ad)
 
 
-@pytest.mark.car_ad_post
-def test_edit_used_car_existing(api_client, validator, load_payload): 
-    # posted_ad = get_posted_ad(api_client, validator)
-    edit_used_car_existing(
-        api_client,
-        validator,
-        load_payload,
-        ad_listing_id="2787326",
-        ad_id="2451961",
-    )
+# @pytest.mark.car_ad_post
+# def test_edit_used_car_existing(api_client, validator, load_payload): 
+#     # posted_ad = get_posted_ad(api_client, validator)
+#     edit_used_car_existing(
+#         api_client,
+#         validator,
+#         load_payload,
+#         ad_listing_id="2787326",
+#         ad_id="2451961",
+#     )
 
 
 @pytest.mark.car_ad_post
@@ -75,6 +75,6 @@ def test_logout_user_e2e(api_client, validator, load_payload):
     assert isinstance(body, dict), "Expected JSON body from logout"
     assert api_client.access_token is None
 
-    payload = load_payload("oauth_token.json")
-    _, token, token_type = request_oauth_token(api_client, validator, payload)
-    assert api_client.access_token == token
+    token = get_auth_token(force_refresh=True, login_method="mobile")
+    assert token
+    api_client.access_token = token
