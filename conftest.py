@@ -74,15 +74,11 @@ def _normalize_slug(slug: str) -> str:
     s = slug.strip()
     return s if s.startswith("/used-cars/") else f"/used-cars/{s.lstrip('/')}"
 
-# def _load_payload_session(name: str):
-#     path = Path("data/payloads") / name
-#     with path.open("r", encoding="utf-8") as f:
-#         return json.load(f)
-
 @pytest.fixture(scope="session")
 def posted_ad(api_client, validator):
     """POST once per session; share ad_id/ad_listing_id/slug."""
     return get_posted_ad(api_client, validator)
+
 @pytest.fixture
 def ad_ref(posted_ad):
     """

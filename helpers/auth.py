@@ -163,7 +163,7 @@ def request_oauth_token(
     token, token_type = _extract_access_token(resp_json)
     assert token, "OAuth token response missing access_token"
 
-    api_client.session.headers["Authorization"] = f"{token_type} {token}"
+    api_client.access_token = token
     return resp_json, token, token_type
 
 
@@ -187,7 +187,7 @@ def logout_user(
     if not isinstance(body, dict):
         body = {"raw": body}
 
-    api_client.session.headers.pop("Authorization", None)
+    api_client.access_token = None
     _TOKEN_CACHE["token"] = None
     _TOKEN_CACHE["expires_at"] = None
 
@@ -226,7 +226,7 @@ def login_with_email(
     token, token_type = _extract_access_token(body)
 
     if token:
-        api_client.session.headers["Authorization"] = f"{token_type} {token}"
+        api_client.access_token = token
         return body, token, token_type
 
     if not fallback_to_oauth:
@@ -242,6 +242,7 @@ def login_with_email(
         payload=oauth_payload,
         api_version=version,
     )
+    api_client.access_token = token
     return body, token, token_type
 
 

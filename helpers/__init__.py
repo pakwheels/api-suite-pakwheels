@@ -11,7 +11,9 @@ from .auth import (  # noqa: F401
     request_oauth_token,
 )
 from .car_ads import (  # noqa: F401
+    assert_edit_payload_reflected_in_response,
     close_used_car_existing,
+    edit_used_car,
     edit_used_car_existing,
     feature_used_car_existing,
     post_used_car,
@@ -39,7 +41,9 @@ __all__ = [
     "request_oauth_token",
     "add_mobile_number",
     "clear_mobile_number",
+    "assert_edit_payload_reflected_in_response",
     "close_used_car_existing",
+    "edit_used_car",
     "edit_used_car_existing",
     "feature_used_car_existing",
     "post_used_car",

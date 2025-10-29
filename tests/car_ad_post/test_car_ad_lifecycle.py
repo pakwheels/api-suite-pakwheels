@@ -15,8 +15,6 @@ from helpers import (
     payment_status,
     proceed_checkout,
 )
-from helpers import get_auth_token
-
 
 load_dotenv()
 STATUS_LABELS = {
@@ -331,14 +329,10 @@ def _extract_payment_status(payload: dict) -> Optional[str]:
 def test_ad_lifecycle(api_client, validator, load_payload):
     payload = load_payload("post_ad_valid.json")
 
-    token = get_auth_token()
-    headers = {"Authorization": f"Bearer {token}"}
-
     post_response = api_client.request(
         method="POST",
         endpoint="/used-cars",
         json_body=payload,
-        headers=headers,
     )
 
     print("\n🚀 Posting ad...")

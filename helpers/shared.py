@@ -8,7 +8,7 @@ import json
 import os
 import re
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 from urllib.parse import urlparse
 
 import requests
@@ -16,6 +16,11 @@ import requests
 __all__ = [
     "_ensure_slug_path",
     "_normalize_slug",
+    "_normalize_bool_flag",
+    "_normalize_digits",
+    "_normalize_lower",
+    "_normalize_whitespace",
+    "_get_value_by_path",
     "_to_int_or_none",
     "_choose_feature_weeks",
     "_extract_id_from_slug",
@@ -39,6 +44,61 @@ def _normalize_slug(slug_or_url: str, ensure_json_suffix: bool = False) -> str:
     if ensure_json_suffix and not s.endswith(".json"):
         s = f"{s}.json"
     return s
+
+
+def _normalize_bool_flag(value: Any) -> Optional[bool]:
+    """Coerce typical truthy/falsey representations into bool or None."""
+    if value is None:
+        return None
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    text = str(value).strip().lower()
+    if text in {"1", "true", "yes", "y"}:
+        return True
+    if text in {"0", "false", "no", "n"}:
+        return False
+    return bool(text)
+
+
+def _normalize_digits(value: Any) -> Optional[int]:
+    """Strip non-digit characters and return an int when possible."""
+    if value is None:
+        return None
+    digits = re.sub(r"\D", "", str(value))
+    if not digits:
+        return None
+    try:
+        return int(digits)
+    except ValueError:
+        return None
+
+
+def _normalize_lower(value: Any) -> Optional[str]:
+    """Normalize string input to lowercase and trim whitespace."""
+    if value is None:
+        return None
+    text = str(value).strip().lower()
+    return text or None
+
+
+def _normalize_whitespace(value: Any) -> Optional[str]:
+    """Collapse repeated whitespace, returning None when empty."""
+    if value is None:
+        return None
+    text = " ".join(str(value).split())
+    return text or None
+
+
+def _get_value_by_path(data: dict, path: str) -> Any:
+    """Traverse nested dictionaries using a dot-separated path."""
+    current = data
+    for part in path.split("."):
+        if current is None or not isinstance(current, dict):
+            return None
+        current = current.get(part)
+    return current
 
 
 def _to_int_or_none(value):

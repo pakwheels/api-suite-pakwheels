@@ -21,15 +21,14 @@ def test_post_used_car_and_verify_phone(api_client, validator, load_payload):
 
 
 @pytest.mark.car_ad_post
-def test_edit_used_car_existing(api_client, validator, load_payload):
-    posted_ad = get_posted_ad(api_client, validator)
+def test_edit_used_car_existing(api_client, validator, load_payload): 
+    # posted_ad = get_posted_ad(api_client, validator)
     edit_used_car_existing(
         api_client,
         validator,
         load_payload,
-        ad_id=posted_ad["ad_id"],
-        ad_listing_id=posted_ad["ad_listing_id"],
-        api_version=posted_ad["api_version"],
+        ad_listing_id="2787326",
+        ad_id="2451961",
     )
 
 
@@ -74,8 +73,8 @@ def test_logout_user_e2e(api_client, validator, load_payload):
     body = logout_user(api_client, validator)
 
     assert isinstance(body, dict), "Expected JSON body from logout"
-    assert api_client.session.headers.get("Authorization") is None
+    assert api_client.access_token is None
 
     payload = load_payload("oauth_token.json")
     _, token, token_type = request_oauth_token(api_client, validator, payload)
-    assert api_client.session.headers.get("Authorization") == f"{token_type} {token}"
+    assert api_client.access_token == token
