@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from pathlib import Path
 from typing import Iterable, Optional, Tuple
 
@@ -20,6 +21,12 @@ from helpers.shared import (
 )
 from helpers.picture_uploader import upload_ad_picture
 from helpers.number_verification import clear_mobile_number
+from helpers.payment import (
+    complete_jazz_cash_payment,
+    get_my_credits,
+    list_feature_products,
+    proceed_checkout,
+)
 
 DEFAULT_API_VERSION = os.getenv("API_VERSION", "22")
 POST_ENDPOINT = os.getenv("POST_ENDPOINT", "/used-cars.json")
@@ -173,7 +180,7 @@ def edit_used_car_existing(
         raise AssertionError(f"Edit failed: {body.get('error')}")
 
     validator.assert_status_code(edit_resp["status_code"], 200)
-    validator.assert_json_schema(body, "schemas/used_car_edit_response_ack.json")
+    validator.assert_json_schema(body, "schemas/used_car_edit_response.json")
 
     # 4) GET after and compare to stored expected
     details_after = api_client.request(
@@ -220,24 +227,17 @@ def feature_used_car_existing(
     schema_path: Optional[str] = None,
     expected_path: Optional[str] = None,
 ):
-    """Feature an ad by selecting weeks based on the current price."""
-    ad_id, price = _resolve_ad_id_and_price(api_client, ad_ref, api_version)
-    feature_weeks = _choose_feature_weeks(price)
-
-    endpoint = f"/used-cars/{ad_id}/feature.json"
-    resp = api_client.request(
-        "POST",
-        endpoint,
-        params={"api_version": api_version},
-        json_body={"feature_weeks": feature_weeks},
+    result = feature_used_car_with_credit(
+        api_client,
+        validator,
+        ad_ref,
+        api_version=api_version,
+        schema_path=schema_path,
+        expected_path=expected_path,
+        feature_weeks=None,
+        raise_on_failure=True,
     )
-
-    print(f"\n⭐ Feature Ad: POST {endpoint}?api_version={api_version} → {resp['status_code']}")
-    print(json.dumps(resp.get("json"), indent=2))
-    validator.assert_status_code(resp["status_code"], 200)
-    body = resp.get("json") or {}
-    _validate_response(validator, body, schema_path=schema_path, expected_path=expected_path)
-    return body
+    return result["response"]
 
 
 def _resolve_ad_id_and_price(api_client, ref: dict, api_version: str) -> Tuple[int, int]:
@@ -276,6 +276,247 @@ def _resolve_ad_id_and_price(api_client, ref: dict, api_version: str) -> Tuple[i
 
     return int(resolved_id), price
 
+
+def feature_used_car_with_credit(
+    api_client,
+    validator,
+    ad_ref: dict,
+    feature_weeks: Optional[int] = None,
+    api_version: str = DEFAULT_API_VERSION,
+    schema_path: Optional[str] = None,
+    expected_path: Optional[str] = None,
+    raise_on_failure: bool = False,
+):
+    ad_id, price = _resolve_ad_id_and_price(api_client, ad_ref, api_version)
+    weeks = feature_weeks or _choose_feature_weeks(price)
+
+    endpoint = f"/used-cars/{ad_id}/feature.json"
+    resp = api_client.request(
+        "POST",
+        endpoint,
+        params={"api_version": api_version},
+        json_body={"feature_weeks": weeks},
+    )
+
+    print(f"\n⭐ Feature Ad (credits): POST {endpoint}?api_version={api_version} → {resp['status_code']}")
+    print(json.dumps(resp.get("json"), indent=2))
+
+    if resp["status_code"] == 200:
+        body = resp.get("json") or {}
+        _validate_response(validator, body, schema_path=schema_path, expected_path=expected_path)
+        return {"method": "credit", "weeks": weeks, "response": body}
+
+    if raise_on_failure:
+        raise AssertionError(
+            f"Feature via credits failed: {resp['status_code']} → {json.dumps(resp.get('json'), indent=2)}"
+        )
+
+    return None
+
+
+def feature_used_car_with_payment(
+    api_client,
+    validator,
+    ad_ref: dict,
+    feature_weeks: Optional[int] = None,
+    api_version: str = DEFAULT_API_VERSION,
+):
+    ad_id, price = _resolve_ad_id_and_price(api_client, ad_ref, api_version)
+    weeks = feature_weeks or _choose_feature_weeks(price)
+
+    ad_listing_id = _ensure_ad_listing_id(api_client, ad_ref, ad_id, api_version)
+
+    products_resp = list_feature_products(api_client, ad_id)
+    validator.assert_status_code(products_resp["status_code"], 200)
+    product = _select_feature_product(products_resp.get("json"), weeks)
+    assert product, "Unable to select feature product"
+    product_id = _product_id(product)
+    assert product_id is not None, "Feature product missing identifier"
+
+    products_confirm = list_feature_products(
+        api_client,
+        ad_id,
+        product_id=product_id,
+        discount_code="",
+        s_id=ad_listing_id,
+        s_type="ad",
+    )
+    validator.assert_status_code(products_confirm["status_code"], 200)
+
+    checkout_response = proceed_checkout(
+        api_client,
+        product_id=int(product_id),
+        s_id=ad_listing_id,
+        s_type="ad",
+        discount_code="",
+    )
+    validator.assert_status_code(checkout_response["status_code"], 200)
+    payment_id = _extract_payment_id(checkout_response.get("json", {}))
+    assert payment_id, "Unable to obtain payment_id from checkout response"
+
+    payment_result = complete_jazz_cash_payment(
+        api_client,
+        validator,
+        payment_id,
+        ad_id,
+        api_version,
+    )
+
+    return {
+        "method": "payment",
+        "weeks": weeks,
+        "payment_id": payment_id,
+        **payment_result,
+    }
+def feature_used_car(
+    api_client,
+    validator,
+    ad_ref: dict,
+    api_version: str = DEFAULT_API_VERSION,
+    schema_path: Optional[str] = None,
+    expected_path: Optional[str] = None,
+    feature_weeks: Optional[int] = None,
+):
+    ad_id, price = _resolve_ad_id_and_price(api_client, ad_ref, api_version)
+    weeks = feature_weeks or _choose_feature_weeks(price)
+
+    credits = _available_feature_credits(api_client)
+    if credits is None or credits >= weeks:
+        credit_result = feature_used_car_with_credit(
+            api_client,
+            validator,
+            ad_ref,
+            feature_weeks=weeks,
+            api_version=api_version,
+            schema_path=schema_path,
+            expected_path=expected_path,
+        )
+        if credit_result is not None:
+            return credit_result
+
+    payment_result = feature_used_car_with_payment(
+        api_client,
+        validator,
+        ad_ref,
+        feature_weeks=weeks,
+        api_version=api_version,
+    )
+    return payment_result
+
+
+def _ensure_ad_listing_id(api_client, ad_ref: dict, ad_id: int, api_version: str) -> int:
+    if "ad_listing_id" in ad_ref and ad_ref["ad_listing_id"] is not None:
+        return int(ad_ref["ad_listing_id"])
+    details = api_client.request(
+        "GET",
+        f"/used-cars/{ad_id}.json",
+        params={"api_version": api_version},
+    )
+    body = details.get("json") or {}
+    candidates = []
+    for key in ("ad_listing_id", "listing_id"):
+        if key in body:
+            candidates.append(body[key])
+    listing = body.get("ad_listing") or body.get("used_car") or {}
+    if isinstance(listing, dict):
+        for key in ("id", "ad_listing_id"):
+            if key in listing:
+                candidates.append(listing[key])
+    for candidate in candidates:
+        try:
+            return int(candidate)
+        except (TypeError, ValueError):
+            continue
+    raise AssertionError("Unable to resolve ad_listing_id for payment flow")
+
+
+def _select_feature_product(payload: dict, target_week: Optional[int]):
+    products = _extract_products(payload)
+    if not products:
+        return None
+    if target_week is None:
+        return products[0]
+    for product in products:
+        label = _product_label(product)
+        category = product.get("category") if isinstance(product, dict) else None
+        weeks = _extract_week_count(label, category)
+        if weeks == target_week:
+            return product
+    return products[0]
+
+
+def _extract_products(payload):
+    if isinstance(payload, dict):
+        for key in ("products", "data", "items", "product_list"):
+            collection = payload.get(key)
+            if isinstance(collection, list) and collection:
+                return collection
+        # search nested dicts
+        for value in payload.values():
+            result = _extract_products(value)
+            if result:
+                return result
+    elif isinstance(payload, list):
+        for item in payload:
+            result = _extract_products(item)
+            if result:
+                return result
+    return []
+
+
+def _product_label(product: dict) -> str:
+    if not isinstance(product, dict):
+        return ""
+    for key in ("title", "name", "label", "description"):
+        value = product.get(key)
+        if isinstance(value, str):
+            return value
+    return ""
+
+
+def _product_id(product: dict):
+    if not isinstance(product, dict):
+        return None
+    for key in ("id", "product_id", "pk"):
+        value = product.get(key)
+        if value is not None:
+            return value
+    return None
+
+
+def _extract_week_count(label: str, category: Optional[str] = None) -> Optional[int]:
+    text = (label or "").lower()
+    match = re.search(r"(\d+)\s*(week|day)", text)
+    if match:
+        value = int(match.group(1))
+        unit = match.group(2)
+        if unit.startswith("day") and value % 7 == 0:
+            return value // 7
+        if unit.startswith("week"):
+            return value
+    if category and isinstance(category, str):
+        return _extract_week_count(category, None)
+    return None
+
+
+def _extract_payment_id(payload: dict) -> Optional[str]:
+    if not isinstance(payload, dict):
+        return None
+    candidate = payload.get("payment_id")
+    if candidate:
+        return str(candidate)
+    for key in ("payment", "data", "checkout", "response"):
+        nested = payload.get(key)
+        if isinstance(nested, dict):
+            result = _extract_payment_id(nested)
+            if result:
+                return result
+        elif isinstance(nested, list):
+            for item in nested:
+                result = _extract_payment_id(item)
+                if result:
+                    return result
+    return None
 
 def wait_for_ad_state(
     api_client,
@@ -525,6 +766,9 @@ __all__ = [
     "close_used_car_existing",
     "edit_used_car_existing",
     "feature_used_car_existing",
+    "feature_used_car_with_credit",
+    "feature_used_car_with_payment",
+    "feature_used_car",
     "post_used_car",
     "get_posted_ad",
     "get_ad_ref",
@@ -538,7 +782,7 @@ def post_used_car(
     api_client,
     validator,
     payload_path: Path = Path("data/payloads/used_car.json"),
-    schema_path: str = "schemas/used_car_post_response_ack.json",
+    schema_path: str = "schemas/used_car_post_response.json",
     expected_path: Optional[str] = None,
     api_version: str = DEFAULT_API_VERSION,
 ) -> dict:
@@ -598,11 +842,55 @@ def post_used_car(
     return resp["json"] or {}
 
 
+def _available_feature_credits(api_client) -> Optional[int]:
+    try:
+        resp = get_my_credits(api_client)
+    except Exception:
+        return None
+    if not isinstance(resp, dict) or resp.get("status_code") != 200:
+        return None
+    return _extract_feature_credit_count(resp.get("json"))
+
+
+def _extract_feature_credit_count(payload) -> Optional[int]:
+    value = _coerce_int(payload)
+    if value is not None:
+        return value
+    if isinstance(payload, dict):
+        for key, item in payload.items():
+            key_lower = key.lower()
+            if "feature" in key_lower and "credit" in key_lower:
+                coerced = _coerce_int(item)
+                if coerced is not None:
+                    return coerced
+            nested = _extract_feature_credit_count(item)
+            if nested is not None:
+                return nested
+    if isinstance(payload, list):
+        for item in payload:
+            nested = _extract_feature_credit_count(item)
+            if nested is not None:
+                return nested
+    return None
+
+
+def _coerce_int(value) -> Optional[int]:
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, str):
+        stripped = value.strip()
+        if stripped.isdigit():
+            return int(stripped)
+    return None 
+
+
 def get_posted_ad(
-    api_client,
+    api_client,  
     validator,
     payload_path: Path = Path("data/payloads/used_car.json"),
-    schema_path: str = "schemas/used_car_post_response_ack.json",
+    schema_path: str = "schemas/used_car_post_response.json",
     expected_path: Optional[str] = None,
     api_version: str = DEFAULT_API_VERSION,
 ) -> dict:

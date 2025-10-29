@@ -1,11 +1,13 @@
 {
   "used_car": {
+    "model": "Corolla",
+    "title": "Toyota Corolla XLI VVTi 2020",
     "exterior_color": "white",
     "ad_listing_attributes": {
       "price": "5600000",
       "display_name": "Taimoor",
-      "phone": "03601234567"
+      "phone": "03601234567",
+      "title": "Toyota Corolla XLI VVTi 2020"
     }
   }
 }
-

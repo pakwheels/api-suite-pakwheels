@@ -56,6 +56,7 @@ __all__ = [
 ]
 
 from .payment import (  # noqa: F401
+    complete_jazz_cash_payment,
     get_my_credits,
     initiate_jazz_cash,
     list_feature_products,
@@ -66,6 +67,7 @@ from .payment import (  # noqa: F401
 __all__.extend(
     [
         "list_feature_products",
+        "complete_jazz_cash_payment",
         "get_my_credits",
         "proceed_checkout",
         "initiate_jazz_cash",

@@ -93,8 +93,8 @@ class Validator:
                     except (TypeError, ValueError):
                         pass
                     else:
-                        # allow common lifecycle transitions (e.g., 2 → 6 for in-review)
-                        allowed = {expected_val, 2, 6}
+                        # allow common lifecycle transitions (e.g., 2 → 6 in review, 2 → 3 active)
+                        allowed = {expected_val, 2, 3, 6}
                         if actual_val in allowed:
                             return mismatches, missing
 

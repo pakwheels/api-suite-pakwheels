@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "used_car_post_response_ack",
+  "title": "used_car_post_response",
   "type": "object",
   "additionalProperties": true,
   "required": ["success", "ad_id", "ad_listing_id"],

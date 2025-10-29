@@ -1,9 +1,11 @@
 {
   "used_car": {
-    "model_year": 2000,
-    "car_manufacturer_id": 49,
-    "car_model_id": 110,
-    "car_version_id": 94,
+    "model": "Corolla",
+    "title": "Toyota Corolla XLI VVTi 2020",
+    "model_year": 2020,
+    "car_manufacturer_id": 42,
+    "car_model_id": 120,
+    "car_version_id": 44,
     "car_model_generation_id": 8,
     "reg_province_id": 1,
     "reg_city_id": null,
@@ -20,6 +22,7 @@
       "display_name": "Test through Postman",
       "price": "5900000",
       "phone": "03601234567",
+      "title": "Toyota Corolla XLI VVTi 2020",
       "pictures_attributes": {
         "0": { "pictures_ids": "20163143" }
       },

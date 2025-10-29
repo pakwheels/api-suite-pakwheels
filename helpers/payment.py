@@ -5,6 +5,7 @@ Payment-related helpers that wrap APIClient requests.
 from __future__ import annotations
 
 import os
+import time
 from typing import Optional
 
 
@@ -104,6 +105,75 @@ def payment_status(api_client, payment_id):
     )
 
 
+def complete_jazz_cash_payment(
+    api_client,
+    validator,
+    payment_id: str,
+    ad_id: int,
+    api_version: str,
+    *,
+    attempts: Optional[int] = None,
+    delay: Optional[float] = None,
+) -> dict:
+    jazz_cnic = os.getenv("JAZZ_CASH_CNIC", "12345-1234567-8")
+    jazz_mobile = os.getenv("JAZZ_CASH_MOBILE", "03123456789")
+    save_info = os.getenv("JAZZ_CASH_SAVE_INFO", "false").lower() == "true"
+
+    initiate_response = initiate_jazz_cash(
+        api_client,
+        payment_id=payment_id,
+        mobile_number=jazz_mobile,
+        cnic_number=jazz_cnic,
+        save_payment_info=save_info,
+    )
+    validator.assert_status_code(initiate_response["status_code"], 200)
+
+    status_attempts = attempts or int(os.getenv("FEATURE_PAYMENT_STATUS_ATTEMPTS", "5"))
+    status_delay = delay or float(os.getenv("FEATURE_PAYMENT_STATUS_DELAY", "2"))
+    final_status = None
+
+    for attempt in range(1, status_attempts + 1):
+        status_response = payment_status(api_client, payment_id)
+        validator.assert_status_code(status_response["status_code"], 200)
+        final_status = _extract_payment_status(status_response.get("json", {}))
+        if final_status in {"paid", "success", "completed"}:
+            break
+        if final_status in {"failed", "declined"}:
+            raise AssertionError(f"Feature payment failed with status: {final_status}")
+        time.sleep(status_delay)
+
+    assert final_status in {"paid", "success", "completed"}, (
+        f"Payment did not complete successfully, last status: {final_status}"
+    )
+
+    feature_fetch = api_client.request(
+        "GET",
+        f"/used-cars/{ad_id}.json",
+        params={"api_version": api_version},
+    )
+    validator.assert_status_code(feature_fetch["status_code"], 200)
+    feature_body = feature_fetch.get("json") or {}
+
+    return {
+        "status": final_status,
+        "feature_details": feature_body,
+    }
+
+
+def _extract_payment_status(payload: dict) -> Optional[str]:
+    if not isinstance(payload, dict):
+        return None
+    status = payload.get("status")
+    if isinstance(status, str):
+        return status.lower()
+    payment = payload.get("payment")
+    if isinstance(payment, dict):
+        status_inner = payment.get("status")
+        if isinstance(status_inner, str):
+            return status_inner.lower()
+    return None
+
+
 def _env_params(env_var: str):
     raw = os.getenv(env_var)
     if not raw:
@@ -126,4 +196,5 @@ __all__ = [
     "proceed_checkout",
     "initiate_jazz_cash",
     "payment_status",
+    "complete_jazz_cash_payment",
 ]
