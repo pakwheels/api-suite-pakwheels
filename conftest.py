@@ -3,7 +3,7 @@ import pytest
 import json
 from utils.api_client import APIClient
 from utils.validator import Validator
-from helpers.car_ads import get_posted_ad
+from helpers.car_ads import get_session_ad_metadata
 from dotenv import load_dotenv
 from helpers.auth import get_auth_token
 # Load environment variables
@@ -34,12 +34,15 @@ def api_ver():
 
 
 @pytest.fixture(scope="session")
-def auth_token():
-    return get_auth_token(login_method="mobile")
+def api_client(base_url, api_ver):
+    client = APIClient(base_url, "", api_ver)
+    token = get_auth_token(api_client=client, login_method="mobile")
+    client.access_token = token
+    return client
 
-@pytest.fixture(scope="session")
-def api_client(base_url, auth_token, api_ver):
-    return APIClient(base_url, auth_token, api_ver)
+# @pytest.fixture(scope="session")
+# def auth_token(api_client):
+#     return api_client.access_token
 
 @pytest.fixture(scope="session")
 def validator():
@@ -77,7 +80,7 @@ def _normalize_slug(slug: str) -> str:
 @pytest.fixture(scope="session")
 def posted_ad(api_client, validator):
     """POST once per session; share ad_id/ad_listing_id/slug."""
-    return get_posted_ad(api_client, validator)
+    return get_session_ad_metadata(api_client, validator)
 
 @pytest.fixture
 def ad_ref(posted_ad):

@@ -10,6 +10,6 @@ def test_logout_user_e2e(api_client, validator):
     assert isinstance(body, dict), "Expected JSON body from logout"
     assert api_client.access_token is None
 
-    token = get_auth_token(force_refresh=True, login_method="mobile")
+    token = get_auth_token(api_client=api_client, login_method="mobile")
     assert token, "Expected access_token after re-authentication"
     api_client.access_token = token

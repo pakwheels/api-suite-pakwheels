@@ -7,34 +7,32 @@ from helpers import (
     edit_used_car_existing,
     feature_used_car_existing,
     get_auth_token,
-    get_posted_ad,
+    get_session_ad_metadata,
     logout_user,
     reactivate_used_car_existing,
-    verify_posted_ad_phone,
 )
 
 
 @pytest.mark.car_ad_post
-# def test_post_used_car_and_verify_phone(api_client, validator, load_payload):
-#     posted_ad = get_posted_ad(api_client, validator)
-#     verify_posted_ad_phone(api_client, validator, load_payload, posted_ad)
+def test_post_ad(api_client, validator, load_payload):
+    get_session_ad_metadata(api_client, validator)
 
 
-# @pytest.mark.car_ad_post
-# def test_edit_used_car_existing(api_client, validator, load_payload): 
-#     # posted_ad = get_posted_ad(api_client, validator)
-#     edit_used_car_existing(
-#         api_client,
-#         validator,
-#         load_payload,
-#         ad_listing_id="2787326",
-#         ad_id="2451961",
-#     )
+@pytest.mark.car_ad_post
+def test_edit_used_car_existing(api_client, validator, load_payload): 
+    # posted_ad = get_session_ad_metadata(api_client, validator)
+    edit_used_car_existing(
+        api_client,
+        validator,
+        load_payload,
+        ad_listing_id="2787326",
+        ad_id="2451961",
+    )
 
 
 @pytest.mark.car_ad_post
 def test_close_used_car_existing(api_client, validator, load_payload):
-    posted_ad = get_posted_ad(api_client, validator)
+    posted_ad = get_session_ad_metadata(api_client, validator)
     result = close_used_car_existing(
         api_client,
         validator,
@@ -47,7 +45,7 @@ def test_close_used_car_existing(api_client, validator, load_payload):
 
 @pytest.mark.car_ad_post
 def test_refresh_used_car(api_client, validator):
-    posted_ad = get_posted_ad(api_client, validator)
+    posted_ad = get_session_ad_metadata(api_client, validator)
     resp = reactivate_used_car_existing(
         api_client,
         ad_ref=posted_ad,
@@ -59,7 +57,7 @@ def test_refresh_used_car(api_client, validator):
 
 @pytest.mark.car_ad_post
 def test_feature_used_car(api_client, validator):
-    posted_ad = get_posted_ad(api_client, validator)
+    posted_ad = get_session_ad_metadata(api_client, validator)
     feature_used_car_existing(
         api_client,
         validator,
@@ -75,6 +73,6 @@ def test_logout_user_e2e(api_client, validator, load_payload):
     assert isinstance(body, dict), "Expected JSON body from logout"
     assert api_client.access_token is None
 
-    token = get_auth_token(force_refresh=True, login_method="mobile")
+    token = get_auth_token(api_client=api_client, login_method="mobile")
     assert token
     api_client.access_token = token

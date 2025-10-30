@@ -6,11 +6,15 @@ import json
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple, Union, Literal
+from typing import Any, Dict, Optional, Tuple, Union, Literal, TYPE_CHECKING
 
 import requests
 from dotenv import load_dotenv
 from utils.validator import Validator # Assuming this utility is available
+from helpers.number_verification import clear_mobile_number
+
+if TYPE_CHECKING:
+    from utils.api_client import APIClient
 
 load_dotenv()
 LOGIN_ENDPOINT = "/login-with-email.json" 
@@ -274,21 +278,35 @@ def _resolve_mobile_params(
 # --- Main Dispatcher Function (Cleaned) ---
 
 def get_auth_token(
-    force_refresh: bool = False,
+    *,
+    api_client: Optional["APIClient"] = None,
+    clear_number_first: bool = True,
     login_method: Literal["email", "mobile"] = "mobile",
-    # Optional parameters for mobile login
     mobile_number: Optional[str] = None,
     country_code: Optional[str] = "92",
     via_whatsapp: Optional[bool] = None,
     otp_pin: Optional[str] = None,
 ) -> str:
     """
-    Return a reusable bearer token for the Marketplace API using the specified login method.
-    Tokens are cached in-process. This function acts as a dispatcher.
+    Return a bearer token using either the email or mobile login flow.
+
+    Parameters
+    ----------
+    api_client:
+        Optional API client instance used when `clear_number_first=True` to clear the
+        mobile number before starting the mobile login flow.
+    clear_number_first:
+        When True and `login_method` is ``"mobile"``, clear the resolved mobile number
+        prior to requesting an OTP.
+    login_method:
+        Selects either the ``"email"`` or ``"mobile"`` login flow. Defaults to mobile.
+    mobile_number, country_code, via_whatsapp, otp_pin:
+        Optional overrides for the mobile login flow; fall back to environment variables
+        or payload defaults when omitted.
     """
-    if not force_refresh and _token_is_valid():
-        return _TOKEN_CACHE["token"] # type: ignore[return-value]
-    
+    if _token_is_valid():
+        return _TOKEN_CACHE["token"]  # type: ignore[return-value]
+
     base_url = os.getenv("BASE_URL")
     api_version = os.getenv("API_VERSION", DEFAULT_API_VERSION)
 
@@ -297,21 +315,29 @@ def get_auth_token(
 
     token: Optional[str] = None
     expires_at: Optional[datetime] = None
-    
-    # 1. Dispatch to the correct login flow
+
     if login_method == "email":
+        if clear_number_first:
+            print(
+                "ℹ️ clear_number_first was requested but does not apply to email login; skipping mobile clear."
+            )
         token, expires_at = _login_with_email_flow(base_url, api_version)
 
     elif login_method == "mobile":
-        # Call the new helper function to resolve all mobile parameters
-        (
-            resolved_mobile_number,
-            resolved_country_code,
-            via_whatsapp_flag,
-            resolved_otp_pin,
-        ) = _resolve_mobile_params(mobile_number, country_code, via_whatsapp, otp_pin)
-        
-        # Call the dedicated mobile login function
+        resolved_mobile_number, resolved_country_code, via_whatsapp_flag, resolved_otp_pin = _resolve_mobile_params(
+            mobile_number,
+            country_code,
+            via_whatsapp,
+            otp_pin,
+        )
+
+        if clear_number_first:
+            if api_client is None:
+                raise ValueError("`api_client` must be provided when `clear_number_first` is True.")
+            print(f"🧹 Clearing mobile number '{resolved_mobile_number}' before OTP login.")
+            clear_mobile_number(api_client, resolved_mobile_number)
+            print("✅ Mobile number cleared successfully.")
+
         token, expires_at = _login_with_mobile_flow(
             base_url,
             api_version,
@@ -324,7 +350,6 @@ def get_auth_token(
     else:
         raise ValueError(f"Invalid login_method specified: {login_method}. Must be 'email' or 'mobile'.")
 
-    # 2. Token Caching and Return
     if not token:
         raise ValueError(f"⚠️ Failed to retrieve access token using {login_method} method.")
 

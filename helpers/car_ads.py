@@ -72,7 +72,123 @@ _EDIT_PAYLOAD_RESPONSE_RULES: Tuple[FieldRule, ...] = (
 )
 
 
-def assert_edit_payload_reflected_in_response(payload: dict, response: dict) -> None:
+def post_used_car(
+    api_client,
+    validator,
+    payload_path: Path = Path("data/payloads/used_car.json"),
+    schema_path: str = "schemas/used_car_post_response_ack.json",
+    expected_path: Optional[str] = "data/expected_responses/used_car_post.json",
+    api_version: str = DEFAULT_API_VERSION,
+) -> dict:
+    """Post a used-car ad and return the full response payload."""
+    body = _read_json(payload_path)
+
+    pictures_dir = Path("data/pictures")
+    if pictures_dir.exists():
+        files = sorted(p for p in pictures_dir.iterdir() if p.is_file())
+        if files:
+            pics_attr = (
+                body.setdefault("used_car", {})
+                .setdefault("ad_listing_attributes", {})
+                .setdefault("pictures_attributes", {})
+            )
+            pics_attr.clear()
+
+            token = get_auth_token()
+            fcm_token = os.getenv("FCM_TOKEN")
+
+            for idx, file_path in enumerate(files):
+                pic_id = upload_ad_picture(
+                    api_client,
+                    file_path=str(file_path),
+                    api_version=os.getenv("PICTURE_UPLOAD_API_VERSION", "18"),
+                    access_token=token,
+                    fcm_token=fcm_token,
+                    new_version=True,
+                )
+                pics_attr[str(idx)] = {"pictures_ids": str(pic_id)}
+
+    via_whatsapp = "true" if (
+        body.get("used_car", {}).get("ad_listing_attributes", {}).get("allow_whatsapp") is True
+    ) else "false"
+
+    resp = api_client.request(
+        "POST",
+        POST_ENDPOINT,
+        params={"api_version": api_version, "via_whatsapp": via_whatsapp},
+        json_body=body,
+    )
+    print("\n🚗 [SESSION] Post Used Car:", resp["status_code"])
+    print(json.dumps(resp.get("json"), indent=2))
+
+    validator.assert_status_code(resp["status_code"], 200)
+    _validate_response(validator, resp["json"], schema_path=schema_path, expected_path=expected_path)
+
+    return resp["json"] or {}
+
+
+def get_session_ad_metadata(
+    api_client,
+    validator,
+    payload_path: Path = Path("data/payloads/used_car.json"),
+    schema_path: str = "schemas/used_car_post_response_ack.json",
+    expected_path: Optional[str] = None,
+    api_version: str = DEFAULT_API_VERSION,
+) -> dict:
+
+    global _POSTED_AD_CACHE
+    if _POSTED_AD_CACHE:
+        return _POSTED_AD_CACHE
+
+    ack = post_used_car(
+        api_client,
+        validator,
+        payload_path=payload_path,
+        schema_path=schema_path,
+        expected_path=expected_path,
+        api_version=api_version,
+    )
+
+    ad_id = int(ack["ad_id"])
+    ad_listing_id = int(ack["ad_listing_id"])
+    raw_slug = ack.get("success") or ack.get("slug")
+    slug = _normalize_slug(raw_slug) if raw_slug else None
+
+    details_resp = api_client.request(
+        "GET",
+        f"/used-cars/{ad_id}.json",
+        params={"api_version": api_version},
+    )
+    validator.assert_status_code(details_resp["status_code"], 200)
+    details_body = details_resp.get("json") or {}
+
+    _POSTED_AD_CACHE = {
+        "ad_id": ad_id,
+        "ad_listing_id": ad_listing_id,
+        "slug": slug,
+        "api_version": api_version,
+        "ack": ack,
+        "details": details_body,
+    }
+    return _POSTED_AD_CACHE
+
+
+def get_ad_ref(posted_ad: dict) -> dict:
+    slug = posted_ad.get("slug") or posted_ad.get("success")
+    return {
+        "slug": _normalize_slug(slug) if slug else None,
+        "ad_listing_id": int(posted_ad["ad_listing_id"]),
+        "ad_id": int(posted_ad["ad_id"]),
+    }
+
+
+def get_ad_ids(posted_ad: dict) -> dict:
+    return {
+        "ad_id": int(posted_ad["ad_id"]),
+        "ad_listing_id": int(posted_ad["ad_listing_id"]),
+    }
+
+def edit_payload_check(payload: dict, response: dict) -> None:
     """
     Compare an edit payload against the ad_listing section of an API response.
 
@@ -229,7 +345,7 @@ def edit_used_car_existing(
     validator.assert_status_code(edit_resp["status_code"], 200)
     validator.assert_json_schema(body, "schemas/used_car_edit_response_ack.json")
 
-    assert_edit_payload_reflected_in_response(edit_payload, body)
+    edit_payload_check(edit_payload, body)
 
     return body
 
@@ -547,13 +663,13 @@ def reactivate_and_verify_lists(
 
 
 __all__ = [
-    "assert_edit_payload_reflected_in_response",
+    "edit_payload_check",
     "close_used_car_existing",
     "edit_used_car_existing",
     "edit_used_car",
     "feature_used_car_existing",
     "post_used_car",
-    "get_posted_ad",
+    "get_session_ad_metadata",
     "get_ad_ref",
     "get_ad_ids",
     "upload_ad_picture",
@@ -561,118 +677,3 @@ __all__ = [
     "reactivate_used_car_existing",
     "wait_for_ad_state",
 ]
-def post_used_car(
-    api_client,
-    validator,
-    payload_path: Path = Path("data/payloads/used_car.json"),
-    schema_path: str = "schemas/used_car_post_response_ack.json",
-    expected_path: Optional[str] = None,
-    api_version: str = DEFAULT_API_VERSION,
-) -> dict:
-    """Post a used-car ad and return the full response payload."""
-    body = _read_json(payload_path)
-
-    pictures_dir = Path("data/pictures")
-    if pictures_dir.exists():
-        files = sorted(p for p in pictures_dir.iterdir() if p.is_file())
-        if files:
-            pics_attr = (
-                body.setdefault("used_car", {})
-                .setdefault("ad_listing_attributes", {})
-                .setdefault("pictures_attributes", {})
-            )
-            pics_attr.clear()
-
-            token = get_auth_token()
-            fcm_token = os.getenv("FCM_TOKEN")
-
-            for idx, file_path in enumerate(files):
-                pic_id = upload_ad_picture(
-                    api_client,
-                    file_path=str(file_path),
-                    api_version=os.getenv("PICTURE_UPLOAD_API_VERSION", "18"),
-                    access_token=token,
-                    fcm_token=fcm_token,
-                    new_version=True,
-                )
-                pics_attr[str(idx)] = {"pictures_ids": str(pic_id)}
-
-    via_whatsapp = "true" if (
-        body.get("used_car", {}).get("ad_listing_attributes", {}).get("allow_whatsapp") is True
-    ) else "false"
-
-    resp = api_client.request(
-        "POST",
-        POST_ENDPOINT,
-        params={"api_version": api_version, "via_whatsapp": via_whatsapp},
-        json_body=body,
-    )
-    print("\n🚗 [SESSION] Post Used Car:", resp["status_code"])
-    print(json.dumps(resp.get("json"), indent=2))
-
-    validator.assert_status_code(resp["status_code"], 200)
-    _validate_response(validator, resp["json"], schema_path=schema_path, expected_path=expected_path)
-
-    return resp["json"] or {}
-
-
-def get_posted_ad(
-    api_client,
-    validator,
-    payload_path: Path = Path("data/payloads/used_car.json"),
-    schema_path: str = "schemas/used_car_post_response_ack.json",
-    expected_path: Optional[str] = None,
-    api_version: str = DEFAULT_API_VERSION,
-) -> dict:
-    """Return cached posted ad metadata, posting and fetching details once per session."""
-    global _POSTED_AD_CACHE
-    if _POSTED_AD_CACHE:
-        return _POSTED_AD_CACHE
-
-    ack = post_used_car(
-        api_client,
-        validator,
-        payload_path=payload_path,
-        schema_path=schema_path,
-        expected_path=expected_path,
-        api_version=api_version,
-    )
-
-    ad_id = int(ack["ad_id"])
-    ad_listing_id = int(ack["ad_listing_id"])
-    raw_slug = ack.get("success") or ack.get("slug")
-    slug = _normalize_slug(raw_slug) if raw_slug else None
-
-    details_resp = api_client.request(
-        "GET",
-        f"/used-cars/{ad_id}.json",
-        params={"api_version": api_version},
-    )
-    validator.assert_status_code(details_resp["status_code"], 200)
-    details_body = details_resp.get("json") or {}
-
-    _POSTED_AD_CACHE = {
-        "ad_id": ad_id,
-        "ad_listing_id": ad_listing_id,
-        "slug": slug,
-        "api_version": api_version,
-        "ack": ack,
-        "details": details_body,
-    }
-    return _POSTED_AD_CACHE
-
-
-def get_ad_ref(posted_ad: dict) -> dict:
-    slug = posted_ad.get("slug") or posted_ad.get("success")
-    return {
-        "slug": _normalize_slug(slug) if slug else None,
-        "ad_listing_id": int(posted_ad["ad_listing_id"]),
-        "ad_id": int(posted_ad["ad_id"]),
-    }
-
-
-def get_ad_ids(posted_ad: dict) -> dict:
-    return {
-        "ad_id": int(posted_ad["ad_id"]),
-        "ad_listing_id": int(posted_ad["ad_listing_id"]),
-    }

@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "mobile_login_response",
+  "type": "object",
+  "properties": {
+    "access_token": {
+      "type": "string",
+      "description": "The bearer token used for authenticated requests."
+    },
+    "refresh_token": {
+      "type": ["string", "null"],
+      "description": "The token used to obtain a new access token once the current one expires."
+    },
+    "expires_in": {
+      "type": ["integer", "number", "boolean", "null"],
+      "description": "Indicates if the access token has an expiration time."
+    },
+    "user": {
+      "type": "object",
+      "description": "Detailed profile information for the authenticated user.",
+      "properties": {
+        "display_name": { "type": ["string", "null"] },
+        "gender": { "type": ["string", "null"] },
+        "birthday": { "type": ["string", "null"] },
+        "country": { "type": ["string", "null"] },
+        "city": { "type": ["string", "null"] },
+        "username": { "type": ["string", "null"] },
+        "email": { "type": ["string", "null"] },
+        "uuid": { "type": ["string", "null"] },
+        "mobile_numbers": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "object",
+            "properties": {
+              "mobile_number_id": { "type": ["integer", "null"] },
+              "number": { "type": ["string", "null"] },
+              "verified": { "type": ["boolean", "null"] },
+              "uuid": { "type": ["string", "null"] }
+            },
+            "required": ["number", "verified"]
+          }
+        },
+        "mobile_verified": { "type": ["boolean", "null"] },
+        "email_verified": { "type": ["boolean", "null"] },
+        "id": { "type": ["integer", "null"] },
+        "user_type": { "type": ["integer", "null"] },
+        "dealer_agent": { "type": ["boolean", "null"] },
+        "cnic_verified": { "type": ["boolean", "null"] },
+        "push_notification_settings": {
+          "type": ["object", "null"],
+          "properties": {
+            "general_push": { "type": ["boolean", "null"] },
+            "chat_push": { "type": ["boolean", "null"] },
+            "recent_search_push": { "type": ["boolean", "null"] },
+            "saved_ads_push": { "type": ["boolean", "null"] },
+            "latest_news_push": { "type": ["boolean", "null"] }
+          },
+          "additionalProperties": true
+        }
+      },
+      "required": ["email", "uuid", "mobile_verified", "id"]
+    }
+  },
+  "required": ["access_token", "refresh_token", "user"],
+  "additionalProperties": true
+}
