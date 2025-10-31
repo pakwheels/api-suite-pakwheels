@@ -34,12 +34,51 @@ def api_ver():
 
 
 @pytest.fixture(scope="session")
+def auth(request, base_url, api_ver):
+    cfg = request.param if hasattr(request, "param") else {}
+    mode = (cfg.get("mode") or "mobile").lower()
+
+    clear_number_first = cfg.get("clear_number_first")
+    if clear_number_first is None:
+        clear_number_first = False
+
+    api_client_override = cfg.get("api_client")
+    client_for_clear = api_client_override
+    if clear_number_first and client_for_clear is None and mode == "mobile":
+        client_for_clear = APIClient(base_url, "", api_ver)
+
+    login_kwargs = {
+        "login_method": mode,
+        "api_client": client_for_clear,
+        "clear_number_first": clear_number_first,
+    }
+
+    if mode == "mobile":
+        login_kwargs.update(
+            mobile_number=cfg.get("mobile"),
+            otp_pin=cfg.get("otp") or cfg.get("password"),
+            country_code=cfg.get("country_code") or "92",
+        )
+    else:  # email
+        login_kwargs["clear_number_first"] = False
+        login_kwargs["api_client"] = None  # email flow doesn’t need a client
+
+    token = get_auth_token(**login_kwargs)
+    return {"mode": mode, "token": token}
+
+@pytest.fixture(scope="session")
 def api_client(base_url, api_ver):
+    mode = (os.getenv("SESSION_AUTH_MODE") or "mobile").lower()
     client = APIClient(base_url, "", api_ver)
-    token = get_auth_token(api_client=client, login_method="mobile")
+
+    token = get_auth_token(
+        api_client=client if mode == "mobile" else None,
+        login_method=mode,
+        clear_number_first=False,
+    )
+
     client.access_token = token
     return client
-
 # @pytest.fixture(scope="session")
 # def auth_token(api_client):
 #     return api_client.access_token

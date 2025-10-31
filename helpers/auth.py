@@ -280,8 +280,8 @@ def _resolve_mobile_params(
 def get_auth_token(
     *,
     api_client: Optional["APIClient"] = None,
-    clear_number_first: bool = True,
-    login_method: Literal["email", "mobile"] = "mobile",
+    clear_number_first: bool = False,
+    login_method: Literal["email", "mobile"]= "mobile",
     mobile_number: Optional[str] = None,
     country_code: Optional[str] = "92",
     via_whatsapp: Optional[bool] = None,
@@ -304,8 +304,8 @@ def get_auth_token(
         Optional overrides for the mobile login flow; fall back to environment variables
         or payload defaults when omitted.
     """
-    if _token_is_valid():
-        return _TOKEN_CACHE["token"]  # type: ignore[return-value]
+    # if _token_is_valid():
+    #     return _TOKEN_CACHE["token"]  # type: ignore[return-value]
 
     base_url = os.getenv("BASE_URL")
     api_version = os.getenv("API_VERSION", DEFAULT_API_VERSION)
