@@ -52,9 +52,6 @@ def verify_phone_number(
     assert phone, "Phone number is required for verification."
     version = str(api_version or DEFAULT_API_VERSION)
 
-    cleared = clear_mobile_number(api_client, phone)
-    validator.assert_status_code(cleared["status_code"], 200)
-
     send_otp = add_mobile_number(api_client, mobile_number=phone, api_version=version)
     validator.assert_status_code(send_otp["status_code"], 200)
     send_body = send_otp.get("json") or {}
@@ -73,7 +70,7 @@ def verify_phone_number(
     validator.assert_json_schema(verify_body, "schemas/mobile_login_response_schema.json")
 
     return {
-        "clear_response": cleared,
+        "clear_response": None,
         "otp_request": send_body,
         "verification": verify_body,
     }

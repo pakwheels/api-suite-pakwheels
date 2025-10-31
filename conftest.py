@@ -88,6 +88,14 @@ def validator():
     """Provide reusable validator instance."""
     return Validator()
 
+
+@pytest.fixture
+def mobile_number_env():
+    number = os.getenv("MOBILE_NUMBER")
+    if not number:
+        pytest.skip("MOBILE_NUMBER not configured in environment")
+    return number
+
 @pytest.fixture
 def api_request(api_client):
     """Generic fixture to make API requests easily."""
