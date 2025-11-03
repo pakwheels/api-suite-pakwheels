@@ -532,16 +532,25 @@ def feature_used_car_with_payment(
 ):
     ad_id, price = _resolve_ad_id_and_price(api_client, ad_ref, api_version)
     weeks = feature_weeks or _choose_feature_weeks(price)
+    
+    print(f"\n💳 Attempting Feature via **Payment** (Weeks: {weeks}) for Ad ID: {ad_id}")
+    if feature_weeks is None:
+        print(f"  Weeks calculated dynamically based on price {price}.")
 
     ad_listing_id = _ensure_ad_listing_id(api_client, ad_ref, ad_id, api_version)
+    print(f"  Resolved Ad Listing ID: {ad_listing_id}")
 
+    print("  1. Listing feature products...")
     products_resp = list_feature_products(api_client, ad_id)
     validator.assert_status_code(products_resp["status_code"], 200)
+    
     product = _select_feature_product(products_resp.get("json"), weeks)
     assert product, "Unable to select feature product"
     product_id = _product_id(product)
     assert product_id is not None, "Feature product missing identifier"
+    print(f"  2. Selected Product ID: {product_id} (Target Weeks: {weeks})")
 
+    print("  3. Confirming product selection...")
     products_confirm = list_feature_products(
         api_client,
         ad_id,
@@ -551,7 +560,7 @@ def feature_used_car_with_payment(
         s_type="ad",
     )
     validator.assert_status_code(products_confirm["status_code"], 200)
-
+    print("  4. Proceeding to checkout...")
     checkout_response = proceed_checkout(
         api_client,
         product_id=int(product_id),
@@ -560,8 +569,17 @@ def feature_used_car_with_payment(
         discount_code="",
     )
     validator.assert_status_code(checkout_response["status_code"], 200)
+
+    # *** ADDED INSPECTION LINE HERE ***
+    print("  [DEBUG] Checkout Response JSON (for payment ID):")
+    print(json.dumps(checkout_response.get("json", {}), indent=2))
+    # ***********************************
+    
     payment_id = _extract_payment_id(checkout_response.get("json", {}))
+    print(f"  5. Checkout complete. Resolved Payment ID: {payment_id}")
+    
     if not payment_id:
+        print("  ❌ Feature via Payment Failed: Could not get payment ID.")
         return {
             "method": "payment",
             "weeks": weeks,
@@ -569,6 +587,7 @@ def feature_used_car_with_payment(
             "checkout_response": checkout_response.get("json", {}),
         }
 
+    print(f"  6. Completing Jazz Cash payment for Payment ID: {payment_id}...")
     payment_result = complete_jazz_cash_payment(
         api_client,
         validator,
@@ -576,13 +595,15 @@ def feature_used_car_with_payment(
         ad_id,
         api_version,
     )
-
+    
+    print("  ✅ Feature via Payment Process Complete.")
     return {
         "method": "payment",
         "weeks": weeks,
         "payment_id": payment_id,
         **payment_result,
     }
+
 def feature_used_car(
     api_client,
     validator,

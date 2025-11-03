@@ -9,8 +9,8 @@
     "reg_city_id": null,
     "mileage": "50000",
     "transmission": "Automatic",
-    "engine_type": "Petrol",
-    "assembly": "Imported",
+    "engine_type": "Diesel",
+    "assembly": "Local",
     "exterior_color": "White",
     "engine_capacity": "1300",
     "ad_listing_attributes": {
