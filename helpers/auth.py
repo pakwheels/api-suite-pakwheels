@@ -48,15 +48,15 @@ def _load_json_payload(filename: str) -> Dict[str, Any]:
 
 # --- Shared Utility Functions ---
 
-def _token_is_valid() -> bool:
-    token = _TOKEN_CACHE.get("token")
-    expires_at = _TOKEN_CACHE.get("expires_at")
-    if not token:
-        return False
-    if isinstance(expires_at, datetime):
-        # Allow token to be valid for 60 seconds less than its actual expiry time for safety
-        return datetime.utcnow() < expires_at - timedelta(seconds=60)
-    return True
+# def _token_is_valid() -> bool:
+#     token = _TOKEN_CACHE.get("token")
+#     expires_at = _TOKEN_CACHE.get("expires_at")
+#     if not token:
+#         return False
+#     if isinstance(expires_at, datetime):
+#         # Allow token to be valid for 60 seconds less than its actual expiry time for safety
+#         return datetime.utcnow() < expires_at - timedelta(seconds=60)
+#     return True
 
 def _extract_access_token(payload: Dict[str, Any]) -> Tuple[Optional[str], str]:
     """
