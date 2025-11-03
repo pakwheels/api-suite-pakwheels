@@ -1,0 +1,111 @@
+{
+  "browseMore": {
+    "cars": {
+      "byCategories": [
+        {
+          "title": "Automatic cars",
+          "slug": "car-ctg-automatic",
+          "url": "/used-cars/automatic/57336"
+        }
+      ],
+      "byCities": [
+        {
+          "title": "Lahore",
+          "slug": "car-ct-lahore"
+        }
+      ],
+      "byManufacturers": [
+        {
+          "title": "Toyota",
+          "slug": "car-mk-toyota"
+        }
+      ],
+      "byModels": [
+        {
+          "title": "Corolla",
+          "slug": "car-md-corolla"
+        }
+      ],
+      "byBudget": [
+        {
+          "title": "Cars under 5 lakhs",
+          "slug": "car-pr-cars-under-5-lakhs"
+        }
+      ],
+      "byBodyTypes": [
+        {
+          "title": "MPV",
+          "slug": "car-bt-mpv"
+        }
+      ],
+      "byYear": [
+        {
+          "title": "2025 Cars",
+          "url": "/used-cars/2025/282408"
+        }
+      ]
+    }
+  },
+  "certifiedCars": [
+    {
+      "title": "Toyota Land Cruiser 2018",
+      "city": "Lahore"
+    }
+  ],
+  "featuredAds": {
+    "cars": [
+      {
+        "title": "Honda City 2017",
+        "city": "Lahore"
+      }
+    ],
+    "bikes": [
+      {
+        "title": "Yamaha YBR 125 2018",
+        "city": "Quetta"
+      }
+    ]
+  },
+  "fuelInfo": {
+    "fuel_prices": {
+      "Petrol (Super)": "PKR 254.63"
+    },
+    "h1": "Petrol Price in Pakistan"
+  },
+  "newlyLaunchedCars": [
+    {
+      "name": "FAW Senya R7",
+      "price": "PKR 2.5 crore"
+    }
+  ],
+  "popularNewCars": [
+    {
+      "name": "Novara Voltrex",
+      "price": "PKR 55.0 - 89.0 lacs"
+    }
+  ],
+  "upcomingCars": [
+    {
+      "name": "2018 Volkswagen Amarok",
+      "eta": "Coming in July 2018"
+    }
+  ],
+  "newCarLandingFaqs": {
+    "heading": "New Car FAQs"
+  },
+  "newCarsLandingBodyTypes": {
+    "heading": "New Cars by Body Type"
+  },
+  "newCarsByCategory": {
+    "heading": "New Cars by Category"
+  },
+  "popularNewBikes": [
+    {
+      "name": "Honda CD 70",
+      "price": 88000
+    }
+  ],
+  "newCarSeoContent": {
+    "h1": "Find New Cars in Pakistan "
+  }
+}

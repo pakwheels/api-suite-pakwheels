@@ -29,6 +29,14 @@ from .car_ads import (  # noqa: F401
     # verify_live_or_pending,
     wait_for_ad_state,
 )
+from .new_cars import (  # noqa: F401
+    fetch_new_make_details,
+    fetch_all_make_models,
+    fetch_new_model_details,
+    fetch_new_version_details,
+)
+from .landing_page import fetch_main_landing_page  # noqa: F401
+from .my_ads import fetch_my_active_ads  # noqa: F401
 from .number_verification import (  # noqa: F401
     add_mobile_number,
     clear_mobile_number,
@@ -60,6 +68,12 @@ __all__ = [
     # "verify_live_or_pending",
     "verify_phone_number",
     "wait_for_ad_state",
+    "fetch_new_make_details",
+    "fetch_all_make_models",
+    "fetch_new_model_details",
+    "fetch_new_version_details",
+    "fetch_main_landing_page",
+    "fetch_my_active_ads",
 ]
 
 from .payment import (  # noqa: F401
