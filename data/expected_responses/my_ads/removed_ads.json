@@ -1,0 +1,114 @@
+{
+  "pageNo": "1",
+  "totalPages": 1,
+  "resultCount": 2,
+  "totalActiveAds": 1,
+  "totalPendingAds": 58,
+  "totalRemovedAds": 2,
+  "totalAds": 2,
+  "ads": [
+    {
+      "phone": "03915134567",
+      "description": "This is a Test Ad,",
+      "urlSlug": "/accessories-spare-parts/steering-cover-2781822",
+      "videoId": null,
+      "videoLink": null,
+      "status": 4,
+      "buyNow": false,
+      "exceededLimit": false,
+      "id": 2781822,
+      "hideControls": false,
+      "adListingId": 2781822,
+      "type": "AdListing",
+      "title": "Leather Steering Cover",
+      "city": "Lahore",
+      "cityArea": "Gulberg",
+      "canBeReActivated": false,
+      "price": 183,
+      "discount": null,
+      "originalPrice": 183,
+      "isFeatured": false,
+      "hasFeatureRequest": false,
+      "featuredTill": null,
+      "canBump": true,
+      "paidBump": true,
+      "activationType": 1,
+      "needReview": false,
+      "violations": [
+        "Your Ad is currently under review"
+      ],
+      "pitchUpsell": {
+        "pitch_upsell": false
+      },
+      "searchViewCount": 0,
+      "viewCount": 0,
+      "phoneCount": 0,
+      "category": "Car Interior",
+      "subcategory": "Steering Covers",
+      "isUserAd": true,
+      "user": {
+        "id": 1710789,
+        "displayName": "test",
+        "mobileVerified": true
+      },
+      "pictures": [
+        {
+          "id": 20165720,
+          "thumbnail": "https://marketplace.static1.pakkey.com/ad_pictures/2016/tn_steering-cover-20165720.webp",
+          "medium": "https://marketplace.static2.pakkey.com/ad_pictures/2016/Slide_steering-cover-20165720.webp",
+          "original": "https://marketplace.static2.pakkey.com/ad_pictures/2016/steering-cover-20165720.webp"
+        }
+      ]
+    },
+    {
+      "phone": "03935134567",
+      "description": "This is a test ad",
+      "urlSlug": "/used-bikes/honda-cg-125-deluxe-2022-for-sale-in-lahore-208469",
+      "videoId": null,
+      "videoLink": null,
+      "status": 4,
+      "buyNow": false,
+      "exceededLimit": false,
+      "id": 208469,
+      "hideControls": false,
+      "adListingId": 2781814,
+      "type": "UsedBike",
+      "title": "Honda CG 125 Deluxe",
+      "city": "Lahore",
+      "cityArea": "DHA Defence",
+      "canBeReActivated": false,
+      "price": 199997,
+      "isFeatured": false,
+      "hasFeatureRequest": false,
+      "featuredTill": null,
+      "canBump": true,
+      "paidBump": true,
+      "activationType": 1,
+      "pitchUpsell": {
+        "pitch_upsell": false
+      },
+      "searchViewCount": 0,
+      "viewCount": 0,
+      "phoneCount": 0,
+      "modelYear": 2022,
+      "mileage": "2,300 km",
+      "engineType": "2-stroke",
+      "isUserAd": true,
+      "user": {
+        "id": 1710789,
+        "displayName": "test",
+        "mobileVerified": true
+      },
+      "pictures": []
+    }
+  ],
+  "custom_dimensions": {
+    "user_type": "Individual",
+    "newsletter_subsriber": true,
+    "car_listings": "1",
+    "bike_listings": "0",
+    "parts_listings": "0",
+    "private_rides": "0",
+    "public_rides": "2"
+  }
+}

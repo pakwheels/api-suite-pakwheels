@@ -48,27 +48,24 @@
   },
   "certifiedCars": [
     {
-      "title": "Toyota Land Cruiser 2018",
       "city": "Lahore"
     }
   ],
   "featuredAds": {
     "cars": [
       {
-        "title": "Honda City 2017",
         "city": "Lahore"
       }
     ],
     "bikes": [
       {
-        "title": "Yamaha YBR 125 2018",
         "city": "Quetta"
       }
     ]
   },
   "fuelInfo": {
     "fuel_prices": {
-      "Petrol (Super)": "PKR 254.63"
+      "Petrol (Super)": "PKR 254.63" 
     },
     "h1": "Petrol Price in Pakistan"
   },

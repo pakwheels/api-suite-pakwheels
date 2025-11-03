@@ -36,7 +36,11 @@ from .new_cars import (  # noqa: F401
     fetch_new_version_details,
 )
 from .landing_page import fetch_main_landing_page  # noqa: F401
-from .my_ads import fetch_my_active_ads  # noqa: F401
+from .my_ads import (
+    fetch_my_active_ads,
+    fetch_my_pending_ads,
+    fetch_my_removed_ads,
+)  # noqa: F401
 from .number_verification import (  # noqa: F401
     add_mobile_number,
     clear_mobile_number,
@@ -74,6 +78,8 @@ __all__ = [
     "fetch_new_version_details",
     "fetch_main_landing_page",
     "fetch_my_active_ads",
+    "fetch_my_pending_ads",
+    "fetch_my_removed_ads",
 ]
 
 from .payment import (  # noqa: F401
