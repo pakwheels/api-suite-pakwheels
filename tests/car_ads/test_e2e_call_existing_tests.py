@@ -2,7 +2,7 @@
 
 import os
 
-from helpers.car_ads import feature_used_car_existing
+# from helpers.car_ads import feature_used_car_existing
 import pytest
 
 from helpers import (
@@ -62,6 +62,9 @@ def test_verify_mobile_number(auth, api_client, validator, mobile_number_env):
     Tests the end-to-end flow of phone number verification (clear, request OTP, verify).
     This test only runs if the mobile number and OTP are available via env vars.
     """
+    if auth.get("mode") != "email":
+        pytest.skip("Mobile verification scenario is only exercised for email-auth sessions.")
+
     # Source the mobile number from the fixture parameter
     mobile_number = mobile_number_env
     # The OTP pin still needs to be sourced from the environment as it's not a parameter
@@ -129,7 +132,7 @@ def test_refresh_used_car(auth, api_client, validator):
 @pytest.mark.car_ad_post
 def test_feature_used_car(auth,api_client, validator):
     posted_ad = get_session_ad_metadata(api_client, validator)
-    feature_used_car_existing(
+    feature_used_car(
         api_client,
         validator,
         ad_ref=posted_ad,

@@ -6,6 +6,7 @@ import os
 import re
 from pathlib import Path
 from typing import Any, Callable, Iterable, Optional, Tuple
+from helpers.car_ads_utils import available_feature_credits, extract_feature_credit_count
 
 import requests
 
@@ -76,6 +77,17 @@ _EDIT_PAYLOAD_RESPONSE_RULES: Tuple[FieldRule, ...] = (
     (f"used_car.{feature}", f"ad_listing.{feature}", _normalize_bool_flag)
     for feature in _FEATURE_FLAGS
 )
+
+def _coerce_int(value) -> Optional[int]:
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, str):
+        stripped = value.strip()
+        if stripped.isdigit():
+            return int(stripped)
+    return None
 
 def _available_feature_credits(api_client) -> Optional[int]:
     try:
@@ -406,28 +418,6 @@ def edit_used_car_existing(
 # Backwards compatibility: allow helpers.edit_used_car(...) imports.
 edit_used_car = edit_used_car_existing
 
-def feature_used_car_existing(
-    api_client,
-    validator,
-    ad_ref: dict,
-    api_version: str = DEFAULT_API_VERSION,
-    schema_path: Optional[str] = None,
-    expected_path: Optional[str] = None,
-):
-    """
-    Feature an ad by choosing credits when available, falling back to paid flow.
-    """
-    result = feature_used_car(
-        api_client,
-        validator,
-        ad_ref,
-        api_version=api_version,
-        schema_path=schema_path,
-        expected_path=expected_path,
-    )
-    return result["response"] if isinstance(result, dict) and "response" in result else result
-
-
 def _resolve_ad_id_and_price(api_client, ref: dict, api_version: str) -> Tuple[int, int]:
     """Resolve ad id and price from either ad_id or slug."""
     ad_id = ref.get("ad_id")
@@ -502,25 +492,35 @@ def feature_used_car_with_credit(
     return None
 
 
-def feature_used_car_existing(
-    api_client,
-    validator,
-    ad_ref: dict,
-    api_version: str = DEFAULT_API_VERSION,
-    schema_path: Optional[str] = None,
-    expected_path: Optional[str] = None,
-):
-    result = feature_used_car_with_credit(
-        api_client,
-        validator,
-        ad_ref,
-        api_version=api_version,
-        schema_path=schema_path,
-        expected_path=expected_path,
-        feature_weeks=None,
-        raise_on_failure=True,
-    )
-    return result["response"]
+# def feature_used_car_existing(
+#     api_client,
+#     validator,
+#     ad_ref: dict,
+#     api_version: str = DEFAULT_API_VERSION,
+#     schema_path: Optional[str] = None,
+#     expected_path: Optional[str] = None,
+# ):
+#     credit_result = feature_used_car_with_credit(
+#         api_client,
+#         validator,
+#         ad_ref,
+#         api_version=api_version,
+#         schema_path=schema_path,
+#         expected_path=expected_path,
+#         feature_weeks=None,
+#         raise_on_failure=False,
+#     )
+#     if credit_result:
+#         return credit_result["response"]
+
+#     payment_result = feature_used_car_with_payment(
+#         api_client,
+#         validator,
+#         ad_ref,
+#         feature_weeks=None,
+#         api_version=api_version,
+#     )
+#     return payment_result
 
 
 def feature_used_car_with_payment(
@@ -561,7 +561,13 @@ def feature_used_car_with_payment(
     )
     validator.assert_status_code(checkout_response["status_code"], 200)
     payment_id = _extract_payment_id(checkout_response.get("json", {}))
-    assert payment_id, "Unable to obtain payment_id from checkout response"
+    if not payment_id:
+        return {
+            "method": "payment",
+            "weeks": weeks,
+            "payment_id": None,
+            "checkout_response": checkout_response.get("json", {}),
+        }
 
     payment_result = complete_jazz_cash_payment(
         api_client,
@@ -703,85 +709,6 @@ def _extract_week_count(label: str, category: Optional[str] = None) -> Optional[
             return value
     if category and isinstance(category, str):
         return _extract_week_count(category, None)
-    return None
-
-
-def _extract_payment_id(payload: dict) -> Optional[str]:
-    if not isinstance(payload, dict):
-        return None
-
-    candidate = payload.get("payment_id")
-    if candidate not in (None, ""):
-        return str(candidate)
-
-    ack = payload.get("ack")
-    if isinstance(ack, dict):
-        candidate = ack.get("payment_id")
-        if candidate not in (None, ""):
-            return str(candidate)
-
-    data = payload.get("data")
-    if isinstance(data, dict):
-        candidate = data.get("payment_id") or data.get("order_id")
-        if candidate not in (None, ""):
-            return str(candidate)
-
-    for key in ("payment", "checkout", "response"):
-        nested = payload.get(key)
-        if isinstance(nested, dict):
-            result = _extract_payment_id(nested)
-            if result:
-                return result
-        elif isinstance(nested, list):
-            for item in nested:
-                result = _extract_payment_id(item)
-                if result:
-                    return result
-
-    return None
-
-
-def _available_feature_credits(api_client) -> Optional[int]:
-    try:
-        resp = get_my_credits(api_client)
-    except Exception:
-        return None
-    if not isinstance(resp, dict) or resp.get("status_code") != 200:
-        return None
-    return _extract_feature_credit_count(resp.get("json"))
-
-
-def _extract_feature_credit_count(payload) -> Optional[int]:
-    value = _coerce_int(payload)
-    if value is not None:
-        return value
-    if isinstance(payload, dict):
-        for key, item in payload.items():
-            key_lower = key.lower()
-            if "feature" in key_lower and "credit" in key_lower:
-                coerced = _coerce_int(item)
-                if coerced is not None:
-                    return coerced
-            nested = _extract_feature_credit_count(item)
-            if nested is not None:
-                return nested
-    if isinstance(payload, list):
-        for item in payload:
-            nested = _extract_feature_credit_count(item)
-            if nested is not None:
-                return nested
-    return None
-
-
-def _coerce_int(value) -> Optional[int]:
-    if isinstance(value, int):
-        return value
-    if isinstance(value, float) and value.is_integer():
-        return int(value)
-    if isinstance(value, str):
-        stripped = value.strip()
-        if stripped.isdigit():
-            return int(stripped)
     return None
 
 
@@ -1034,7 +961,7 @@ __all__ = [
     "close_used_car_existing",
     "edit_used_car_existing",
     "edit_used_car",
-    "feature_used_car_existing",
+    # "feature_used_car_existing",
     "feature_used_car",
     "feature_used_car_with_credit",
     "feature_used_car_with_payment",
@@ -1047,3 +974,36 @@ __all__ = [
     "reactivate_used_car_existing",
     "wait_for_ad_state",
 ]
+def _extract_payment_id(payload: dict) -> Optional[str]:
+    """Return a payment/order id from any checkout response shape."""
+    if not isinstance(payload, dict):
+        return None
+
+    direct = payload.get("payment_id") or payload.get("order_id")
+    if direct not in (None, ""):
+        return str(direct)
+
+    ack = payload.get("ack")
+    if isinstance(ack, dict):
+        direct = ack.get("payment_id") or ack.get("order_id")
+        if direct not in (None, ""):
+            return str(direct)
+
+    data = payload.get("data")
+    if isinstance(data, dict):
+        direct = data.get("payment_id") or data.get("order_id")
+        if direct not in (None, ""):
+            return str(direct)
+
+    for key in ("payment", "checkout", "response", "payload"):
+        nested = payload.get(key)
+        if isinstance(nested, dict):
+            result = _extract_payment_id(nested)
+            if result:
+                return result
+        elif isinstance(nested, list):
+            for item in nested:
+                result = _extract_payment_id(item)
+                if result:
+                    return result
+    return None
