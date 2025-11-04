@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "browseMore",
+    "certifiedCars",
+    "featuredAds",
+    "fuelInfo"
+  ],
+  "properties": {
+    "browseMore": {
+      "type": "object",
+      "properties": {
+        "cars": {
+          "type": "object",
+          "properties": {
+            "byCategories": { "type": "array" },
+            "byCities": { "type": "array" },
+            "byManufacturers": { "type": "array" }
+          },
+          "required": ["byCategories", "byCities", "byManufacturers"]
+        }
+      },
+      "required": ["cars"]
+    },
+    "certifiedCars": {
+      "type": "array"
+    },
+    "featuredAds": {
+      "type": "object",
+      "properties": {
+        "cars": { "type": "array" },
+        "bikes": { "type": "array" }
+      },
+      "required": ["cars", "bikes"]
+    },
+    "fuelInfo": {
+      "type": "object",
+      "properties": {
+        "fuel_prices": { "type": "object" }
+      },
+      "required": ["fuel_prices"]
+    }
+  }
+}

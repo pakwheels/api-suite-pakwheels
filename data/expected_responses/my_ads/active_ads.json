@@ -1,0 +1,47 @@
+{
+  "pageNo": "1",
+  "totalPages": 1,
+  "resultCount": 1,
+  "totalActiveAds": 1,
+  "totalPendingAds": 58,
+  "totalRemovedAds": 2,
+  "totalAds": 1,
+  "ads": [
+    {
+      "phone": "03935134567",
+      "description": "100% original. As good as a brand new car. 100% maintained by dealership.",
+      "urlSlug": "/used-cars/toyota-corolla-2023-for-sale-in-islamabad-2447323",
+      "status": 3,
+      "id": 2447323,
+      "adListingId": 2782286,
+      "type": "UsedCar",
+      "title": "Toyota Corolla XLi VVTi",
+      "city": "Islamabad",
+      "cityArea": "Bahria Town",
+      "price": 5400000,
+      "violations": [
+        "Your Ad seems to be a duplicate of your existing Ad"
+      ],
+      "modelYear": 2023,
+      "mileage": "115,000 km",
+      "transmission": "Manual",
+      "engineType": "Petrol",
+      "assembly": "Local",
+      "engineCapacity": "1300cc",
+      "isUserAd": true,
+      "user": {
+        "id": 1710789,
+        "displayName": "test"
+      }
+    }
+  ],
+  "custom_dimensions": {
+    "user_type": "Individual",
+    "newsletter_subsriber": true,
+    "car_listings": "1",
+    "bike_listings": "0",
+    "parts_listings": "0",
+    "private_rides": "0",
+    "public_rides": "2"
+  }
+}

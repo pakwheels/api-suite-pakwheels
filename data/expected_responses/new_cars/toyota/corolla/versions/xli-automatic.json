@@ -1,0 +1,44 @@
+{
+  "heading": "Toyota Corolla XLi Automatic 2025 Price in Pakistan, Specs & Features",
+  "is_active": true,
+  "version_id": 3105,
+  "version_name": "Toyota Corolla XLi Automatic",
+  "price": "PKR 13.3 lacs",
+  "rich_price_paragraph": "The price of Toyota Corolla XLi Automatic in Pakistan is PKR 1,330,000. This price of Corolla XLi Automatic is ex-factory and does not include freight, taxes and other documentation charges.",
+  "specifications": [
+    {
+      "text": "Dimensions",
+      "subcategories": [
+        {
+          "text": "Overall Length",
+          "value": "4620 mm / 15'2\" feet"
+        },
+        {
+          "text": "Kerb Weight",
+          "value": "455 KG"
+        }
+      ]
+    }
+  ],
+  "features": [
+    {
+      "text": "Safety",
+      "subcategories": [
+        {
+          "text": "No. of Airbags",
+          "value": "2"
+        }
+      ]
+    }
+  ],
+  "price_block": {
+    "h2": "Toyota Corolla XLi Automatic Price in Pakistan",
+    "data": [
+      {
+        "name": "Toyota Corolla XLi Automatic",
+        "price": "PKR 13.3 lacs",
+        "schema_price": "1330000"
+      }
+    ]
+  }
+}
