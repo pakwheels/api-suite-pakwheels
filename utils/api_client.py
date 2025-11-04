@@ -13,16 +13,18 @@ class APIClient:
             "Accept": "application/json",
         })
 
-    def request(self, method, endpoint, json_body=None, params=None, headers=None):
+    def request(self, method, endpoint, json_body=None, params=None, headers=None, external_url=False):
         """Universal request handler (works for GET, POST, PUT, DELETE)"""
-        is_absolute = endpoint.startswith("http://") or endpoint.startswith("https://")
-        if is_absolute:
+        is_absolute = isinstance(endpoint, str) and (endpoint.startswith("http://") or endpoint.startswith("https://"))
+        if external_url:
+            url = endpoint
+        elif is_absolute:
             url = endpoint
         else:
             url = f"{self.base_url}{endpoint}"
 
         query = dict(params) if params else {}
-        if self.access_token and not is_absolute:
+        if self.access_token and not (is_absolute or external_url):
             query.setdefault("access_token", self.access_token)
 
         all_headers = self.session.headers.copy()

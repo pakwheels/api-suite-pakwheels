@@ -71,13 +71,20 @@ def api_client(base_url, api_ver):
     mode = (os.getenv("SESSION_AUTH_MODE") or "mobile").lower()
     client = APIClient(base_url, "", api_ver)
 
-    token = get_auth_token(
-        api_client=client if mode == "mobile" else None,
-        login_method=mode,
-        clear_number_first=False,
-    )
+    if mode == "email":
+        token = get_auth_token(
+            login_method=mode,
+            clear_number_first=False,
+        )
+        client.access_token = token
+    else:
+        token = get_auth_token(
+            api_client=client,
+            login_method=mode,
+            clear_number_first=False,
+        )
+        client.access_token = token
 
-    client.access_token = token
     return client
 # @pytest.fixture(scope="session")
 # def auth_token(api_client):
