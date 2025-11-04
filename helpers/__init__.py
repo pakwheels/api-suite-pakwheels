@@ -8,6 +8,11 @@ from .auth import (  # noqa: F401
     get_auth_token,
     # login_with_email,
     logout_user,
+    resend_signup_pin,
+    sign_up_user,
+    get_mailbox_prefix,
+    fetch_otp_from_maildrop,
+    verify_email_pin,
 )
 from .car_ads import (  # noqa: F401
     edit_payload_check,
@@ -51,6 +56,11 @@ __all__ = [
     "get_auth_token",
     # "login_with_email",
     "logout_user",
+    "resend_signup_pin",
+    "sign_up_user",
+    "get_mailbox_prefix",
+    "fetch_otp_from_maildrop",
+    "verify_email_pin",
     "add_mobile_number",
     "clear_mobile_number",
     "edit_payload_check",
