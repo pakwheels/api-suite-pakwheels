@@ -1,0 +1,25 @@
+{
+  "car_finance_lead": {
+    "car_loan_id": "6",
+    "city_id": 109,
+    "cnic": "11111-1111111-1",
+    "current_bank": 1,
+    "down_payment": "40.0",
+    "in_debt": false,
+    "make_id": "41",
+    "mobile": "",
+    "model_id": "47",
+    "model_year": "2023",
+    "name": "Chat Test",
+    "occupation": "Self-Employed",
+    "price": "3000000",
+    "processing_period": 2,
+    "salary": "Above 80,000",
+    "tenure": "2",
+    "used_car_id": "",
+    "version_id": "3179"
+  },
+  "user": {
+    "email": ""
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "success": "You have successfully applied for car financing",
+  "error": null,
+  "user": {
+    "mobile_verified": true
+  }
+}
