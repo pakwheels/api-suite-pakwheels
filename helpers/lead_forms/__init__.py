@@ -12,6 +12,7 @@ from .auction_sheet import (
     create_auction_sheet_request,
     fetch_auction_sheet_product_options,
 )
+from .insurance import submit_car_insurance_lead, fetch_car_insurance_packages
 from .utils import compare_against_snapshot, validate_against_schema
 
 __all__ = [
@@ -23,6 +24,8 @@ __all__ = [
     "verify_auction_sheet",
     "create_auction_sheet_request",
     "fetch_auction_sheet_product_options",
+    "submit_car_insurance_lead",
+    "fetch_car_insurance_packages",
     "validate_against_schema",
     "compare_against_snapshot",
 ]

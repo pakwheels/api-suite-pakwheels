@@ -50,6 +50,9 @@ from .lead_forms import (  # noqa: F401
     verify_auction_sheet,
     create_auction_sheet_request,
     fetch_auction_sheet_product_options,
+    submit_car_insurance_lead,
+    fetch_car_insurance_packages,
+
 )
 from .my_ads import (
     fetch_my_active_ads,
@@ -105,6 +108,8 @@ __all__ = [
     "verify_auction_sheet",
     "create_auction_sheet_request",
     "fetch_auction_sheet_product_options",
+    "submit_car_insurance_lead",
+    "fetch_car_insurance_packages",
     "fetch_my_active_ads",
     "fetch_my_pending_ads",
     "fetch_my_removed_ads",

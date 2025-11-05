@@ -1,0 +1,19 @@
+{
+  "car_insurance_lead": {
+    "car_value": "3000000",
+    "city_id": 409,
+    "cnic": "12345-1234567-8",
+    "company": "Pak Qatar Insurance Company Limited",
+    "engine_capacity": "650",
+    "generation_id": "661",
+    "insurance_company_id": "1",
+    "manufacturer_id": "41",
+    "mobile_number": "",
+    "model_id": "47",
+    "name": "Test",
+    "registration_status": 1,
+    "tracker": "false",
+    "version_id": "3179",
+    "year": "2024"
+  }
+}

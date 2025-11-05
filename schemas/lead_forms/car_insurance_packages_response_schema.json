@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "insurance_packages",
+    "error"
+  ],
+  "properties": {
+    "insurance_packages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "url",
+          "is_featured",
+          "slug",
+          "logo_path",
+          "final_amount",
+          "final_amount_with_tracker",
+          "rate",
+          "position",
+          "rate_with_tracker",
+          "tracker_amount"
+        ],
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "url": { "type": "string" },
+          "is_featured": { "type": "boolean" },
+          "slug": { "type": "string" },
+          "logo_path": { "type": "string" },
+          "final_amount": { "type": "number" },
+          "final_amount_with_tracker": { "type": "number" },
+          "rate": { "type": "number" },
+          "position": { "type": "integer" },
+          "rate_with_tracker": { "type": "number" },
+          "tracker_amount": { "type": "number" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "error": { "type": "string" }
+  },
+  "additionalProperties": true
+}

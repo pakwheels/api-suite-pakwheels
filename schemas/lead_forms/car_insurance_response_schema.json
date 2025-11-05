@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "success",
+    "error",
+    "id",
+    "mobile",
+    "mobile_verified",
+    "mobile_uuid"
+  ],
+  "properties": {
+    "success": { "type": "string" },
+    "error": { "type": "string" },
+    "id": { "type": "integer" },
+    "mobile": { "type": "string" },
+    "mobile_verified": { "type": "boolean" },
+    "mobile_uuid": { "type": "string" }
+  },
+  "additionalProperties": true
+}
