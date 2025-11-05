@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "city_id",
+    "city_area_id",
+    "summary",
+    "success",
+    "product",
+    "has_credits"
+  ],
+  "properties": {
+    "error": { "type": ["string", "null"] },
+    "carsure_ticket_id": { "type": "integer" },
+    "city_id": { "type": "integer" },
+    "city_area_id": { "type": "integer" },
+    "reserve_url": { "type": "string" },
+    "summary": {
+      "type": "object",
+      "required": [
+        "make",
+        "model",
+        "year",
+        "name",
+        "number",
+        "address",
+        "selected_date",
+        "selected_slot"
+      ],
+      "properties": {
+        "make": { "type": "string" },
+        "model": { "type": "string" },
+        "version": { "type": ["string", "null"] },
+        "year": { "type": "integer" },
+        "name": { "type": "string" },
+        "number": { "type": "string" },
+        "address": { "type": "string" },
+        "selected_date": { "type": "string" },
+        "selected_slot": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "success": { "type": "string" },
+    "product": {
+      "type": "object",
+      "required": ["id", "name", "price", "type", "original_price"],
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "type": { "type": "string" },
+        "original_price": { "type": "number" }
+      },
+      "additionalProperties": true
+    },
+    "has_credits": { "type": "boolean" },
+    "mobile": { "type": "string" },
+    "mobile_verified": { "type": "boolean" },
+    "mobile_uuid": { "type": "string" }
+  },
+  "additionalProperties": true
+}

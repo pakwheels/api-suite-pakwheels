@@ -1,0 +1,13 @@
+{
+  "car_certification_request": {
+    "city_area_id": 50,
+    "address": "test",
+    "request_type": "Buyer",
+    "scheduled_date": "25-07-2025"
+  },
+  "check_credits": true,
+  "slot_not_found": true,
+  "user": {
+    "email": "apitest@pakwheels.com"
+  }
+}

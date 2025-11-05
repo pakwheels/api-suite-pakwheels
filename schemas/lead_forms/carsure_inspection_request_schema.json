@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "success",
+    "is_request_added",
+    "product"
+  ],
+  "properties": {
+    "error": { "type": ["string", "null"] },
+    "success": { "type": "string" },
+    "is_request_added": { "type": "boolean" },
+    "product": {
+      "type": "object",
+      "required": ["id", "name", "price", "type", "original_price"],
+      "properties": {
+        "id": { "type": "integer" },
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "type": { "type": "string" },
+        "original_price": { "type": "number" }
+      },
+      "additionalProperties": true
+    },
+    "mobile": { "type": "string" },
+    "mobile_verified": { "type": "boolean" },
+    "mobile_uuid": { "type": "string" }
+  },
+  "additionalProperties": true
+}

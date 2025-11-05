@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "auctionSheet",
+    "auctionSheetFound",
+    "matchesUsedCar"
+  ],
+  "properties": {
+    "auctionSheet": { "type": ["object", "null"] },
+    "auctionSheetFound": { "type": "boolean" },
+    "matchesUsedCar": { "type": "boolean" }
+  },
+  "additionalProperties": true
+}

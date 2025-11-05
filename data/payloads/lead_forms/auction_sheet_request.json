@@ -1,0 +1,11 @@
+{
+  "auction_sheet_request": {
+    "auction_sheet_id": 0,
+    "product_id": 58,
+    "display_name": "Test",
+    "email": "",
+    "mobile_phone": "03123456789",
+    "used_car_id": "2787561"
+  },
+  "new_auction_sheet_id": ""
+}

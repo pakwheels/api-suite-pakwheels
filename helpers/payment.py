@@ -51,6 +51,9 @@ def proceed_checkout(
     s_id: int,
     s_type: str = "ad",
     discount_code: str = "",
+    *,
+    payment_method_id: Optional[int] = None,
+    payload_overrides: Optional[dict] = None,
 ):
     endpoint = os.getenv("FEATURE_CHECKOUT_ENDPOINT", "/payments/proceed_checkout.json")
     params = _env_params("FEATURE_CHECKOUT_QUERY")
@@ -60,6 +63,10 @@ def proceed_checkout(
         "s_type": s_type,
         "discount_code": discount_code or "",
     }
+    if payment_method_id is not None:
+        payload["payment_method_id"] = payment_method_id
+    if payload_overrides:
+        payload.update(payload_overrides)
     return api_client.request(
         method=os.getenv("FEATURE_CHECKOUT_METHOD", "POST"),
         endpoint=endpoint,

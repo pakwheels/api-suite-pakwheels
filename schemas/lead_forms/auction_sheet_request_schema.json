@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "product_id",
+    "s_type",
+    "s_id"
+  ],
+  "properties": {
+    "product_id": {
+      "type": "integer"
+    },
+    "s_type": {
+      "type": "string"
+    },
+    "s_id": {
+      "type": "integer"
+    },
+    "mobile_verified": {
+      "type": "boolean"
+    },
+    "mobile_uuid": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}
