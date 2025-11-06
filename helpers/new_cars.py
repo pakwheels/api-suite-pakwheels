@@ -86,7 +86,7 @@ def fetch_new_make_details(
         validator.compare_with_expected(body, str(snapshot_path))
     else:
         missing_ref = schema_file or snapshot_path
-        print(f"⚠️ Validation reference not found at {missing_ref}; skipping validation.")
+        raise AssertionError(f"Validation reference not found for make '{make}' at {missing_ref}")
 
     return body
 
@@ -152,11 +152,13 @@ def fetch_new_model_details(
 
     if schema_file and schema_file.exists():
         validator.assert_json_schema(body, str(schema_file))
-    elif snapshot_path and snapshot_path.exists():
-        validator.compare_with_expected(body, str(snapshot_path))
+    # elif snapshot_path and snapshot_path.exists():
+    #     validator.compare_with_expected(body, str(snapshot_path))
     else:
         missing_ref = schema_file or snapshot_path
-        print(f"⚠️ Validation reference not found at {missing_ref}; skipping validation.")
+        raise AssertionError(
+            f"Validation reference not found for model '{normalized_link}' at {missing_ref}"
+        )
 
     return body
 
@@ -203,8 +205,10 @@ def fetch_all_make_models(
     if snapshot_path and snapshot_path.exists():
         validator.compare_with_expected(body, str(snapshot_path))
     else:
-        print(f"⚠️ Expected snapshot not found at {snapshot_path}; skipping comparison.")
-
+        raise AssertionError(
+            f"Validation reference not found for all make/models at {snapshot_path}"
+        )
+    
     return body
 
 
@@ -273,6 +277,8 @@ def fetch_new_version_details(
         validator.compare_with_expected(body, str(snapshot_path))
     else:
         missing_ref = schema_file or snapshot_path
-        print(f"⚠️ Validation reference not found at {missing_ref}; skipping validation.")
+        raise AssertionError(
+            f"Validation reference not found for version '{normalized_link}' at {missing_ref}"
+        )
 
     return body

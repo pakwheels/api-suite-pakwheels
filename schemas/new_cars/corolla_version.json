@@ -1,0 +1,140 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Toyota Corolla Version Detail",
+  "type": "object",
+  "required": [
+    "heading",
+    "is_active",
+    "version_id",
+    "version_name",
+    "price",
+    "rich_price_paragraph",
+    "price_block"
+  ],
+  "properties": {
+    "heading": {
+      "type": "string"
+    },
+    "is_active": {
+      "type": "boolean"
+    },
+    "version_id": {
+      "type": "integer"
+    },
+    "version_name": {
+      "type": "string"
+    },
+    "price": {
+      "type": "string"
+    },
+    "rich_price_paragraph": {
+      "type": "string"
+    },
+    "specifications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "text",
+          "subcategories"
+        ],
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "subcategories": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "text",
+                "value"
+              ],
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": ["string", "number", "boolean", "null"]
+                }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "text",
+          "subcategories"
+        ],
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "subcategories": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "text",
+                "value"
+              ],
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "value": {
+                  "type": ["string", "number", "boolean", "null"]
+                }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "price_block": {
+      "type": "object",
+      "required": [
+        "h2",
+        "data"
+      ],
+      "properties": {
+        "h2": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name",
+              "price"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "price": {
+                "type": "string"
+              },
+              "schema_price": {
+                "type": ["string", "number", "null"]
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

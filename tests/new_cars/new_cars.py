@@ -8,9 +8,8 @@ from helpers import (
 )
 
 MAKE_SCHEMA_PATH = "schemas/new_cars/make_catalogue.json"
-TOYOTA_COROLLA_VERSION_EXPECTED = (
-    "data/expected_responses/new_cars/toyota/corolla/versions/xli-automatic.json"
-)
+COROLLA_MODEL_SCHEMA_PATH = "schemas/new_cars/corolla.json"
+COROLLA_VERSION_SCHEMA_PATH = "schemas/new_cars/corolla_version.json"
 
 
 @pytest.mark.new_cars
@@ -39,6 +38,7 @@ def test_get_toyota_corolla_model_details(api_client, validator):
         api_client,
         validator,
         model_link="new-cars/toyota/corolla",
+        schema_path=COROLLA_MODEL_SCHEMA_PATH,
     )
     assert isinstance(response, dict)
 
@@ -50,7 +50,7 @@ def test_get_toyota_corolla_version_details(api_client, validator):
         api_client,
         validator,
         version_link="new-cars/toyota/corolla/xli-automatic",
-        expected_path=TOYOTA_COROLLA_VERSION_EXPECTED,
+        schema_path=COROLLA_VERSION_SCHEMA_PATH,
     )
     assert response.get("version_id") == 3105
     assert response.get("version_name") == "Toyota Corolla XLi Automatic"
