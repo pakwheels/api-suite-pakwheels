@@ -1,0 +1,86 @@
+{
+  "sell_it_for_me_cities": [
+    {
+      "id": 1,
+      "name": "Abottabad",
+      "position": 3,
+      "url_slug": "abbottabad"
+    },
+    {
+      "id": 83,
+      "name": "Faisalabad",
+      "position": 5,
+      "url_slug": "faisalabad"
+    },
+    {
+      "id": 109,
+      "name": "Gujranwala",
+      "position": 5,
+      "url_slug": "gujranwala"
+    },
+    {
+      "id": 256,
+      "name": "Multan",
+      "position": 5,
+      "url_slug": "multan"
+    },
+    {
+      "id": 288,
+      "name": "Peshawar",
+      "position": 4,
+      "url_slug": "peshawar"
+    },
+    {
+      "id": 313,
+      "name": "Rawalpindi",
+      "position": 3,
+      "url_slug": "rawalpindi"
+    },
+    {
+      "id": 408,
+      "name": "Islamabad",
+      "position": 2,
+      "url_slug": "islamabad"
+    },
+    {
+      "id": 409,
+      "name": "Karachi",
+      "position": 0,
+      "url_slug": "karachi"
+    },
+    {
+      "id": 410,
+      "name": "Lahore",
+      "position": 1,
+      "url_slug": "lahore"
+    },
+    {
+      "id": 5362,
+      "name": "Arab",
+      "position": 5,
+      "url_slug": "arab"
+    },
+    {
+      "id": 183554,
+      "name": "Test City",
+      "position": 5,
+      "url_slug": "test-city"
+    },
+    {
+      "id": 183555,
+      "name": "Rails4",
+      "position": 4,
+      "url_slug": "rails4"
+    }
+  ],
+  "error": null,
+  "custom_dimensions": {
+    "user_type": "Individual",
+    "newsletter_subsriber": true,
+    "car_listings": "1",
+    "bike_listings": "0",
+    "parts_listings": "0",
+    "private_rides": "0",
+    "public_rides": "2"
+  }
+}
