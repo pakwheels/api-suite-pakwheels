@@ -76,11 +76,11 @@
   "error": null,
   "custom_dimensions": {
     "user_type": "Individual",
-    "newsletter_subsriber": true,
-    "car_listings": "1",
+    "newsletter_subsriber": false,
+    "car_listings": "0",
     "bike_listings": "0",
     "parts_listings": "0",
     "private_rides": "0",
-    "public_rides": "2"
+    "public_rides": "0"
   }
 }
