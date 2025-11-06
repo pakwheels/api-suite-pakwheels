@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Sell It For Me Cities Response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "sell_it_for_me_cities",
+    "error",
+    "custom_dimensions"
+  ],
+  "properties": {
+    "sell_it_for_me_cities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "position",
+          "url_slug"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "position": {
+            "type": "integer"
+          },
+          "url_slug": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "error": {
+      "type": ["string", "null"]
+    },
+    "custom_dimensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "user_type",
+        "newsletter_subsriber",
+        "car_listings",
+        "bike_listings",
+        "parts_listings",
+        "private_rides",
+        "public_rides"
+      ],
+      "properties": {
+        "user_type": {
+          "type": "string"
+        },
+        "newsletter_subsriber": {
+          "type": "boolean"
+        },
+        "car_listings": {
+          "type": "string"
+        },
+        "bike_listings": {
+          "type": "string"
+        },
+        "parts_listings": {
+          "type": "string"
+        },
+        "private_rides": {
+          "type": "string"
+        },
+        "public_rides": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
