@@ -1,6 +1,7 @@
 .vscode/
 .env
 .venv/
+venv/
 .pytest_cache/
 .cache/
 .mypy_cache/
