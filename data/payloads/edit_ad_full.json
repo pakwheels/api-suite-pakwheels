@@ -1,11 +1,45 @@
 {
   "used_car": {
-    "exterior_color": "white",
+    "model_year": 2020,
+    "car_manufacturer_id": 42,
+    "car_model_id": 118,
+    "car_version_id": 44,
+    "car_model_generation_id": 8,
+    "reg_province_id": 1,
+    "reg_city_id": null,
+    "mileage": "50000",
+    "transmission": "Automatic",
+    "engine_type": "Diesel",
+    "assembly": "Local",
+    "exterior_color": "White",
+    "engine_capacity": "1300",
     "ad_listing_attributes": {
-      "price": "5600000",
-      "display_name": "Taimoor",
-      "phone": "03601234567"
-    }
+      "city_id": 408,
+      "city_area_id": 579,
+      "description": "100% original. As good as a brand new car. 100% maintained by dealership. Edited ad.",
+      "display_name": "Test through Postman",
+      "price": "5500000",
+      "phone": "03601234567",
+      "allow_whatsapp": true,
+      "category_id": 24
+    },
+    "abs": 1,
+    "air_bags": 1,
+    "air_conditioning": 1,
+    "alloy_rims": 0,
+    "cassette_player": 0,
+    "cd_player": 0,
+    "cool_box": 0,
+    "cruise_control": 0,
+    "dvd_player": 1,
+    "am_fm_radio": 1,
+    "immobilizer_key": 1,
+    "keyless_entry": 0,
+    "navigation_system": 0,
+    "power_locks": 0,
+    "power_mirrors": 0,
+    "power_steering": 1,
+    "power_windows": 0,
+    "sun_roof": 0
   }
 }
-

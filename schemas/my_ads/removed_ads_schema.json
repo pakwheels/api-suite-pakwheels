@@ -1,0 +1,157 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "pageNo",
+    "totalPages",
+    "resultCount",
+    "totalActiveAds",
+    "totalPendingAds",
+    "totalRemovedAds",
+    "totalAds",
+    "ads",
+    "custom_dimensions"
+  ],
+  "properties": {
+    "pageNo": { "type": "string" },
+    "totalPages": { "type": "integer" },
+    "resultCount": { "type": "integer" },
+    "totalActiveAds": { "type": "integer" },
+    "totalPendingAds": { "type": "integer" },
+    "totalRemovedAds": { "type": "integer" },
+    "totalAds": { "type": "integer" },
+    "ads": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "phone",
+          "description",
+          "urlSlug",
+          "status",
+          "buyNow",
+          "exceededLimit",
+          "id",
+          "hideControls",
+          "adListingId",
+          "type",
+          "title",
+          "city",
+          "cityArea",
+          "canBeReActivated",
+          "price",
+          "isFeatured",
+          "hasFeatureRequest",
+          "featuredTill",
+          "canBump",
+          "paidBump",
+          "activationType",
+          "pitchUpsell",
+          "searchViewCount",
+          "viewCount",
+          "phoneCount",
+          "isUserAd",
+          "user",
+          "pictures"
+        ],
+        "properties": {
+          "phone": { "type": "string" },
+          "description": { "type": "string" },
+          "urlSlug": { "type": "string" },
+          "videoId": { "type": ["string", "null"] },
+          "videoLink": { "type": ["string", "null"] },
+          "status": { "type": "integer" },
+          "buyNow": { "type": "boolean" },
+          "exceededLimit": { "type": "boolean" },
+          "id": { "type": "integer" },
+          "hideControls": { "type": "boolean" },
+          "adListingId": { "type": "integer" },
+          "type": { "type": "string" },
+          "title": { "type": "string" },
+          "city": { "type": "string" },
+          "cityArea": { "type": "string" },
+          "canBeReActivated": { "type": "boolean" },
+          "price": { "type": "number" },
+          "discount": { "type": ["number", "null"] },
+          "originalPrice": { "type": ["number", "null"] },
+          "isFeatured": { "type": "boolean" },
+          "hasFeatureRequest": { "type": "boolean" },
+          "featuredTill": { "type": ["string", "null"] },
+          "canBump": { "type": "boolean" },
+          "paidBump": { "type": "boolean" },
+          "activationType": { "type": "integer" },
+          "needReview": { "type": ["boolean", "null"] },
+          "violations": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "pitchUpsell": {
+            "type": "object",
+            "required": ["pitch_upsell"],
+            "properties": {
+              "pitch_upsell": { "type": "boolean" }
+            },
+            "additionalProperties": true
+          },
+          "searchViewCount": { "type": "integer" },
+          "viewCount": { "type": "integer" },
+          "phoneCount": { "type": "integer" },
+          "category": { "type": ["string", "null"] },
+          "subcategory": { "type": ["string", "null"] },
+          "modelYear": { "type": ["integer", "null"] },
+          "mileage": { "type": ["string", "null"] },
+          "engineType": { "type": ["string", "null"] },
+          "isUserAd": { "type": "boolean" },
+          "user": {
+            "type": "object",
+            "required": ["id", "displayName", "mobileVerified"],
+            "properties": {
+              "id": { "type": "integer" },
+              "displayName": { "type": "string" },
+              "mobileVerified": { "type": "boolean" }
+            },
+            "additionalProperties": true
+          },
+          "pictures": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "thumbnail", "medium", "original"],
+              "properties": {
+                "id": { "type": "integer" },
+                "thumbnail": { "type": "string" },
+                "medium": { "type": "string" },
+                "original": { "type": "string" }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "custom_dimensions": {
+      "type": "object",
+      "required": [
+        "user_type",
+        "newsletter_subsriber",
+        "car_listings",
+        "bike_listings",
+        "parts_listings",
+        "private_rides",
+        "public_rides"
+      ],
+      "properties": {
+        "user_type": { "type": "string" },
+        "newsletter_subsriber": { "type": "boolean" },
+        "car_listings": { "type": "string" },
+        "bike_listings": { "type": "string" },
+        "parts_listings": { "type": "string" },
+        "private_rides": { "type": "string" },
+        "public_rides": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

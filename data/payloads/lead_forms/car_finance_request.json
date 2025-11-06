@@ -1,0 +1,22 @@
+{
+  "car_finance_lead": {
+    "car_loan_id": "7",
+    "city_id": 109,
+    "cnic": "00000-0000000-0",
+    "current_bank": 2,
+    "down_payment": "40",
+    "in_debt": false,
+    "make_id": "41",
+    "mobile": "",
+    "model_id": "47",
+    "name": "Test",
+    "occupation": "Salaried",
+    "processing_period": 2,
+    "salary": "Above 80,000",
+    "tenure": "2",
+    "version_id": "3179"
+  },
+  "user": {
+    "email": ""
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "car_certification_request": {
+    "model_year": 2021,
+    "make_id": 41,
+    "model_id": 58,
+    "name": "Test",
+    "mobile": "03601234567",
+    "city_id": 409,
+    "request_type": "Buyer"
+  },
+  "user": {
+    "email": "apitest@pakwheels.com"
+  }
+}

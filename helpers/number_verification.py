@@ -2,16 +2,15 @@
 
 from __future__ import annotations
 
-import json
-from typing import Optional
+import os
+from typing import Optional, Dict, Any
 
-from helpers.shared import _validate_response
+DEFAULT_API_VERSION = os.getenv("API_VERSION", "22")
 
 __all__ = [
-    "verify_posted_ad_phone",
+    "verify_phone_number",
     "clear_mobile_number",
     "add_mobile_number",
-    "verify_mobile_number",
 ]
 
 
@@ -39,59 +38,39 @@ def add_mobile_number(api_client, mobile_number: str, api_version: str = "22"):
     )
 
 
-def verify_mobile_number(api_client, pin_id: str, pin: str = "123456", api_version: str = "22"):
-    """Submit the OTP to verify the mobile number."""
-    return api_client.request(
-        method="POST",
-        endpoint="/add-mobile-number/verify.json",
-        params={"api_version": api_version, "pin_id": pin_id, "pin": pin},
-    )
-
-
-def verify_posted_ad_phone(
+def verify_phone_number(
     api_client,
     validator,
-    load_payload,
-    posted_ad: dict,
+    phone: str,
     otp_pin: str = "123456",
-) -> dict:
-    """Complete the mobile verification workflow for an already posted ad."""
-    ad_id = posted_ad["ad_id"]
-    api_ver = posted_ad["api_version"]
+    api_version: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Clear, request, and verify a mobile number.
+    Should be called after obtaining an auth token.
+    """
+    assert phone, "Phone number is required for verification."
+    version = str(api_version or DEFAULT_API_VERSION)
 
-    body = load_payload("used_car.json")
-    phone = (
-        body.get("used_car", {})
-        .get("ad_listing_attributes", {})
-        .get("phone")
-    )
-    assert phone, "No phone number found in used_car payload."
-
-    cleared = clear_mobile_number(api_client, phone)
-    validator.assert_status_code(cleared["status_code"], 200)
-
-    send_otp = add_mobile_number(api_client, mobile_number=phone, api_version=api_ver)
+    send_otp = add_mobile_number(api_client, mobile_number=phone, api_version=version)
     validator.assert_status_code(send_otp["status_code"], 200)
     send_body = send_otp.get("json") or {}
+    validator.assert_json_schema(send_body, "schemas/mobile_otp_request_schema.json")
     assert not send_body.get("number_already_exist"), "Phone number already exists."
     pin_id = send_body.get("pin_id")
     assert pin_id, "pin_id missing from add_mobile_number response."
 
-    verify = verify_mobile_number(api_client, pin_id=pin_id, pin=otp_pin, api_version=api_ver)
-    validator.assert_status_code(verify["status_code"], 200)
-
-    details = api_client.request(
-        "GET",
-        f"/used-cars/{ad_id}.json",
-        params={"api_version": api_ver},
+    verify_resp = api_client.request(
+        method="POST",
+        endpoint="/add-mobile-number/verify.json",
+        params={"api_version": version, "pin_id": pin_id, "pin": otp_pin},
     )
-    print("\n🔎 Ad Details:", details["status_code"])
-    print(json.dumps(details.get("json"), indent=2))
-    validator.assert_status_code(details["status_code"], 200)
-    _validate_response(
-        validator,
-        details["json"],
-        expected_path="data/expected_responses/used_car_post.json",
-    )
-    return details.get("json") or {}
+    validator.assert_status_code(verify_resp["status_code"], 200)
+    verify_body = verify_resp.get("json") or {}
+    validator.assert_json_schema(verify_body, "schemas/mobile_login_response_schema.json")
 
+    return {
+        "clear_response": None,
+        "otp_request": send_body,
+        "verification": verify_body,
+    }

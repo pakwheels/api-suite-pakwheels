@@ -3,7 +3,7 @@ import pytest
 import json
 from utils.api_client import APIClient
 from utils.validator import Validator
-from helpers.car_ads import get_posted_ad
+from helpers.car_ads import get_session_ad_metadata
 from dotenv import load_dotenv
 from helpers.auth import get_auth_token
 # Load environment variables
@@ -34,17 +34,74 @@ def api_ver():
 
 
 @pytest.fixture(scope="session")
-def auth_token():
-    return get_auth_token()
+def auth(request, base_url, api_ver):
+    cfg = request.param if hasattr(request, "param") else {}
+    mode = (cfg.get("mode") or "mobile").lower()
+
+    clear_number_first = cfg.get("clear_number_first")
+    if clear_number_first is None:
+        clear_number_first = False
+
+    api_client_override = cfg.get("api_client")
+    client_for_clear = api_client_override
+    if clear_number_first and client_for_clear is None and mode == "mobile":
+        client_for_clear = APIClient(base_url, "", api_ver)
+
+    login_kwargs = {
+        "login_method": mode,
+        "api_client": client_for_clear,
+        "clear_number_first": clear_number_first,
+    }
+
+    if mode == "mobile":
+        login_kwargs.update(
+            mobile_number=cfg.get("mobile"),
+            otp_pin=cfg.get("otp") or cfg.get("password"),
+            country_code=cfg.get("country_code") or "92",
+        )
+    else:  # email
+        login_kwargs["clear_number_first"] = False
+        login_kwargs["api_client"] = None  # email flow doesn’t need a client
+
+    token = get_auth_token(**login_kwargs)
+    return {"mode": mode, "token": token}
 
 @pytest.fixture(scope="session")
-def api_client(base_url, auth_token, api_ver):
-    return APIClient(base_url, auth_token, api_ver)
+def api_client(base_url, api_ver):
+    mode = (os.getenv("SESSION_AUTH_MODE") or "mobile").lower()
+    client = APIClient(base_url, "", api_ver)
+
+    if mode == "email":
+        token = get_auth_token(
+            login_method=mode,
+            clear_number_first=False,
+        )
+        client.access_token = token
+    else:
+        token = get_auth_token(
+            api_client=client,
+            login_method=mode,
+            clear_number_first=False,
+        )
+        client.access_token = token
+
+    return client
+# @pytest.fixture(scope="session")
+# def auth_token(api_client):
+#     return api_client.access_token
 
 @pytest.fixture(scope="session")
 def validator():
     """Provide reusable validator instance."""
     return Validator()
+
+
+@pytest.fixture
+def mobile_number_env():
+    number = os.getenv("MOBILE_NUMBER")
+    if not number:
+        pytest.skip("MOBILE_NUMBER not configured in environment")
+    return number
 
 @pytest.fixture
 def api_request(api_client):
@@ -74,15 +131,11 @@ def _normalize_slug(slug: str) -> str:
     s = slug.strip()
     return s if s.startswith("/used-cars/") else f"/used-cars/{s.lstrip('/')}"
 
-# def _load_payload_session(name: str):
-#     path = Path("data/payloads") / name
-#     with path.open("r", encoding="utf-8") as f:
-#         return json.load(f)
-
 @pytest.fixture(scope="session")
 def posted_ad(api_client, validator):
     """POST once per session; share ad_id/ad_listing_id/slug."""
-    return get_posted_ad(api_client, validator)
+    return get_session_ad_metadata(api_client, validator)
+
 @pytest.fixture
 def ad_ref(posted_ad):
     """

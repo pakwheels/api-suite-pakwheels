@@ -1,0 +1,11 @@
+{
+  "success": "We have received your PakWheels Inspection request. Basic package will be applicable and cost Rs.4950.0. One of our representatives from PakWheels Inspection customer care will get in touch with you during business hours to confirm your request.",
+  "product": {
+    "id": 102,
+    "name": "Basic",
+    "price": 1950,
+    "type": "car_certification_request",
+    "original_price": 4950.0
+  },
+  "has_credits": false
+}

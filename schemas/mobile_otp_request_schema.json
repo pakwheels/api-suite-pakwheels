@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "mobile_otp_request_response",
+  "type": "object",
+  "properties": {
+    "pin_id": {
+      "type": "string",
+      "description": "The unique identifier for the OTP verification session."
+    },
+    "mobile_number": {
+      "type": "string",
+      "description": "The mobile number for which the OTP was requested."
+    },
+    "number_already_exist": {
+      "type": ["boolean", "null"],
+      "description": "Indicates if the mobile number is already registered."
+    }
+  },
+  "required": ["pin_id", "mobile_number"],
+  "additionalProperties": true
+}

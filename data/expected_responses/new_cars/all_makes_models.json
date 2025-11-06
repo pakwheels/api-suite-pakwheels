@@ -1,0 +1,60 @@
+{
+  "popular": [
+    {
+      "make": {
+        "name": "BAIC",
+        "url_slug": "baic"
+      }
+    },
+    {
+      "make": {
+        "name": "BMW",
+        "url_slug": "bmw"
+      }
+    },
+    {
+      "make": {
+        "name": "Changan",
+        "url_slug": "changan"
+      }
+    },
+    {
+      "make": {
+        "name": "Honda",
+        "url_slug": "honda"
+      }
+    },
+    {
+      "make": {
+        "name": "Suzuki",
+        "url_slug": "suzuki"
+      }
+    },
+    {
+      "make": {
+        "name": "Toyota",
+        "url_slug": "toyota"
+      }
+    }
+  ],
+  "other": [
+    {
+      "make": {
+        "name": "Adam"
+      }
+    },
+    {
+      "make": {
+        "name": "Aston Martin"
+      }
+    }
+  ],
+  "electric_cars": [
+    {
+      "make": {
+        "name": "Audi"
+      }
+    }
+  ],
+  "error": ""
+}

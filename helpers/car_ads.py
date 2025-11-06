@@ -3,8 +3,10 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from pathlib import Path
-from typing import Iterable, Optional, Tuple
+from typing import Any, Callable, Iterable, Optional, Tuple
+from helpers.car_ads_utils import available_feature_credits, extract_feature_credit_count
 
 import requests
 
@@ -12,20 +14,284 @@ from helpers import get_auth_token
 from helpers.shared import (
     _choose_feature_weeks,
     _ensure_slug_path,
+    _get_value_by_path,
     _log_http,
+    _normalize_bool_flag,
+    _normalize_digits,
+    _normalize_lower,
     _normalize_slug,
+    _normalize_whitespace,
     _read_json,
-    _to_int_or_none,
     _validate_response,
 )
 from helpers.picture_uploader import upload_ad_picture
-from helpers.number_verification import clear_mobile_number
+from helpers.payment import (
+    complete_jazz_cash_payment,
+    get_my_credits,
+    list_feature_products,
+    proceed_checkout,
+)
 
 DEFAULT_API_VERSION = os.getenv("API_VERSION", "22")
 POST_ENDPOINT = os.getenv("POST_ENDPOINT", "/used-cars.json")
 
 _POSTED_AD_CACHE: Optional[dict] = None
 CORE = "https://core.pakkey.com"
+
+FieldRule = Tuple[str, str, Callable[[Any], Any]]
+
+_FEATURE_FLAGS = (
+    "abs",
+    "air_bags",
+    "air_conditioning",
+    "alloy_rims",
+    "cassette_player",
+    "cd_player",
+    "cool_box",
+    "cruise_control",
+    "dvd_player",
+    "am_fm_radio",
+    "immobilizer_key",
+    "keyless_entry",
+    "navigation_system",
+    "power_locks",
+    "power_mirrors",
+    "power_steering",
+    "power_windows",
+    "sun_roof",
+)
+
+
+_EDIT_PAYLOAD_RESPONSE_RULES: Tuple[FieldRule, ...] = (
+    ("used_car.model_year", "ad_listing.model_year", _normalize_digits),
+    ("used_car.transmission", "ad_listing.transmission", _normalize_lower),
+    ("used_car.engine_type", "ad_listing.engine_type", _normalize_lower),
+    ("used_car.engine_capacity", "ad_listing.engine_capacity", _normalize_digits),
+    ("used_car.exterior_color", "ad_listing.exterior_color", _normalize_lower),
+    ("used_car.assembly", "ad_listing.assembly", _normalize_lower),
+    ("used_car.ad_listing_attributes.description", "ad_listing.seller_comments", _normalize_whitespace),
+    ("used_car.ad_listing_attributes.display_name", "ad_listing.user.display_name", _normalize_whitespace),
+    ("used_car.ad_listing_attributes.price", "ad_listing.price", _normalize_digits),
+    ("used_car.ad_listing_attributes.allow_whatsapp", "ad_listing.allow_whatsapp", _normalize_bool_flag),
+) + tuple(
+    (f"used_car.{feature}", f"ad_listing.{feature}", _normalize_bool_flag)
+    for feature in _FEATURE_FLAGS
+)
+
+def _coerce_int(value) -> Optional[int]:
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, str):
+        stripped = value.strip()
+        if stripped.isdigit():
+            return int(stripped)
+    return None
+
+def _available_feature_credits(api_client) -> Optional[int]:
+    try:
+        resp = get_my_credits(api_client)
+    except Exception:
+        return None
+    if not isinstance(resp, dict) or resp.get("status_code") != 200:
+        return None
+    return _extract_feature_credit_count(resp.get("json"))
+
+
+def _extract_feature_credit_count(payload) -> Optional[int]:
+    value = _coerce_int(payload)
+    if value is not None:
+        return value
+    if isinstance(payload, dict):
+        for key, item in payload.items():
+            key_lower = key.lower()
+            if "feature" in key_lower and "credit" in key_lower:
+                coerced = _coerce_int(item)
+                if coerced is not None:
+                    return coerced
+            nested = _extract_feature_credit_count(item)
+            if nested is not None:
+                return nested
+    if isinstance(payload, list):
+        for item in payload:
+            nested = _extract_feature_credit_count(item)
+            if nested is not None:
+                return nested
+    return None
+
+
+def post_used_car(
+    api_client,
+    validator,
+    payload_path: Path = Path("data/payloads/used_car.json"),
+    schema_path: str = "schemas/used_car_post_response_ack.json",
+    expected_path: Optional[str] = "data/expected_responses/used_car_post.json",
+    api_version: str = DEFAULT_API_VERSION,
+) -> dict:
+    """Post a used-car ad and return the full response payload."""
+    body = _read_json(payload_path)
+
+    pictures_dir = Path("data/pictures")
+    if pictures_dir.exists():
+        files = sorted(p for p in pictures_dir.iterdir() if p.is_file())
+        if files:
+            pics_attr = (
+                body.setdefault("used_car", {})
+                .setdefault("ad_listing_attributes", {})
+                .setdefault("pictures_attributes", {})
+            )
+            pics_attr.clear()
+
+            token = get_auth_token()
+            fcm_token = os.getenv("FCM_TOKEN")
+
+            for idx, file_path in enumerate(files):
+                pic_id = upload_ad_picture(
+                    api_client,
+                    file_path=str(file_path),
+                    api_version=os.getenv("PICTURE_UPLOAD_API_VERSION", "18"),
+                    access_token=token,
+                    fcm_token=fcm_token,
+                    new_version=True,
+                )
+                pics_attr[str(idx)] = {"pictures_ids": str(pic_id)}
+
+    via_whatsapp = "true" if (
+        body.get("used_car", {}).get("ad_listing_attributes", {}).get("allow_whatsapp") is True
+    ) else "false"
+
+    resp = api_client.request(
+        "POST",
+        POST_ENDPOINT,
+        params={"api_version": api_version, "via_whatsapp": via_whatsapp},
+        json_body=body,
+    )
+    print("\n🚗 [SESSION] Post Used Car:", resp["status_code"])
+    print(json.dumps(resp.get("json"), indent=2))
+
+    validator.assert_status_code(resp["status_code"], 200)
+    _validate_response(validator, resp["json"], schema_path=schema_path, expected_path=expected_path)
+
+    return resp["json"] or {}
+
+
+def get_session_ad_metadata(
+    api_client,
+    validator,
+    payload_path: Path = Path("data/payloads/used_car.json"),
+    schema_path: str = "schemas/used_car_post_response_ack.json",
+    expected_path: Optional[str] = None,
+    api_version: str = DEFAULT_API_VERSION,
+) -> dict:
+
+    global _POSTED_AD_CACHE
+    if _POSTED_AD_CACHE:
+        return _POSTED_AD_CACHE
+
+    ack = post_used_car(
+        api_client,
+        validator,
+        payload_path=payload_path,
+        schema_path=schema_path,
+        expected_path=expected_path,
+        api_version=api_version,
+    )
+
+    ad_id = int(ack["ad_id"])
+    ad_listing_id = int(ack["ad_listing_id"])
+    raw_slug = ack.get("success") or ack.get("slug")
+    slug = _normalize_slug(raw_slug) if raw_slug else None
+
+    details_resp = api_client.request(
+        "GET",
+        f"/used-cars/{ad_id}.json",
+        params={"api_version": api_version},
+    )
+    validator.assert_status_code(details_resp["status_code"], 200)
+    details_body = details_resp.get("json") or {}
+
+    _POSTED_AD_CACHE = {
+        "ad_id": ad_id,
+        "ad_listing_id": ad_listing_id,
+        "slug": slug,
+        "api_version": api_version,
+        "ack": ack,
+        "details": details_body,
+    }
+    return _POSTED_AD_CACHE
+
+
+def get_ad_ref(posted_ad: dict) -> dict:
+    slug = posted_ad.get("slug") or posted_ad.get("success")
+    return {
+        "slug": _normalize_slug(slug) if slug else None,
+        "ad_listing_id": int(posted_ad["ad_listing_id"]),
+        "ad_id": int(posted_ad["ad_id"]),
+    }
+
+
+def get_ad_ids(posted_ad: dict) -> dict:
+    return {
+        "ad_id": int(posted_ad["ad_id"]),
+        "ad_listing_id": int(posted_ad["ad_listing_id"]),
+    }
+
+def edit_payload_check(payload: dict, response: dict) -> None:
+    """
+    Compare an edit payload against the ad_listing section of an API response.
+
+    Raises AssertionError if any mapped field is missing or has different value.
+    """
+    if not isinstance(payload, dict):
+        raise AssertionError("Payload must be a dict.")
+    if not isinstance(response, dict):
+        raise AssertionError("Response must be a dict.")
+
+    if not isinstance(response.get("ad_listing"), dict):
+        raise AssertionError("Response must include an 'ad_listing' object.")
+
+    missing = []
+    mismatches = []
+
+    for payload_path, response_path, normalizer in _EDIT_PAYLOAD_RESPONSE_RULES:
+        expected = _get_value_by_path(payload, payload_path)
+        if expected is None:
+            continue
+
+        actual = _get_value_by_path(response, response_path)
+        normalized_expected = normalizer(expected)
+        normalized_actual = normalizer(actual) if actual is not None else None
+
+        if actual is None:
+            missing.append(
+                {
+                    "payload_field": payload_path,
+                    "response_field": response_path,
+                    "expected": normalized_expected,
+                }
+            )
+            continue
+
+        if normalized_expected != normalized_actual:
+            mismatches.append(
+                {
+                    "payload_field": payload_path,
+                    "response_field": response_path,
+                    "expected": normalized_expected,
+                    "actual": normalized_actual,
+                }
+            )
+
+    if missing or mismatches:
+        details = {"missing": missing, "mismatches": mismatches}
+        raise AssertionError(
+            "Payload fields do not match API response.\n"
+            f"{json.dumps(details, indent=2)}"
+        )
+
+    print("✅ Payload fields reflected in response.")
+
 
 
 def close_used_car_existing(
@@ -88,85 +354,39 @@ def edit_used_car_existing(
     ad_listing_id: int,
     api_version: str = DEFAULT_API_VERSION,
 ):
-    """Edit an existing ad using cached metadata and refresh the cache with latest details."""
-    cached = get_posted_ad(api_client, validator)
-    assert str(cached["ad_id"]) == str(ad_id), "Cached ad_id does not match requested ad_id"
-    assert str(cached["ad_listing_id"]) == str(ad_listing_id), "Cached ad_listing_id mismatch"
-
-    cached_details = cached.get("details") or {}
-
-    # 1) Read current values so we can preserve required fields
-    details_before = api_client.request(
-        "GET",
-        f"/used-cars/{ad_id}.json",
-        params={"api_version": api_version},
-    )
-    print("\n🔎 Current Details:", details_before["status_code"])
-    print(json.dumps(details_before.get("json"), indent=2))
-    validator.assert_status_code(details_before["status_code"], 200)
-
-    body_before = details_before.get("json") or {}
-    if cached_details:
-        cached_slug = (
-            cached_details.get("slug")
-            or cached_details.get("success")
-            or (cached_details.get("ad_listing") or {}).get("slug")
-            or (cached_details.get("used_car") or {}).get("slug")
-        )
-        current_slug = (
-            body_before.get("slug")
-            or body_before.get("success")
-            or (body_before.get("ad_listing") or {}).get("slug")
-            or (body_before.get("used_car") or {}).get("slug")
-        )
-        if cached_slug and current_slug:
-            assert _normalize_slug(cached_slug) == _normalize_slug(current_slug), "Cached slug mismatch"
-
-    current_listing = body_before.get("ad_listing") or body_before.get("used_car") or body_before
-    current_attrs = (
-        current_listing.get("ad_listing_attributes")
-        or current_listing.get("ad_listing")
-        or {}
-    )
-
-    # 2) Build edit payload and ensure IDs/requireds are in the right place
+    # Build edit payload from disk and inject the ad_listing id.
     edit_payload = load_payload("edit_ad_full.json")
+    used_car = edit_payload.setdefault("used_car", {})
+    ad_attrs = used_car.setdefault("ad_listing_attributes", {})
+    ad_attrs["id"] = ad_listing_id
 
-    uc = edit_payload.setdefault("used_car", {})
-    ad_attrs = uc.setdefault("ad_listing_attributes", {})
-    ad_attrs["id"] = ad_listing_id  # ad_listing id always belongs in ad_listing_attributes
+    # Prepare request details for visibility
+    endpoint = f"/used-cars/{ad_id}.json"
+    params = {"api_version": api_version}
 
-    # --- Preserve required TOP-LEVEL fields on `used_car` ---
-    engine_type = (
-        uc.get("engine_type")
-        or current_listing.get("engine_type")
-        or current_attrs.get("engine_type")
+    print(
+        "\n🛰️ Edit request:",
+        json.dumps(
+            {
+                "method": "PUT",
+                "endpoint": endpoint,
+                "params": params,
+            },
+            indent=2,
+        ),
     )
-    if engine_type:
-        uc["engine_type"] = engine_type
+    print("📦 Edit payload:", json.dumps(edit_payload, indent=2))
 
-    for key in ("engine_capacity", "model_year"):
-        v = uc.get(key)
-        if v in (None, "", []):
-            v = current_listing.get(key) or current_attrs.get(key)
-        coerced = _to_int_or_none(v)
-        if coerced is not None:
-            uc[key] = coerced
-        else:
-            uc.pop(key, None)
-
-    for k in ("engine_type", "engine_capacity", "model_year"):
-        ad_attrs.pop(k, None)
-
-    # 3) PUT the edit
+    # PUT the edit directly against the ad id
     edit_resp = api_client.request(
         "PUT",
-        f"/used-cars/{ad_id}.json",
-        params={"api_version": api_version},
+        endpoint,
+        params=params,
         json_body=edit_payload,
     )
-    print("\n✏️ Edit Used Car:", edit_resp["status_code"])
-    print(json.dumps(edit_resp.get("json"), indent=2))
+    
+    # 1. Validate the PUT request success
+    print("\n✏️ Edit Used Car ACK:", edit_resp["status_code"])
 
     body = edit_resp.get("json") or {}
     if body.get("error"):
@@ -175,70 +395,28 @@ def edit_used_car_existing(
     validator.assert_status_code(edit_resp["status_code"], 200)
     validator.assert_json_schema(body, "schemas/used_car_edit_response_ack.json")
 
-    # 4) GET after and compare to stored expected
-    details_after = api_client.request(
+    # --- FIX STARTS HERE ---
+    
+    # 2. After successful ACK, perform a GET request to fetch the fully updated details.
+    print(f"🔄 Fetching updated details for ad ID {ad_id}...")
+    details_resp = api_client.request(
         "GET",
-        f"/used-cars/{ad_id}.json",
-        params={"api_version": api_version},
+        endpoint, # Reuse the same endpoint, but with GET method
+        params=params,
     )
-    print("\n🔎 Details after Edit:", details_after["status_code"])
-    print(json.dumps(details_after.get("json"), indent=2))
-    validator.assert_status_code(details_after["status_code"], 200)
-
-    latest_details = details_after.get("json") or {}
-
-    validator.compare_with_expected(
-        latest_details,
-        "data/expected_responses/used_car_edit.json",
-    )
-
-    raw_updated_slug = (
-        latest_details.get("slug")
-        or latest_details.get("success")
-        or (latest_details.get("ad_listing") or {}).get("slug")
-        or (latest_details.get("used_car") or {}).get("slug")
-    )
-    updated_slug = _normalize_slug(raw_updated_slug) if raw_updated_slug else cached.get("slug")
-
-    global _POSTED_AD_CACHE
-    _POSTED_AD_CACHE = {
-        "ad_id": int(ad_id),
-        "ad_listing_id": int(ad_listing_id),
-        "slug": updated_slug,
-        "api_version": api_version,
-        "ack": body,
-        "details": latest_details,
-    }
-
-    return body
-
-def feature_used_car_existing(
-    api_client,
-    validator,
-    ad_ref: dict,
-    api_version: str = DEFAULT_API_VERSION,
-    schema_path: Optional[str] = None,
-    expected_path: Optional[str] = None,
-):
-    """Feature an ad by selecting weeks based on the current price."""
-    ad_id, price = _resolve_ad_id_and_price(api_client, ad_ref, api_version)
-    feature_weeks = _choose_feature_weeks(price)
-
-    endpoint = f"/used-cars/{ad_id}/feature.json"
-    resp = api_client.request(
-        "POST",
-        endpoint,
-        params={"api_version": api_version},
-        json_body={"feature_weeks": feature_weeks},
-    )
-
-    print(f"\n⭐ Feature Ad: POST {endpoint}?api_version={api_version} → {resp['status_code']}")
-    print(json.dumps(resp.get("json"), indent=2))
-    validator.assert_status_code(resp["status_code"], 200)
-    body = resp.get("json") or {}
-    _validate_response(validator, body, schema_path=schema_path, expected_path=expected_path)
-    return body
-
+    
+    # 3. Validate the GET request
+    validator.assert_status_code(details_resp["status_code"], 200)
+    details_body = details_resp.get("json") or {}
+    
+    # 4. Use the detailed GET response for payload comparison
+    edit_payload_check(edit_payload, details_body)
+    
+    # --- FIX ENDS HERE ---
+    
+    return details_body # Return the detailed response
+# Backwards compatibility: allow helpers.edit_used_car(...) imports.
+edit_used_car = edit_used_car_existing
 
 def _resolve_ad_id_and_price(api_client, ref: dict, api_version: str) -> Tuple[int, int]:
     """Resolve ad id and price from either ad_id or slug."""
@@ -275,6 +453,284 @@ def _resolve_ad_id_and_price(api_client, ref: dict, api_version: str) -> Tuple[i
         price = 0
 
     return int(resolved_id), price
+
+
+def feature_used_car_with_credit(
+    api_client,
+    validator,
+    ad_ref: dict,
+    feature_weeks: Optional[int] = None,
+    api_version: str = DEFAULT_API_VERSION,
+    schema_path: Optional[str] = None,
+    expected_path: Optional[str] = None,
+    raise_on_failure: bool = False,
+):
+    ad_id, price = _resolve_ad_id_and_price(api_client, ad_ref, api_version)
+    weeks = feature_weeks or _choose_feature_weeks(price)
+
+    endpoint = f"/used-cars/{ad_id}/feature.json"
+    resp = api_client.request(
+        "POST",
+        endpoint,
+        params={"api_version": api_version},
+        json_body={"feature_weeks": weeks},
+    )
+
+    print(f"\n⭐ Feature Ad (credits): POST {endpoint}?api_version={api_version} → {resp['status_code']}")
+    print(json.dumps(resp.get("json"), indent=2))
+
+    if resp["status_code"] == 200:
+        body = resp.get("json") or {}
+        _validate_response(validator, body, schema_path=schema_path, expected_path=expected_path)
+        return {"method": "credit", "weeks": weeks, "response": body}
+
+    if raise_on_failure:
+        raise AssertionError(
+            f"Feature via credits failed: {resp['status_code']} → {json.dumps(resp.get('json'), indent=2)}"
+        )
+
+    return None
+
+
+# def feature_used_car_existing(
+#     api_client,
+#     validator,
+#     ad_ref: dict,
+#     api_version: str = DEFAULT_API_VERSION,
+#     schema_path: Optional[str] = None,
+#     expected_path: Optional[str] = None,
+# ):
+#     credit_result = feature_used_car_with_credit(
+#         api_client,
+#         validator,
+#         ad_ref,
+#         api_version=api_version,
+#         schema_path=schema_path,
+#         expected_path=expected_path,
+#         feature_weeks=None,
+#         raise_on_failure=False,
+#     )
+#     if credit_result:
+#         return credit_result["response"]
+
+#     payment_result = feature_used_car_with_payment(
+#         api_client,
+#         validator,
+#         ad_ref,
+#         feature_weeks=None,
+#         api_version=api_version,
+#     )
+#     return payment_result
+
+
+def feature_used_car_with_payment(
+    api_client,
+    validator,
+    ad_ref: dict,
+    feature_weeks: Optional[int] = None,
+    api_version: str = DEFAULT_API_VERSION,
+):
+    ad_id, price = _resolve_ad_id_and_price(api_client, ad_ref, api_version)
+    weeks = feature_weeks or _choose_feature_weeks(price)
+    
+    print(f"\n💳 Attempting Feature via **Payment** (Weeks: {weeks}) for Ad ID: {ad_id}")
+    if feature_weeks is None:
+        print(f"  Weeks calculated dynamically based on price {price}.")
+
+    ad_listing_id = _ensure_ad_listing_id(api_client, ad_ref, ad_id, api_version)
+    print(f"  Resolved Ad Listing ID: {ad_listing_id}")
+
+    print("  1. Listing feature products...")
+    products_resp = list_feature_products(api_client, ad_id)
+    validator.assert_status_code(products_resp["status_code"], 200)
+    
+    product = _select_feature_product(products_resp.get("json"), weeks)
+    assert product, "Unable to select feature product"
+    product_id = _product_id(product)
+    assert product_id is not None, "Feature product missing identifier"
+    print(f"  2. Selected Product ID: {product_id} (Target Weeks: {weeks})")
+
+    print("  3. Confirming product selection...")
+    products_confirm = list_feature_products(
+        api_client,
+        ad_id,
+        product_id=product_id,
+        discount_code="",
+        s_id=ad_listing_id,
+        s_type="ad",
+    )
+    validator.assert_status_code(products_confirm["status_code"], 200)
+    print("  4. Proceeding to checkout...")
+    checkout_response = proceed_checkout(
+        api_client,
+        product_id=int(product_id),
+        s_id=ad_listing_id,
+        s_type="ad",
+        discount_code="",
+    )
+    validator.assert_status_code(checkout_response["status_code"], 200)
+
+    # *** ADDED INSPECTION LINE HERE ***
+    print("  [DEBUG] Checkout Response JSON (for payment ID):")
+    print(json.dumps(checkout_response.get("json", {}), indent=2))
+    # ***********************************
+    
+    payment_id = _extract_payment_id(checkout_response.get("json", {}))
+    print(f"  5. Checkout complete. Resolved Payment ID: {payment_id}")
+    
+    if not payment_id:
+        print("  ❌ Feature via Payment Failed: Could not get payment ID.")
+        return {
+            "method": "payment",
+            "weeks": weeks,
+            "payment_id": None,
+            "checkout_response": checkout_response.get("json", {}),
+        }
+
+    print(f"  6. Completing Jazz Cash payment for Payment ID: {payment_id}...")
+    payment_result = complete_jazz_cash_payment(
+        api_client,
+        validator,
+        payment_id,
+        ad_id,
+        api_version,
+    )
+    
+    print("  ✅ Feature via Payment Process Complete.")
+    return {
+        "method": "payment",
+        "weeks": weeks,
+        "payment_id": payment_id,
+        **payment_result,
+    }
+
+def feature_used_car(
+    api_client,
+    validator,
+    ad_ref: dict,
+    api_version: str = DEFAULT_API_VERSION,
+    schema_path: Optional[str] = None,
+    expected_path: Optional[str] = None,
+    feature_weeks: Optional[int] = None,
+):
+    ad_id, price = _resolve_ad_id_and_price(api_client, ad_ref, api_version)
+    weeks = feature_weeks or _choose_feature_weeks(price)
+
+    credits = _available_feature_credits(api_client)
+    if credits is None or credits >= weeks:
+        credit_result = feature_used_car_with_credit(
+            api_client,
+            validator,
+            ad_ref,
+            feature_weeks=weeks,
+            api_version=api_version,
+            schema_path=schema_path,
+            expected_path=expected_path,
+        )
+        if credit_result is not None:
+            return credit_result
+
+    payment_result = feature_used_car_with_payment(
+        api_client,
+        validator,
+        ad_ref,
+        feature_weeks=weeks,
+        api_version=api_version,
+    )
+    return payment_result
+
+def _ensure_ad_listing_id(api_client, ad_ref: dict, ad_id: int, api_version: str) -> int:
+    if "ad_listing_id" in ad_ref and ad_ref["ad_listing_id"] is not None:
+        return int(ad_ref["ad_listing_id"])
+    details = api_client.request(
+        "GET",
+        f"/used-cars/{ad_id}.json",
+        params={"api_version": api_version},
+    )
+    body = details.get("json") or {}
+    candidates = []
+    for key in ("ad_listing_id", "listing_id"):
+        if key in body:
+            candidates.append(body[key])
+    listing = body.get("ad_listing") or body.get("used_car") or {}
+    if isinstance(listing, dict):
+        for key in ("id", "ad_listing_id"):
+            if key in listing:
+                candidates.append(listing[key])
+    for candidate in candidates:
+        try:
+            return int(candidate)
+        except (TypeError, ValueError):
+            continue
+    raise AssertionError("Unable to resolve ad_listing_id for payment flow")
+
+
+def _select_feature_product(payload: dict, target_week: Optional[int]):
+    products = _extract_products(payload)
+    if not products:
+        return None
+    if target_week is None:
+        return products[0]
+    for product in products:
+        label = _product_label(product)
+        category = product.get("category") if isinstance(product, dict) else None
+        weeks = _extract_week_count(label, category)
+        if weeks == target_week:
+            return product
+    return products[0]
+
+
+def _extract_products(payload):
+    if isinstance(payload, dict):
+        for key in ("products", "data", "items", "product_list"):
+            collection = payload.get(key)
+            if isinstance(collection, list) and collection:
+                return collection
+        for value in payload.values():
+            result = _extract_products(value)
+            if result:
+                return result
+    elif isinstance(payload, list):
+        for item in payload:
+            result = _extract_products(item)
+            if result:
+                return result
+    return []
+
+
+def _product_label(product: dict) -> str:
+    if not isinstance(product, dict):
+        return ""
+    for key in ("title", "name", "label", "description"):
+        value = product.get(key)
+        if isinstance(value, str):
+            return value
+    return ""
+
+
+def _product_id(product: dict):
+    if not isinstance(product, dict):
+        return None
+    for key in ("id", "product_id", "pk"):
+        value = product.get(key)
+        if value is not None:
+            return value
+    return None
+
+
+def _extract_week_count(label: str, category: Optional[str] = None) -> Optional[int]:
+    text = (label or "").lower()
+    match = re.search(r"(\d+)\s*(week|day)", text)
+    if match:
+        value = int(match.group(1))
+        unit = match.group(2)
+        if unit.startswith("day") and value % 7 == 0:
+            return value // 7
+        if unit.startswith("week"):
+            return value
+    if category and isinstance(category, str):
+        return _extract_week_count(category, None)
+    return None
 
 
 def wait_for_ad_state(
@@ -522,11 +978,16 @@ def reactivate_and_verify_lists(
 
 
 __all__ = [
+    "edit_payload_check",
     "close_used_car_existing",
     "edit_used_car_existing",
-    "feature_used_car_existing",
+    "edit_used_car",
+    # "feature_used_car_existing",
+    "feature_used_car",
+    "feature_used_car_with_credit",
+    "feature_used_car_with_payment",
     "post_used_car",
-    "get_posted_ad",
+    "get_session_ad_metadata",
     "get_ad_ref",
     "get_ad_ids",
     "upload_ad_picture",
@@ -534,127 +995,36 @@ __all__ = [
     "reactivate_used_car_existing",
     "wait_for_ad_state",
 ]
-def post_used_car(
-    api_client,
-    validator,
-    payload_path: Path = Path("data/payloads/used_car.json"),
-    schema_path: str = "schemas/used_car_post_response_ack.json",
-    expected_path: Optional[str] = None,
-    api_version: str = DEFAULT_API_VERSION,
-) -> dict:
-    """Post a used-car ad and return the full response payload."""
-    body = _read_json(payload_path)
+def _extract_payment_id(payload: dict) -> Optional[str]:
+    """Return a payment/order id from any checkout response shape."""
+    if not isinstance(payload, dict):
+        return None
 
-    pictures_dir = Path("data/pictures")
-    if pictures_dir.exists():
-        files = sorted(p for p in pictures_dir.iterdir() if p.is_file())
-        if files:
-            pics_attr = (
-                body.setdefault("used_car", {})
-                .setdefault("ad_listing_attributes", {})
-                .setdefault("pictures_attributes", {})
-            )
-            pics_attr.clear()
+    direct = payload.get("payment_id") or payload.get("order_id")
+    if direct not in (None, ""):
+        return str(direct)
 
-            token = get_auth_token()
-            fcm_token = os.getenv("FCM_TOKEN")
+    ack = payload.get("ack")
+    if isinstance(ack, dict):
+        direct = ack.get("payment_id") or ack.get("order_id")
+        if direct not in (None, ""):
+            return str(direct)
 
-            for idx, file_path in enumerate(files):
-                pic_id = upload_ad_picture(
-                    api_client,
-                    file_path=str(file_path),
-                    api_version=os.getenv("PICTURE_UPLOAD_API_VERSION", "18"),
-                    access_token=token,
-                    fcm_token=fcm_token,
-                    new_version=True,
-                )
-                pics_attr[str(idx)] = {"pictures_ids": str(pic_id)}
+    data = payload.get("data")
+    if isinstance(data, dict):
+        direct = data.get("payment_id") or data.get("order_id")
+        if direct not in (None, ""):
+            return str(direct)
 
-    phone = (
-        body.get("used_car", {})
-            .get("ad_listing_attributes", {})
-            .get("phone")
-    )
-    if phone:
-        clr = clear_mobile_number(api_client, phone)
-        print(f"\n🧹 [SESSION] Clear number {phone}: {clr['status_code']}")
-
-    via_whatsapp = "true" if (
-        body.get("used_car", {}).get("ad_listing_attributes", {}).get("allow_whatsapp") is True
-    ) else "false"
-
-    resp = api_client.request(
-        "POST",
-        POST_ENDPOINT,
-        params={"api_version": api_version, "via_whatsapp": via_whatsapp},
-        json_body=body,
-    )
-    print("\n🚗 [SESSION] Post Used Car:", resp["status_code"])
-    print(json.dumps(resp.get("json"), indent=2))
-
-    validator.assert_status_code(resp["status_code"], 200)
-    _validate_response(validator, resp["json"], schema_path=schema_path, expected_path=expected_path)
-
-    return resp["json"] or {}
-
-
-def get_posted_ad(
-    api_client,
-    validator,
-    payload_path: Path = Path("data/payloads/used_car.json"),
-    schema_path: str = "schemas/used_car_post_response_ack.json",
-    expected_path: Optional[str] = None,
-    api_version: str = DEFAULT_API_VERSION,
-) -> dict:
-    """Return cached posted ad metadata, posting and fetching details once per session."""
-    global _POSTED_AD_CACHE
-    if _POSTED_AD_CACHE:
-        return _POSTED_AD_CACHE
-
-    ack = post_used_car(
-        api_client,
-        validator,
-        payload_path=payload_path,
-        schema_path=schema_path,
-        expected_path=expected_path,
-        api_version=api_version,
-    )
-
-    ad_id = int(ack["ad_id"])
-    ad_listing_id = int(ack["ad_listing_id"])
-    raw_slug = ack.get("success") or ack.get("slug")
-    slug = _normalize_slug(raw_slug) if raw_slug else None
-
-    details_resp = api_client.request(
-        "GET",
-        f"/used-cars/{ad_id}.json",
-        params={"api_version": api_version},
-    )
-    validator.assert_status_code(details_resp["status_code"], 200)
-    details_body = details_resp.get("json") or {}
-
-    _POSTED_AD_CACHE = {
-        "ad_id": ad_id,
-        "ad_listing_id": ad_listing_id,
-        "slug": slug,
-        "api_version": api_version,
-        "ack": ack,
-        "details": details_body,
-    }
-    return _POSTED_AD_CACHE
-
-
-def get_ad_ref(posted_ad: dict) -> dict:
-    slug = posted_ad.get("slug") or posted_ad.get("success")
-    return {
-        "slug": _normalize_slug(slug) if slug else None,
-        "ad_listing_id": int(posted_ad["ad_listing_id"]),
-        "ad_id": int(posted_ad["ad_id"]),
-    }
-
-
-def get_ad_ids(posted_ad: dict) -> dict:
-    return {
-        "ad_id": int(posted_ad["ad_id"]),
-        "ad_listing_id": int(posted_ad["ad_listing_id"]),
-    }
+    for key in ("payment", "checkout", "response", "payload"):
+        nested = payload.get(key)
+        if isinstance(nested, dict):
+            result = _extract_payment_id(nested)
+            if result:
+                return result
+        elif isinstance(nested, list):
+            for item in nested:
+                result = _extract_payment_id(item)
+                if result:
+                    return result
+    return None
