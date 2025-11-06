@@ -14,6 +14,7 @@ from .auction_sheet import (
 )
 from .insurance import submit_car_insurance_lead, fetch_car_insurance_packages
 from .finance import submit_car_finance_lead
+from .registration import submit_car_registration_transfer_lead, update_car_registration_transfer_lead
 from .utils import compare_against_snapshot, validate_against_schema
 
 __all__ = [
@@ -28,6 +29,8 @@ __all__ = [
     "submit_car_insurance_lead",
     "fetch_car_insurance_packages",
     "submit_car_finance_lead",
+    "submit_car_registration_transfer_lead",
+    "update_car_registration_transfer_lead",
     "validate_against_schema",
     "compare_against_snapshot",
 ]

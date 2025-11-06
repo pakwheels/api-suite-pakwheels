@@ -1,0 +1,10 @@
+{
+  "car_registration_transfer_lead": {
+    "car_manufacturer_id": 41,
+    "car_model_id": 47,
+    "car_version_id": 15,
+    "model_year": 2022,
+    "registered_in_id": 1
+  },
+  "completed": true
+}
