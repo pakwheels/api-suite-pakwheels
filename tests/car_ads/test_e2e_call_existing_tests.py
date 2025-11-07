@@ -30,30 +30,6 @@ RESEND_EXPECTED_PATH = "data/expected_responses/auth/resend_pin_response.json"
 VERIFY_SCHEMA_PATH = "schemas/signup_verify_response_schema.json"
 VERIFY_EXPECTED_PATH = "data/expected_responses/auth/signup_verify_response.json"
 
-# pytestmark = pytest.mark.parametrize(
-#     "auth",
-#     [
-#         {
-#             "mode": "email",
-#             "email": os.getenv("EMAIL") ,
-#             "password": os.getenv("PASSWORD") ,
-#         }
-#     ],
-#     indirect=True,
-#     ids=["email"],
-# )
-# pytestmark = pytest.mark.parametrize(
-#     "auth",
-#     [
-#         {
-#             "mode": "mobile",
-#             "mobile": os.getenv("MOBILE_NUMBER") or "03601234567",
-#             "clear_number_first": False,
-#         }
-#     ],
-#     indirect=True,
-#     ids=["mobile"],
-# )
 
 pytestmark = pytest.mark.parametrize(
     "api_client",
@@ -62,45 +38,12 @@ pytestmark = pytest.mark.parametrize(
         # Added new entry for email authentication that first clears the mobile number
         # {"mode": "email", "email": os.getenv("EMAIL"), "password": os.getenv("PASSWORD"), "clear_number_first": True},
         # {"mode": "mobile", "mobile": os.getenv("MOBILE_NUMBER"), "otp": os.getenv("MOBILE_OTP")},
-         {"mode": "mobile", "mobile": os.getenv("MOBILE_NUMBER"), "otp": os.getenv("MOBILE_OTP"), "clear_number_first": False},
+         {"mode": "mobile", "mobile": os.getenv("MOBILE_NUMBER"), "otp": os.getenv("MOBILE_OTP"), "clear_number_first": True},
     ],
     indirect=True,
     ids=["mobile"],
 )
 
-# @pytest.mark.auth
-# @pytest.mark.mobile_verification
-# def test_verify_mobile_number(auth, api_client, validator, mobile_number_env):
-#     """
-#     Tests the end-to-end flow of phone number verification (clear, request OTP, verify).
-#     This test only runs if the mobile number and OTP are available via env vars.
-#     """
-#     if auth.get("mode") != "email":
-#         pytest.skip("Mobile verification scenario is only exercised for email-auth sessions.")
-
-#     # Source the mobile number from the fixture parameter
-#     mobile_number = mobile_number_env
-#     # The OTP pin still needs to be sourced from the environment as it's not a parameter
-#     otp_pin = os.getenv("MOBILE_OTP")
-
-#     if not mobile_number or not otp_pin:
-#         pytest.skip("Skipping mobile verification test: MOBILE_NUMBER or MOBILE_OTP not set.")
-        
-#     # The verify_phone_number helper internally calls clear, adds the number, and verifies the OTP.
-#     try:
-#         result = verify_phone_number(
-#             api_client,
-#             validator,
-#             phone=mobile_number,
-#             otp_pin=otp_pin
-#         )
-#     except AssertionError as exc:
-#         pytest.skip(f"Mobile verification not available: {exc}")
-
-#     assert result is not None
-#     assert "verification" in result
-#     assert "token" in result["verification"], "Verification response must contain a new auth token."
-#     print("✅ Mobile number successfully cleared, OTP requested, and verified.")
 
 @pytest.mark.car_ad_post
 def test_post_ad( api_client, validator, load_payload):
