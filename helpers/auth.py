@@ -205,14 +205,14 @@ def _login_with_mobile_flow(
             "via_whatsapp": via_whatsapp,
         }
     )
-    print(f"📞 Step 1: Requesting Pin ID for mobile: {mobile_number}")
+    print(f" Requesting Pin ID for mobile: {mobile_number}")
 
     try:
         login_response = requests.post(login_url, params=params, json=mobile_payload, timeout=30)
     except Exception as exc:
         raise Exception(f"❌ Mobile login (request pin) failed: {exc}") from exc
 
-    print(f"📥 Pin request status: {login_response.status_code} | Body: {login_response.text[:400]}")
+    # print(f"📥 Pin request status: {login_response.status_code} | Body: {login_response.text[:400]}")
     if login_response.status_code != 200:
         raise ValueError(
             f"❌ Mobile login (request pin) failed with status {login_response.status_code}: {login_response.text}"
@@ -236,7 +236,7 @@ def _login_with_mobile_flow(
             "pin_id": pin_id,
         }
     )
-    print(f"🔑 Step 2: Verifying OTP with Pin ID: {pin_id}")
+    print(f" Verifying OTP with Pin ID: {pin_id}")
 
     try:
         verify_response = requests.post(verify_url, params=params, json=verify_payload, timeout=30)
@@ -399,9 +399,9 @@ def get_auth_token(
     if not token:
         raise ValueError(f"⚠️ Failed to retrieve access token using {login_method} method.")
 
-    _TOKEN_CACHE["token"] = token
-    _TOKEN_CACHE["expires_at"] = expires_at
-    print("✅ Auth token fetched and cached successfully.")
+    # _TOKEN_CACHE["token"] = token
+    # _TOKEN_CACHE["expires_at"] = expires_at
+    # print("✅ Auth token fetched and cached successfully.")
     return token
 
 # --- Testing/Legacy Helper Functions (Public) ---

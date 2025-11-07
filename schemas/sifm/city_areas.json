@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Sell It For Me City Areas Response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "popular",
+    "other",
+    "error"
+  ],
+  "properties": {
+    "popular": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/cityArea"
+      }
+    },
+    "other": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/cityArea"
+      }
+    },
+    "error": {
+      "type": ["string", "null"]
+    }
+  },
+  "definitions": {
+    "cityArea": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "city_id",
+        "id",
+        "name",
+        "position",
+        "url_slug",
+        "zone"
+      ],
+      "properties": {
+        "city_id": {
+          "type": "integer"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "position": {
+          "type": "integer"
+        },
+        "url_slug": {
+          "type": "string"
+        },
+        "zone": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

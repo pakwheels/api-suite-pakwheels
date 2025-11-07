@@ -15,7 +15,6 @@ __all__ = [
 
 
 def clear_mobile_number(api_client, number: str, full_url: Optional[str] = None):
-    """Remove a phone number from the marketplace profile via the clear endpoint."""
     url = full_url or f"https://www.pakgari.com/clear-number?numbers={number}"
     try:
         return api_client.request("GET", url)

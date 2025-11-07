@@ -492,37 +492,6 @@ def feature_used_car_with_credit(
     return None
 
 
-# def feature_used_car_existing(
-#     api_client,
-#     validator,
-#     ad_ref: dict,
-#     api_version: str = DEFAULT_API_VERSION,
-#     schema_path: Optional[str] = None,
-#     expected_path: Optional[str] = None,
-# ):
-#     credit_result = feature_used_car_with_credit(
-#         api_client,
-#         validator,
-#         ad_ref,
-#         api_version=api_version,
-#         schema_path=schema_path,
-#         expected_path=expected_path,
-#         feature_weeks=None,
-#         raise_on_failure=False,
-#     )
-#     if credit_result:
-#         return credit_result["response"]
-
-#     payment_result = feature_used_car_with_payment(
-#         api_client,
-#         validator,
-#         ad_ref,
-#         feature_weeks=None,
-#         api_version=api_version,
-#     )
-#     return payment_result
-
-
 def feature_used_car_with_payment(
     api_client,
     validator,

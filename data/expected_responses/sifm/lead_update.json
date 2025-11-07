@@ -1,0 +1,30 @@
+{
+  "sell_it_for_me_lead_id": 10529,
+  "has_credits": true,
+  "product": {
+    "id": 148,
+    "name": "Sell It For Me - Advance(Premium)",
+    "price": 6000.0,
+    "type": "sell_it_for_me_lead"
+  },
+  "user_id": 1702164,
+  "reserve_url": "/sell_it_for_me_leads/10529/reserve_slot.json",
+  "city_id": 1,
+  "city_area_id": null,
+  "summary": {
+    "make": "Bugatti",
+    "model": "Chiron",
+    "version": null,
+    "year": "2020",
+    "name": "NEW USER",
+    "number": "03234822302",
+    "address": null,
+    "selected_date": null,
+    "selected_slot": null
+  },
+  "success": "Thanks for your interest in PakWheels Sell It For Me. Our sales agent will be in touch with you in the next 24 hours and will guide you through the process.",
+  "error": null,
+  "mobile": "03234822302",
+  "mobile_verified": false,
+  "mobile_uuid": "19747a4d2248eeae05eecd104ed389fb"
+}

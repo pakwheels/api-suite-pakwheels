@@ -36,12 +36,13 @@ class Validator:
         ignore_keys = {
             # top-level ids & volatile fields
             "ad_id", "ad_listing_id", "success", "id",
+            "sell_it_for_me_lead_id",
             # timestamps & counters
             "created_at", "updated_at", "last_updated",
             "view_count", "search_view_count", "bumped_count",
             "pictures_count",
             # urls/pictures
-            "url_slug", "pictures",
+            "url_slug", "pictures", "reserve_url",
             # pricing/credits that vary
             "available_boost_credits", "required_boost_credits",
             "final_insurance_amount", "final_insurance_amount_with_tracker",
