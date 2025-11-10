@@ -6,6 +6,7 @@ from utils.api_client import APIClient
 from utils.validator import Validator
 from helpers.car_ads import get_session_ad_metadata
 from dotenv import load_dotenv
+import helpers.auth
 from helpers.auth import get_auth_token
 # Load environment variables
 load_dotenv()
@@ -68,15 +69,16 @@ def _resolve_auth_token(cfg, base_url, api_ver):
 
 @pytest.fixture(scope="module")
 def api_client(request,base_url, api_ver):
-
+    cache_status_before = helpers.auth.GLOBAL_ACCESS_TOKEN is not None
+    print(f"🧹 Clearing token cache (Before: {cache_status_before})") 
+    helpers.auth.GLOBAL_ACCESS_TOKEN = None 
+    
+    cache_status_after = helpers.auth.GLOBAL_ACCESS_TOKEN is None
+    print(f"🧹 Token cache cleared for new module. (After: {cache_status_after})")
     cfg = request.param
-   
-    token = _resolve_auth_token(cfg, base_url, api_ver)
+    mode, token = _resolve_auth_token(cfg, base_url, api_ver)
     print(f"DEBUG: Starting token fetch for mode: {cfg.get('mode', 'unknown')}")
     client = APIClient(base_url,token , api_ver)
-
-
-
     return client
 
 @pytest.fixture(scope="session")
@@ -114,8 +116,3 @@ def load_payload():
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
     return _loader
-def _normalize_slug(slug: str) -> str:
-    if not slug:
-        return ""
-    s = slug.strip()
-    return s if s.startswith("/used-cars/") else f"/used-cars/{s.lstrip('/')}"
