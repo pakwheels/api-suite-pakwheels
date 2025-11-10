@@ -12,21 +12,30 @@ from helpers import (
     get_session_ad_metadata,
     logout_user,
     reactivate_used_car_existing,
+    list_feature_products_upsell,
+    upsell_product_validation
 
 )
+
 pytestmark = pytest.mark.parametrize(
     "api_client",
     [
-        {"mode": "email", "email": os.getenv("EMAIL"), "password": os.getenv("PASSWORD"), "clear_number_first": False},
-  ],
+         {"mode": "mobile", "mobile": os.getenv("MOBILE_NUMBER"), "otp": os.getenv("MOBILE_OTP"), "clear_number_first":True},
+    ],
      indirect=True,
-    ids=["email"],
+    ids=["mobile"],
 )
 
 
 @pytest.mark.car_ad_post
 def test_post_ad( api_client, validator, load_payload):
     post_used_car(api_client, validator)
+
+@pytest.mark.car_ad_post
+def test_feature_upsell(api_client,validator):
+    posted_ad = get_session_ad_metadata(api_client, validator)
+    product_list_data = list_feature_products_upsell(api_client,posted_ad["ad_id"],product_type="used_car_upsell")
+    upsell_product_validation(product_list_data,posted_ad["price"])
 
 @pytest.mark.car_ad_post
 def test_edit_used_car_existing(api_client, validator, load_payload):

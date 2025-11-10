@@ -33,6 +33,7 @@ from .car_ads import (  # noqa: F401
     upload_ad_picture,
     # verify_live_or_pending,
     wait_for_ad_state,
+    upsell_product_validation
 )
 from .new_cars import (  # noqa: F401
     fetch_new_make_details,
@@ -128,6 +129,7 @@ __all__ = [
     "fetch_my_active_ads",
     "fetch_my_pending_ads",
     "fetch_my_removed_ads",
+    "upsell_product_validation"
 ]
 
 from .payment import (  # noqa: F401
@@ -136,6 +138,7 @@ from .payment import (  # noqa: F401
     list_feature_products,
     payment_status,
     proceed_checkout,
+    list_feature_products_upsell
 )
 
 __all__.extend(
@@ -145,5 +148,6 @@ __all__.extend(
         "proceed_checkout",
         "initiate_jazz_cash",
         "payment_status",
+        "list_feature_products_upsell"
     ]
 )
