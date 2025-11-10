@@ -1,10 +1,12 @@
 import os
+from urllib import request
 import pytest
 import json
 from utils.api_client import APIClient
 from utils.validator import Validator
 from helpers.car_ads import get_session_ad_metadata
 from dotenv import load_dotenv
+import helpers.auth
 from helpers.auth import get_auth_token
 # Load environment variables
 load_dotenv()
@@ -33,10 +35,8 @@ def api_ver():
     return os.getenv("API_VERSION")
 
 
-@pytest.fixture(scope="session")
-def auth(request, base_url, api_ver):
-    cfg = request.param if hasattr(request, "param") else {}
-    mode = (cfg.get("mode") or "mobile").lower()
+def _resolve_auth_token(cfg, base_url, api_ver):
+    mode = (cfg.get("mode")).lower()
 
     clear_number_first = cfg.get("clear_number_first")
     if clear_number_first is None:
@@ -64,31 +64,22 @@ def auth(request, base_url, api_ver):
         login_kwargs["api_client"] = None  # email flow doesn’t need a client
 
     token = get_auth_token(**login_kwargs)
-    return {"mode": mode, "token": token}
+    return mode, token
 
-@pytest.fixture(scope="session")
-def api_client(base_url, api_ver):
-    mode = (os.getenv("SESSION_AUTH_MODE") or "mobile").lower()
-    client = APIClient(base_url, "", api_ver)
 
-    if mode == "email":
-        token = get_auth_token(
-            login_method=mode,
-            clear_number_first=False,
-        )
-        client.access_token = token
-    else:
-        token = get_auth_token(
-            api_client=client,
-            login_method=mode,
-            clear_number_first=False,
-        )
-        client.access_token = token
-
+@pytest.fixture(scope="module")
+def api_client(request,base_url, api_ver):
+    cache_status_before = helpers.auth.GLOBAL_ACCESS_TOKEN is not None
+    print(f"🧹 Clearing token cache (Before: {cache_status_before})") 
+    helpers.auth.GLOBAL_ACCESS_TOKEN = None 
+    
+    cache_status_after = helpers.auth.GLOBAL_ACCESS_TOKEN is None
+    print(f"🧹 Token cache cleared for new module. (After: {cache_status_after})")
+    cfg = request.param
+    mode, token = _resolve_auth_token(cfg, base_url, api_ver)
+    print(f"DEBUG: Starting token fetch for mode: {cfg.get('mode', 'unknown')}")
+    client = APIClient(base_url,token , api_ver)
     return client
-# @pytest.fixture(scope="session")
-# def auth_token(api_client):
-#     return api_client.access_token
 
 @pytest.fixture(scope="session")
 def validator():
@@ -125,37 +116,3 @@ def load_payload():
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
     return _loader
-def _normalize_slug(slug: str) -> str:
-    if not slug:
-        return ""
-    s = slug.strip()
-    return s if s.startswith("/used-cars/") else f"/used-cars/{s.lstrip('/')}"
-
-@pytest.fixture(scope="session")
-def posted_ad(api_client, validator):
-    """POST once per session; share ad_id/ad_listing_id/slug."""
-    return get_session_ad_metadata(api_client, validator)
-
-@pytest.fixture
-def ad_ref(posted_ad):
-    """
-    Ad reference for close/reactivate tests.
-    Returns: {"slug": "...", "ad_listing_id": int, "ad_id": int}
-    """
-    slug = posted_ad.get("slug") or posted_ad.get("success")
-    return {
-        "slug": _normalize_slug(slug) if slug else None,
-        "ad_listing_id": int(posted_ad["ad_listing_id"]),
-        "ad_id": int(posted_ad["ad_id"]),
-    }
-
-@pytest.fixture
-def ad_ids(posted_ad):
-    """
-    Just the numeric IDs for edit tests.
-    Returns: {"ad_id": int, "ad_listing_id": int}
-    """
-    return {
-        "ad_id": int(posted_ad["ad_id"]),
-        "ad_listing_id": int(posted_ad["ad_listing_id"]),
-    }

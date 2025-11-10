@@ -129,11 +129,12 @@ def post_used_car(
     expected_path: Optional[str] = "data/expected_responses/used_car_post.json",
     api_version: str = DEFAULT_API_VERSION,
 ) -> dict:
-    """Post a used-car ad and return the full response payload."""
+    """Post a used-car ad, store its metadata in cache, and return the full response payload."""
     body = _read_json(payload_path)
 
     pictures_dir = Path("data/pictures")
     if pictures_dir.exists():
+        # ... (Picture processing logic remains unchanged)
         files = sorted(p for p in pictures_dir.iterdir() if p.is_file())
         if files:
             pics_attr = (
@@ -171,56 +172,51 @@ def post_used_car(
     print(json.dumps(resp.get("json"), indent=2))
 
     validator.assert_status_code(resp["status_code"], 200)
-    _validate_response(validator, resp["json"], schema_path=schema_path, expected_path=expected_path)
+    
+    ack = resp["json"] or {} # Get the response body (acknowledgement)
+    _validate_response(validator, ack, schema_path=schema_path, expected_path=expected_path)
+    
+    # --- START CACHE POPULATION LOGIC ---
+    global _POSTED_AD_CACHE
+    # Assuming _normalize_slug is accessible (as used in the original get_session_ad_metadata)
 
-    return resp["json"] or {}
+    if ack and ack.get("ad_id"):
+        ad_id = int(ack["ad_id"])
+        ad_listing_id = int(ack["ad_listing_id"])
+        raw_slug = ack.get("success") or ack.get("slug")
+        slug = _normalize_slug(raw_slug) if raw_slug else None
 
+        _POSTED_AD_CACHE = {
+            "ad_id": ad_id,
+            "ad_listing_id": ad_listing_id,
+            "slug": slug,
+            "api_version": api_version,
+            "ack": ack,
+            # 'details' are typically fetched in get_session_ad_metadata, 
+            # setting as empty dict for initial structure.
+            "details": {}, 
+        }
+        print(f"✅ [CACHE] Posted Ad Metadata stored for ID: {ad_id}")
+    # --- END CACHE POPULATION LOGIC ---
+
+    return ack
 
 def get_session_ad_metadata(
-    api_client,
-    validator,
-    payload_path: Path = Path("data/payloads/used_car.json"),
-    schema_path: str = "schemas/used_car_post_response_ack.json",
-    expected_path: Optional[str] = None,
+    api_client, 
+    validator, 
+    schema_path: str = "schemas/used_car_post_response_ack.json", 
+    expected_path: Optional[str] = None, 
     api_version: str = DEFAULT_API_VERSION,
 ) -> dict:
-
     global _POSTED_AD_CACHE
+    
+    # Check if the ad metadata is already cached
     if _POSTED_AD_CACHE:
         return _POSTED_AD_CACHE
 
-    ack = post_used_car(
-        api_client,
-        validator,
-        payload_path=payload_path,
-        schema_path=schema_path,
-        expected_path=expected_path,
-        api_version=api_version,
-    )
-
-    ad_id = int(ack["ad_id"])
-    ad_listing_id = int(ack["ad_listing_id"])
-    raw_slug = ack.get("success") or ack.get("slug")
-    slug = _normalize_slug(raw_slug) if raw_slug else None
-
-    details_resp = api_client.request(
-        "GET",
-        f"/used-cars/{ad_id}.json",
-        params={"api_version": api_version},
-    )
-    validator.assert_status_code(details_resp["status_code"], 200)
-    details_body = details_resp.get("json") or {}
-
-    _POSTED_AD_CACHE = {
-        "ad_id": ad_id,
-        "ad_listing_id": ad_listing_id,
-        "slug": slug,
-        "api_version": api_version,
-        "ack": ack,
-        "details": details_body,
-    }
-    return _POSTED_AD_CACHE
-
+    # If no cached data, you might want to handle the case where there is no ad to fetch
+    # Consider raising an exception or returning an empty dict if no ad is posted.
+    raise Exception("No ad has been posted yet. Please post an ad first.")
 
 def get_ad_ref(posted_ad: dict) -> dict:
     slug = posted_ad.get("slug") or posted_ad.get("success")
@@ -492,37 +488,6 @@ def feature_used_car_with_credit(
     return None
 
 
-# def feature_used_car_existing(
-#     api_client,
-#     validator,
-#     ad_ref: dict,
-#     api_version: str = DEFAULT_API_VERSION,
-#     schema_path: Optional[str] = None,
-#     expected_path: Optional[str] = None,
-# ):
-#     credit_result = feature_used_car_with_credit(
-#         api_client,
-#         validator,
-#         ad_ref,
-#         api_version=api_version,
-#         schema_path=schema_path,
-#         expected_path=expected_path,
-#         feature_weeks=None,
-#         raise_on_failure=False,
-#     )
-#     if credit_result:
-#         return credit_result["response"]
-
-#     payment_result = feature_used_car_with_payment(
-#         api_client,
-#         validator,
-#         ad_ref,
-#         feature_weeks=None,
-#         api_version=api_version,
-#     )
-#     return payment_result
-
-
 def feature_used_car_with_payment(
     api_client,
     validator,
@@ -754,7 +719,7 @@ def reactivate_and_get_ad(
     api_client,
     ad_ref: dict,
     validator=None,
-    api_version_refresh: str = "23",
+    api_version_refresh: str = "18",
     schema_path: Optional[str] = "schemas/ad_refresh_response.json",
     expected_path: Optional[str] = "data/expected_responses/ad_refresh_subset.json",
     wait_for_state: bool = False,

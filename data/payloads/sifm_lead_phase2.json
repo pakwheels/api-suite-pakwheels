@@ -1,0 +1,12 @@
+{
+  "sell_it_for_me_lead": {
+    "car_manufacturer_id": 130,
+    "car_model_id": 996,
+    "car_version_id": null,
+    "model_year": 2020,
+    "mobile_number": "03234822302",
+    "registration_location_type": "Province",
+    "registration_location_id": "3",
+    "assembly": "local"
+  }
+}

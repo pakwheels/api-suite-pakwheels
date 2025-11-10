@@ -40,7 +40,12 @@ from .new_cars import (  # noqa: F401
     fetch_new_model_details,
     fetch_new_version_details,
 )
-from .sifm import fetch_sell_it_for_me_cities  # noqa: F401
+from .sifm import (  # noqa: F401
+    fetch_sell_it_for_me_cities,
+    fetch_sell_it_for_me_city_areas,
+    submit_sell_it_for_me_lead,
+    update_sell_it_for_me_lead,
+)
 from .landing_page import fetch_main_landing_page  # noqa: F401
 from .lead_forms import (  # noqa: F401
     fetch_carsure_cities,
@@ -103,6 +108,9 @@ __all__ = [
     "fetch_new_model_details",
     "fetch_new_version_details",
     "fetch_sell_it_for_me_cities",
+    "fetch_sell_it_for_me_city_areas",
+    "submit_sell_it_for_me_lead",
+    "update_sell_it_for_me_lead",
     "fetch_main_landing_page",
     "fetch_carsure_cities",
     "fetch_carsure_city_areas",

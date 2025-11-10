@@ -13,20 +13,16 @@ __all__ = [
     "add_mobile_number",
 ]
 
-
-def clear_mobile_number(api_client, number: str, full_url: Optional[str] = None):
-    """Remove a phone number from the marketplace profile via the clear endpoint."""
-    url = full_url or f"https://www.pakgari.com/clear-number?numbers={number}"
-    try:
-        return api_client.request("GET", url)
-    except Exception:
-        resp = api_client.session.get(url, timeout=30)
-        payload = {}
-        try:
-            payload = resp.json()
-        except Exception:
-            pass
-        return {"status_code": resp.status_code, "json": payload, "elapsed": 0.0}
+def clear_mobile_number(api_client, mobile_number: str, api_version: str = "22"):
+    params = {
+        "api_version": api_version,
+        "numbers": mobile_number,
+        "client_id": os.getenv("CLIENT_ID"),
+        "client_secret": os.getenv("CLIENT_SECRET"),
+    }
+    response = api_client.request("GET", "/clear-number", params=params)
+    print(f"📵 Clear mobile response: status={response.get('status_code')} body={response.get('json')}")
+    return response
 
 
 def add_mobile_number(api_client, mobile_number: str, api_version: str = "22"):
