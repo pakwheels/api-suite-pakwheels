@@ -40,7 +40,7 @@ from .new_cars import (  # noqa: F401
     fetch_new_model_details,
     fetch_new_version_details,
 )
-from .sifm import (  # noqa: F401
+from .lead_forms.sifm import (  # noqa: F401
     fetch_sell_it_for_me_cities,
     fetch_sell_it_for_me_city_areas,
     submit_sell_it_for_me_lead,

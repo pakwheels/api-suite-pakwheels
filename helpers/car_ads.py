@@ -192,8 +192,7 @@ def post_used_car(
             "slug": slug,
             "api_version": api_version,
             "ack": ack,
-            # 'details' are typically fetched in get_session_ad_metadata, 
-            # setting as empty dict for initial structure.
+            "price": ack.get("price"),
             "details": {}, 
         }
         print(f"✅ [CACHE] Posted Ad Metadata stored for ID: {ad_id}")
