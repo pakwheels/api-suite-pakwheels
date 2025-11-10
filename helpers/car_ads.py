@@ -185,8 +185,8 @@ def post_used_car(
         ad_listing_id = int(ack["ad_listing_id"])
         raw_slug = ack.get("success") or ack.get("slug")
         slug = _normalize_slug(raw_slug) if raw_slug else None
-        price = ack.get("price") or _get_value_by_path(body, "used_car.ad_listing_attributes.price")
-        price2 = int(price)
+        str_price = ack.get("price") or _get_value_by_path(body, "used_car.ad_listing_attributes.price")
+        int_price = int(str_price)
 
         _POSTED_AD_CACHE = {
             "ad_id": ad_id,
@@ -194,7 +194,7 @@ def post_used_car(
             "slug": slug,
             "api_version": api_version,
             "ack": ack,
-            "price": price2,
+            "price": int_price,
             "details": {}, 
         }
       
@@ -1090,84 +1090,3 @@ def upsell_product_validation(prod_list_resp: dict, ad_price: int) -> None:
         raise AssertionError(full_err)
 
     print(f"Both upsell & business validated for {upsell_range_name}")
-
-
-
-# def upsell_product_validation(prod_list_resp: dict, ad_price: int) -> None:
-    
-#     if not isinstance(prod_list_resp, dict):
-#         raise AssertionError("prod_list_resp must be a dict")
-
-#     # Debug: Print the full response structure
-#     # print("\nUPSERT RESPONSE DUMP:")
-#     # print(json.dumps(prod_list_resp, indent=2, ensure_ascii=False))
-#     # print("-" * 70)
-
-#     json_data = prod_list_resp.get("json")
-#     if not isinstance(json_data, dict):
-#         raise AssertionError(
-#             "Expected 'json' key with dict in prod_list_resp. "
-#             f"Got: {type(json_data)} = {json_data}"
-#         )
-
-#     upsell_products = json_data.get("products")
-#     if not isinstance(upsell_products, list):
-#         available_keys = list(json_data.keys())
-#         raise AssertionError(
-#             "Key 'products' must be a list inside 'json'. "
-#             f"Available keys in json: {available_keys}\n"
-#             f"Got: {type(upsell_products)} = {upsell_products}"
-#         )
-
-#     # Extract actual IDs safely
-#     actual_ids: Set[int] = {
-#         prod["id"] for prod in upsell_products
-#         if isinstance(prod, dict) and isinstance(prod.get("id"), int)
-#     }
-
-#     print(f"Extracted product IDs: {sorted(actual_ids)}")
-
-#     FORTY_LAC  = 4_000_000
-#     EIGHTY_LAC = 8_000_000
-
-#     PRICE_RANGES: List[Tuple[int, Optional[int], Set[int], str]] = [
-#         (0,          FORTY_LAC,   {111, 112, 159},           "0 - 40 Lac"),
-#         (FORTY_LAC,  EIGHTY_LAC, {112, 159},        "40 Lac - 80 Lac"),
-#         (EIGHTY_LAC, None,       {159, 322, 326},   "80 Lac and above")
-#     ]
-
-#     if ad_price < 0:
-#         raise AssertionError("ad_price cannot be negative")
-
-#     required_ids: Set[int] | None = None
-#     range_name: str | None = None
-
-#     for low, high, req_set, name in PRICE_RANGES:
-#         if high is None:
-#             if ad_price >= low:
-#                 required_ids = req_set
-#                 range_name = name
-#                 break
-#         elif low <= ad_price < high:
-#             required_ids = req_set
-#             range_name = name
-#             break
-
-#     assert required_ids is not None and range_name is not None, "No price range matched"
-
-#     missing = required_ids - actual_ids
-#     extra = actual_ids - required_ids  # Optional: show unexpected IDs
-
-#     if missing:
-#         error_msg = (
-#             f"UPSELL VALIDATION FAILED\n"
-#             f"Price: {ad_price:,} PKR ({range_name})\n"
-#             f"Required IDs : {sorted(required_ids)}\n"
-#             f"Available IDs: {sorted(actual_ids)}\n"
-#             f"Missing IDs  : {sorted(missing)}"
-#         )
-#         if extra:
-#             error_msg += f"\nExtra IDs    : {sorted(extra)}"
-#         raise AssertionError(error_msg)
-
-#     print(f"Upsell products validated for {range_name}")
