@@ -8,6 +8,23 @@ import os
 import time
 from typing import Optional
 
+def list_feature_products_upsell(
+    api_client,
+    ad_id: int,
+    product_type: str
+):
+    endpoint = os.getenv("FEATURE_PRODUCTS_ENDPOINT", "/products/products_list.json")
+    params = _env_params("FEATURE_PRODUCTS_QUERY") or {}
+    params.update({
+        "used_car_id": str(ad_id),
+        "product_type": product_type,
+        "api_version": 18
+    })
+    return api_client.request(
+        method=os.getenv("FEATURE_PRODUCTS_METHOD", "GET"),
+        endpoint=endpoint,
+        params=params,
+    )
 
 def list_feature_products(
     api_client,
