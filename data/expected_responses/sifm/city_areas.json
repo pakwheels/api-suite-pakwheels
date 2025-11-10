@@ -1,0 +1,63 @@
+{
+  "popular": [
+    {
+      "city_id": 1,
+      "id": 272,
+      "name": "Ayub Medical Complex",
+      "position": 1,
+      "url_slug": "ayub-medical-complex--2",
+      "zone": 1
+    }
+  ],
+  "other": [
+    {
+      "city_id": 1,
+      "id": 273,
+      "name": "Azam Town",
+      "position": 5,
+      "url_slug": "azam-town-0",
+      "zone": 1
+    },
+    {
+      "city_id": 1,
+      "id": 274,
+      "name": "Balkasar",
+      "position": 5,
+      "url_slug": "balkasar-0",
+      "zone": 1
+    },
+    {
+      "city_id": 1,
+      "id": 275,
+      "name": "Bilal Town",
+      "position": 5,
+      "url_slug": "bilal-town-0",
+      "zone": 1
+    },
+    {
+      "city_id": 1,
+      "id": 276,
+      "name": "Habibullah Colony",
+      "position": 5,
+      "url_slug": "habibullah-colony-0",
+      "zone": 1
+    },
+    {
+      "city_id": 1,
+      "id": 277,
+      "name": "Jhangi Syedan",
+      "position": 5,
+      "url_slug": "jhangi-syedan--2",
+      "zone": 8
+    },
+    {
+      "city_id": 1,
+      "id": 286,
+      "name": "Mansehra",
+      "position": 5,
+      "url_slug": "mansehra--2",
+      "zone": 1
+    }
+  ],
+  "error": ""
+}

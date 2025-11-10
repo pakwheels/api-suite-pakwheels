@@ -10,12 +10,12 @@ import time
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple, Union, Literal, TYPE_CHECKING
+GLOBAL_ACCESS_TOKEN = None
 
 import requests
 from dotenv import load_dotenv
 from utils.validator import Validator  # Assuming this utility is available
 from helpers.number_verification import clear_mobile_number
-
 if TYPE_CHECKING:
     from utils.api_client import APIClient
 
@@ -93,16 +93,6 @@ def _load_signup_payload(payload_path: Optional[Union[str, Path]]) -> Dict[str, 
 
     # Always work on a copy to avoid mutating cached payload data
     return dict(payload)
-
-# def _token_is_valid() -> bool:
-#     token = _TOKEN_CACHE.get("token")
-#     expires_at = _TOKEN_CACHE.get("expires_at")
-#     if not token:
-#         return False
-#     if isinstance(expires_at, datetime):
-#         # Allow token to be valid for 60 seconds less than its actual expiry time for safety
-#         return datetime.utcnow() < expires_at - timedelta(seconds=60)
-#     return True
 
 def _extract_access_token(payload: Dict[str, Any]) -> Tuple[Optional[str], str]:
     """
@@ -205,7 +195,7 @@ def _login_with_mobile_flow(
             "via_whatsapp": via_whatsapp,
         }
     )
-    print(f"📞 Step 1: Requesting Pin ID for mobile: {mobile_number}")
+    print(f" Requesting Pin ID for mobile: {mobile_number}")
 
     try:
         login_response = requests.post(login_url, params=params, json=mobile_payload, timeout=30)
@@ -236,7 +226,7 @@ def _login_with_mobile_flow(
             "pin_id": pin_id,
         }
     )
-    print(f"🔑 Step 2: Verifying OTP with Pin ID: {pin_id}")
+    print(f" Verifying OTP with Pin ID: {pin_id}")
 
     try:
         verify_response = requests.post(verify_url, params=params, json=verify_payload, timeout=30)
@@ -333,6 +323,20 @@ def get_auth_token(
     via_whatsapp: Optional[bool] = None,
     otp_pin: Optional[str] = None,
 ) -> str:
+    global GLOBAL_ACCESS_TOKEN
+    # 1. Check the Cache: If a token exists, return it immediately.
+    if GLOBAL_ACCESS_TOKEN:
+        print("✅ [CACHE HIT] Reusing cached session token.")
+        return GLOBAL_ACCESS_TOKEN # type: ignore
+
+    base_url = os.getenv("BASE_URL")
+    api_version = os.getenv("API_VERSION", DEFAULT_API_VERSION)
+
+    if not base_url:
+        raise ValueError("Missing required environment variable: BASE_URL.")
+
+    token: Optional[str] = None
+    expires_at: Optional[datetime] = None
     """
     Return a bearer token using either the email or mobile login flow.
 
@@ -398,10 +402,13 @@ def get_auth_token(
 
     if not token:
         raise ValueError(f"⚠️ Failed to retrieve access token using {login_method} method.")
+    if not token:
+        raise ValueError(f"⚠️ Failed to retrieve access token using {login_method} method.")
 
-    _TOKEN_CACHE["token"] = token
-    _TOKEN_CACHE["expires_at"] = expires_at
-    print("✅ Auth token fetched and cached successfully.")
+    # 2. Populate the Cache
+    GLOBAL_ACCESS_TOKEN = token
+    print("✅ Auth token fetched and CACHED successfully for this session.")
+  
     return token
 
 # --- Testing/Legacy Helper Functions (Public) ---
