@@ -45,6 +45,10 @@ from .lead_forms.sifm import (  # noqa: F401
     fetch_sell_it_for_me_city_areas,
     submit_sell_it_for_me_lead,
     update_sell_it_for_me_lead,
+    schedule_sell_it_for_me_lead,
+    reserve_sell_it_for_me_slot,
+    checkout_sell_it_for_me_lead,
+    initiate_sell_it_for_me_jazz_cash,
 )
 from .landing_page import fetch_main_landing_page  # noqa: F401
 from .lead_forms import (  # noqa: F401
@@ -111,6 +115,10 @@ __all__ = [
     "fetch_sell_it_for_me_city_areas",
     "submit_sell_it_for_me_lead",
     "update_sell_it_for_me_lead",
+    "schedule_sell_it_for_me_lead",
+    "reserve_sell_it_for_me_slot",
+    "checkout_sell_it_for_me_lead",
+    "initiate_sell_it_for_me_jazz_cash",
     "fetch_main_landing_page",
     "fetch_carsure_cities",
     "fetch_carsure_city_areas",

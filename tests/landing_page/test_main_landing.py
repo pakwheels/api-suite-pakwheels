@@ -5,13 +5,14 @@ from helpers import fetch_main_landing_page
 SNAPSHOT_PATH = "data/expected_responses/landing_page/main_landing.json"
 SCHEMA_PATH = "schemas/landing_page/main_landing_schema.json"
 
+
 pytestmark = pytest.mark.parametrize(
     "api_client",
     [
-         {"mode": "mobile", "mobile": os.getenv("MOBILE_NUMBER"), "otp": os.getenv("MOBILE_OTP"), "clear_number_first":False},
-    ],
+        {"mode": "email", "email": os.getenv("EMAIL"), "password": os.getenv("PASSWORD"), "clear_number_first": False},
+  ],
      indirect=True,
-    ids=["mobile"],
+    ids=["email"],
 )
 
 @pytest.mark.landing_page

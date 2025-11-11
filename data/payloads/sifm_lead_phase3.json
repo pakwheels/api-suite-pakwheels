@@ -1,0 +1,12 @@
+{
+  "sell_it_for_me_lead": {
+    "city_area_id": 272,
+    "address": "test adress",
+    "scheduled_date": "11-12-2024"
+  },
+  "user": {
+    "email": "pwuser176276710262@pakwheels.com"
+  },
+  "slot_not_found": true,
+  "check_credits": true
+}

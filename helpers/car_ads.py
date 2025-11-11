@@ -186,15 +186,18 @@ def post_used_car(
         raw_slug = ack.get("success") or ack.get("slug")
         slug = _normalize_slug(raw_slug) if raw_slug else None
 
+        price = ack.get("price") or _get_value_by_path(body, "used_car.ad_listing_attributes.price")
+
         _POSTED_AD_CACHE = {
             "ad_id": ad_id,
             "ad_listing_id": ad_listing_id,
             "slug": slug,
             "api_version": api_version,
             "ack": ack,
-            "price": ack.get("price"),
+            "price": price,
             "details": {}, 
         }
+        print("🧾 [CACHE] Posted Ad Cache:", json.dumps(_POSTED_AD_CACHE, indent=2, default=str))
         print(f"✅ [CACHE] Posted Ad Metadata stored for ID: {ad_id}")
     # --- END CACHE POPULATION LOGIC ---
 

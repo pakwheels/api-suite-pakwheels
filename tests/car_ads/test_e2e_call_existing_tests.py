@@ -14,15 +14,15 @@ from helpers import (
     reactivate_used_car_existing,
 
 )
+
 pytestmark = pytest.mark.parametrize(
     "api_client",
     [
-        {"mode": "email", "email": os.getenv("EMAIL"), "password": os.getenv("PASSWORD"), "clear_number_first": False},
-  ],
+         {"mode": "mobile", "mobile": os.getenv("MOBILE_NUMBER"), "otp": os.getenv("MOBILE_OTP"), "clear_number_first":True},
+    ],
      indirect=True,
-    ids=["email"],
+    ids=["mobile"],
 )
-
 
 @pytest.mark.car_ad_post
 def test_post_ad( api_client, validator, load_payload):
