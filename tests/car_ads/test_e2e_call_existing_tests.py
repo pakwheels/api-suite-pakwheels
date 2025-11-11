@@ -27,7 +27,6 @@ pytestmark = pytest.mark.parametrize(
     ids=["mobile"],
 )
 
-
 @pytest.mark.car_ad_post
 def test_post_ad( api_client, validator, load_payload):
     post_used_car(api_client, validator)

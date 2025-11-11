@@ -1,0 +1,25 @@
+{
+  "onlinePayment": true,
+  "actionUrl": "https://sandbox.jazzcash.com.pk/CustomerPortal/transactionmanagement/merchantform",
+  "method": "post",
+  "paymentAttributes": {
+    "pp_Version": "2.0",
+    "pp_Language": "EN",
+    "pp_Password": "s3tt5z27gw",
+    "pp_TxnCurrency": "PKR",
+    "pp_MerchantID": "MC46475",
+    "pp_Description": "Thank you for shopping at PakWheels.com",
+    "pp_TxnRefNo": "10529x1762768731",
+    "pp_Amount": 250000,
+    "pp_TxnDateTime": "20251110145851",
+    "pp_BillReference": "10529x1762768731",
+    "pp_TxnExpiryDateTime": "20251210145851",
+    "pp_ReturnURL": "https://core.pakkey.com/jazz_cash_checkout?platform=react",
+    "pp_TxnType": "MWALLET",
+    "pp_IsRegisteredCustomer": "yes",
+    "pp_SecureHash": "c5a241e3c959bbdda16f3eab8328e98141d84f55f2c015e57cca95c520a9e7d4"
+  },
+  "message": null,
+  "success": true,
+  "paymentId": "a2c80a0f647eb993c214009ce02c031675164de3be7eb4ba5b5dc8e20ce165f0c438926b15149bd4ca9d48a262bef542d123005b4bf2220500fbcc7341484c959e6943b2cfd8300d403e24dd4e3aabf2d1a774aed3b57e4417357d8d10efe8589f499809b90f6ea7c5492848a7ae1ce35020a7a2cf42cb6f673a55a722f7363a0dfc91fb9140ffc568ff6686fd90a4e4910ccef815d300d3cb278bff7a325b22789d8394b90f8446fa44d42c6da1782170c0c51918f5a0d2edcafd51578f2d3581a8f85928ff7adb9c482481b2aa66bef9afea82add92a963dc3c697b1ed17c41d10a7cf151c8e029b60c76d2d872766c98e3d6593439b3275dde7b617c3d4a6$!ektrZmp3M1dJcnltMDZvczlJeGNTbDR3NUhFNDFwSy9ZSlU0Z2x6dUVHdz0tLUFtb2h6K29pU0JKMjNzUnpVazZQS2c9PQ==--ba826b1bf8a2d5323f41f607ab3db42ca6bb8197"
+}
