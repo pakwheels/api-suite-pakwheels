@@ -1,0 +1,216 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": [
+    "result",
+    "page_num",
+    "result_count",
+    "total_count",
+    "total_pages",
+    "search_added",
+    "related_results",
+    "filters",
+    "heading",
+    "faqs",
+    "videos",
+    "bread_crumbs",
+    "sorted_url",
+    "custom_dimensions"
+  ],
+  "properties": {
+    "result": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/searchResult" }
+    },
+    "page_num": { "type": ["string", "integer"] },
+    "error": { "type": "string" },
+    "result_count": { "type": "integer" },
+    "total_count": { "type": "integer" },
+    "total_pages": { "type": "integer" },
+    "search_added": { "type": "boolean" },
+    "related_results": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": { "$ref": "#/definitions/relatedResultItem" }
+      }
+    },
+    "filters": {
+      "type": "object",
+      "properties": {
+        "ad_info": { "type": "array" },
+        "locations": { "type": "array" }
+      },
+      "required": ["ad_info", "locations"]
+    },
+    "heading": { "type": "string" },
+    "faqs": { "type": "array" },
+    "videos": { "type": ["array", "null"] },
+    "bread_crumbs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["label"],
+        "properties": {
+          "label": { "type": "string" },
+          "url": { "type": ["string", "null"] }
+        },
+        "additionalProperties": false
+      }
+    },
+    "sorted_url": { "type": "string" },
+    "custom_dimensions": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["string", "boolean", "number"]
+      }
+    }
+  },
+  "definitions": {
+    "searchResult": {
+      "type": "object",
+      "required": ["ad_id", "title", "url_slug", "klass", "user"],
+      "properties": {
+        "ad_id": { "type": "integer" },
+        "city_name": { "type": ["string", "null"] },
+        "city_area": { "type": ["string", "null"] },
+        "seller_comments": { "type": ["string", "null"] },
+        "rich_description": { "type": ["string", "null"] },
+        "price": { "type": ["string", "number", "null"] },
+        "monthly_installment": { "type": ["number", "integer", "null"] },
+        "remaining_months": { "type": ["number", "integer", "null"] },
+        "discount": { "type": ["string", "number", "null"] },
+        "original_price": { "type": ["string", "number", "null"] },
+        "title": { "type": "string" },
+        "url_slug": { "type": "string" },
+        "pictures_count": { "type": ["integer", "null"] },
+        "pictures": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/picture" }
+        },
+        "klass": { "type": "string" },
+        "video_link": { "type": ["string", "null"] },
+        "video_id": { "type": ["string", "null"] },
+        "sell_it_for_me_ad": { "type": "boolean" },
+        "sell_it_for_me_eligible": { "type": "boolean" },
+        "status": { "type": "integer" },
+        "bumped_count": { "type": "integer" },
+        "is_featured": { "type": "boolean" },
+        "ad_listing_id": { "type": "integer" },
+        "last_updated": { "type": ["string", "null"] },
+        "user": { "$ref": "#/definitions/user" },
+        "featured_request": { "type": "boolean" },
+        "created_at": { "type": ["string", "null"] },
+        "is_suzuki_certified": { "type": "boolean" },
+        "is_certified": { "type": "boolean" },
+        "is_certified_requested": { "type": "boolean" },
+        "dealership_id": { "type": ["integer", "null"] },
+        "dealership_verified": { "type": ["boolean", "null"] },
+        "certification_enabled": { "type": "boolean" },
+        "exact_color": { "type": ["string", "null"] },
+        "disclaimer": { "type": ["string", "null"] },
+        "warranty_text": { "type": ["string", "null"] },
+        "recommended_oil": { "type": ["string", "null"] },
+        "oil_widget_name": { "type": ["string", "null"] },
+        "oil_widget_target_url": { "type": ["string", "null"] },
+        "oil_logo": { "type": ["string", "null"] },
+        "inspection_price": { "type": ["number", "null"] },
+        "allow_whatsapp": { "type": "boolean" },
+        "make": { "type": ["string", "null"] },
+        "model": { "type": ["string", "null"] },
+        "version": { "type": ["string", "null"] },
+        "model_year": { "type": ["integer", "null"] },
+        "engine_capacity": { "type": ["string", "null"] },
+        "engine_type": { "type": ["string", "null"] },
+        "chassis_no": { "type": ["string", "null"] },
+        "auction_grade": { "type": ["string", "null"] },
+        "import_date": { "type": ["string", "null"] },
+        "transmission": { "type": ["string", "null"] },
+        "auction_sheet_verified": { "type": ["boolean", "null"] },
+        "auction_sheet_slug": { "type": ["string", "null"] },
+        "exterior_color": { "type": ["string", "null"] },
+        "registration_province": { "type": ["string", "null"] },
+        "features": { "type": ["string", "array", "null"] },
+        "assembly": { "type": ["string", "null"] },
+        "mileage": { "type": ["string", "null"] },
+        "registration_city": { "type": ["string", "null"] },
+        "body_type": { "type": ["string", "null"] },
+        "air_bags": { "type": ["boolean", "null"] },
+        "air_conditioning": { "type": ["boolean", "null"] },
+        "power_windows": { "type": ["boolean", "null"] },
+        "power_steering": { "type": ["boolean", "null"] },
+        "power_locks": { "type": ["boolean", "null"] },
+        "keyless_entry": { "type": ["boolean", "null"] },
+        "power_mirrors": { "type": ["boolean", "null"] },
+        "cruise_control": { "type": ["boolean", "null"] },
+        "abs": { "type": ["boolean", "null"] },
+        "navigation_system": { "type": ["boolean", "null"] },
+        "am_fm_radio": { "type": ["boolean", "null"] },
+        "cassette_player": { "type": ["boolean", "null"] },
+        "cd_player": { "type": ["boolean", "null"] },
+        "sun_roof": { "type": ["boolean", "null"] },
+        "alloy_rims": { "type": ["boolean", "null"] },
+        "immobilizer_key": { "type": ["boolean", "null"] },
+        "cool_box": { "type": ["boolean", "null"] },
+        "dvd_player": { "type": ["boolean", "null"] },
+        "ad_saved": { "type": ["boolean", "null"] },
+        "is_user_ad": { "type": ["boolean", "null"] },
+        "eligible_for_finance": { "type": ["boolean", "null"] },
+        "offer_detail": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "picture": {
+      "type": "object",
+      "required": ["picture_id", "picture_original"],
+      "properties": {
+        "picture_id": { "type": "integer" },
+        "picture_thumbnail": { "type": ["string", "null"] },
+        "picture_medium": { "type": ["string", "null"] },
+        "picture_original": { "type": "string" },
+        "picture_title": { "type": ["string", "null"] },
+        "picture_alt": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "user": {
+      "type": "object",
+      "required": ["id", "username", "display_name", "user_type"],
+      "properties": {
+        "id": { "type": "integer" },
+        "cnic_verified": { "type": ["boolean", "null"] },
+        "username": { "type": "string" },
+        "display_name": { "type": "string" },
+        "member_since": { "type": ["string", "null"] },
+        "city": { "type": ["string", "null"] },
+        "country": { "type": ["string", "null"] },
+        "facebook_verified": { "type": ["boolean", "null"] },
+        "facebook_uid": { "type": ["string", "null"] },
+        "email_verified": { "type": ["boolean", "null"] },
+        "mobile_verified": { "type": ["boolean", "null"] },
+        "mobile_uuid": { "type": ["string", "null"] },
+        "user_type": { "type": ["integer", "string"] },
+        "dealer_address": { "type": ["string", "null"] },
+        "dealer_timings": { "type": ["string", "null"] },
+        "dealer_name": { "type": ["string", "null"] },
+        "dealer_logo": { "type": ["string", "null"] },
+        "dealer_slug": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "relatedResultItem": {
+      "type": "object",
+      "required": ["title", "count", "url"],
+      "properties": {
+        "title": { "type": "string" },
+        "count": { "type": "integer" },
+        "url": { "type": "string" },
+        "page_heading": { "type": ["string", "null"] },
+        "sort_value": { "type": ["number", "integer", "null"] },
+        "key_param": { "type": ["string", "null"] },
+        "pretty_url": { "type": ["boolean", "null"] }
+      },
+      "additionalProperties": true
+    }
+  }
+}

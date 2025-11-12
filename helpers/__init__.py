@@ -51,6 +51,10 @@ from .lead_forms.sifm import (  # noqa: F401
     initiate_sell_it_for_me_jazz_cash,
 )
 from .landing_page import fetch_main_landing_page  # noqa: F401
+from .search_listing import (  # noqa: F401
+    fetch_car_search_listing,
+    fetch_car_detail_from_search,
+)
 from .lead_forms import (  # noqa: F401
     fetch_carsure_cities,
     fetch_carsure_city_areas,
@@ -120,6 +124,8 @@ __all__ = [
     "checkout_sell_it_for_me_lead",
     "initiate_sell_it_for_me_jazz_cash",
     "fetch_main_landing_page",
+    "fetch_car_search_listing",
+    "fetch_car_detail_from_search",
     "fetch_carsure_cities",
     "fetch_carsure_city_areas",
     "submit_carsure_inspection_request",

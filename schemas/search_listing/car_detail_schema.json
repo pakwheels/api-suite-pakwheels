@@ -1,0 +1,99 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["ad_listing", "error", "custom_dimensions"],
+  "properties": {
+    "ad_listing": {
+      "type": "object",
+      "required": ["ad_id", "title", "url_slug", "user", "ad_listing_id"],
+      "properties": {
+        "ad_id": { "type": "integer" },
+        "title": { "type": "string" },
+        "url_slug": { "type": "string" },
+        "ad_listing_id": { "type": "integer" },
+        "city_name": { "type": ["string", "null"] },
+        "city_area": { "type": ["string", "null"] },
+        "seller_comments": { "type": ["string", "null"] },
+        "price": { "type": ["string", "number", "null"] },
+        "pictures": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/picture" }
+        },
+        "klass": { "type": "string" },
+        "user": { "$ref": "#/definitions/user" },
+        "make": { "type": ["string", "null"] },
+        "model": { "type": ["string", "null"] },
+        "model_year": { "type": ["integer", "null"] },
+        "engine_capacity": { "type": ["string", "null"] },
+        "engine_type": { "type": ["string", "null"] },
+        "transmission": { "type": ["string", "null"] },
+        "registration_province": { "type": ["string", "null"] },
+        "registration_city": { "type": ["string", "null"] },
+        "mileage": { "type": ["string", "null"] },
+        "features": { "type": ["string", "array", "null"] },
+        "allow_whatsapp": { "type": ["boolean", "null"] },
+        "is_featured": { "type": ["boolean", "null"] },
+        "featured_till": { "type": ["string", "null"] },
+        "inspection_price": { "type": ["number", "integer", "null"] },
+        "eligible_for_finance": { "type": ["boolean", "null"] },
+        "sponsored_partner_widgets": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/widget" }
+        }
+      },
+      "additionalProperties": true
+    },
+    "error": { "type": "string" },
+    "custom_dimensions": {
+      "type": "object",
+      "additionalProperties": {
+        "type": ["string", "boolean", "number"]
+      }
+    }
+  },
+  "additionalProperties": true,
+  "definitions": {
+    "picture": {
+      "type": "object",
+      "required": ["picture_id", "picture_original"],
+      "properties": {
+        "picture_id": { "type": "integer" },
+        "picture_thumbnail": { "type": ["string", "null"] },
+        "picture_medium": { "type": ["string", "null"] },
+        "picture_original": { "type": "string" },
+        "picture_title": { "type": ["string", "null"] },
+        "picture_alt": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "user": {
+      "type": "object",
+      "required": ["id", "username", "display_name", "user_type"],
+      "properties": {
+        "id": { "type": "integer" },
+        "username": { "type": "string" },
+        "display_name": { "type": "string" },
+        "user_type": { "type": ["integer", "string"] },
+        "city": { "type": ["string", "null"] },
+        "country": { "type": ["string", "null"] },
+        "dealer_name": { "type": ["string", "null"] },
+        "dealer_logo": { "type": ["string", "null"] },
+        "dealer_slug": { "type": ["string", "null"] }
+      },
+      "additionalProperties": true
+    },
+    "widget": {
+      "type": "object",
+      "required": ["title", "link_url"],
+      "properties": {
+        "title": { "type": "string" },
+        "sub_title": { "type": ["string", "null"] },
+        "logo": { "type": ["string", "null"] },
+        "product_image": { "type": ["string", "null"] },
+        "link_text": { "type": ["string", "null"] },
+        "link_url": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  }
+}
