@@ -79,6 +79,14 @@ from .number_verification import (  # noqa: F401
     clear_mobile_number,
     verify_phone_number,
 )
+from .ad_post import (
+    submit_bike_ad,
+    fetch_bike_ad_details,
+    edit_bike_ad,
+    remove_bike_ad,
+    reactivate_bike_ad,
+    feature_bike_ad,
+)  # noqa: F401
 
 __all__ = [
     "get_auth_token",
@@ -142,6 +150,12 @@ __all__ = [
     "fetch_my_active_ads",
     "fetch_my_pending_ads",
     "fetch_my_removed_ads",
+    "submit_bike_ad",
+    "fetch_bike_ad_details",
+    "edit_bike_ad",
+    "remove_bike_ad",
+    "reactivate_bike_ad",
+    "feature_bike_ad",
 ]
 
 from .payment import (  # noqa: F401

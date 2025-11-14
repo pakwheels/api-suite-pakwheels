@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "bike_ad_remove_response",
+  "type": "object",
+  "properties": {
+    "error": {
+      "type": ["string", "null", "array"]
+    },
+    "success": {
+      "type": "string"
+    }
+  },
+  "required": ["success"],
+  "additionalProperties": true
+}
