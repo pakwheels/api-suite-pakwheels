@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "mobile_otp_verify_ack",
+  "type": "object",
+  "properties": {
+    "success": {
+      "type": ["boolean", "null"]
+    },
+    "error": {
+      "type": ["string", "boolean", "null"]
+    },
+    "message": {
+      "type": ["string", "null"]
+    }
+  },
+  "required": ["success"],
+  "additionalProperties": true
+}

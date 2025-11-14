@@ -7,6 +7,19 @@ import pytest
 from helpers import submit_car_insurance_lead
 
 PAYLOAD_PATH = Path("data/payloads/lead_forms/car_insurance_request.json")
+pytestmark = pytest.mark.parametrize(
+    "api_client",
+    [
+        {
+            "mode": "email",
+            "email": os.getenv("EMAIL"),
+            "password": os.getenv("PASSWORD"),
+            "clear_number_first": True,
+        }
+    ],
+    indirect=True,
+    ids=["email"],
+)
 
 
 @pytest.mark.lead_forms
