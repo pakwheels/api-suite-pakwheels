@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "accessories_ad_edit_response",
+  "type": "object",
+  "properties": {
+    "error": {"type": ["array", "string", "null"]},
+    "success": {"type": ["string", "null"]},
+    "ad_listing_id": {"type": "integer"},
+    "ad_id": {"type": "integer"}
+  },
+  "required": ["success", "ad_listing_id", "ad_id"]
+}
