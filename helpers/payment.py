@@ -3,6 +3,7 @@ Payment-related helpers that wrap APIClient requests.
 """
 
 from __future__ import annotations
+from helpers.shared import _validate_response
 
 import os
 import time
@@ -10,8 +11,11 @@ from typing import Optional
 
 def list_feature_products_upsell(
     api_client,
+    validator,
     ad_id: int,
-    product_type: str
+    product_type: str,
+    schema_path: str = "schemas/upsell/feature_upsell.json",
+
 ):
     endpoint = os.getenv("FEATURE_PRODUCTS_ENDPOINT", "/products/products_list.json")
     params = _env_params("FEATURE_PRODUCTS_QUERY") or {}
@@ -20,11 +24,18 @@ def list_feature_products_upsell(
         "product_type": product_type,
         "api_version": 18
     })
-    return api_client.request(
+
+    resp =  api_client.request(
         method=os.getenv("FEATURE_PRODUCTS_METHOD", "GET"),
         endpoint=endpoint,
         params=params,
     )
+
+    validator.assert_status_code(resp["status_code"], 200)
+    json_resp = resp["json"] or {} # Get the response body (acknowledgement)
+    _validate_response(validator, json_resp, schema_path=schema_path)
+
+    return resp
 
 def list_feature_products(
     api_client,

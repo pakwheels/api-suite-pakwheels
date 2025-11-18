@@ -34,7 +34,7 @@ def test_post_ad( api_client, validator, load_payload):
 @pytest.mark.car_ad_post
 def test_feature_upsell(api_client,validator):
     posted_ad = get_session_ad_metadata(api_client, validator)
-    product_list_data = list_feature_products_upsell(api_client,posted_ad["ad_id"],product_type="used_car_upsell")
+    product_list_data = list_feature_products_upsell(api_client,validator,posted_ad["ad_id"],product_type="used_car_upsell")
     upsell_product_validation(product_list_data,posted_ad["price"])
 
 @pytest.mark.car_ad_post
