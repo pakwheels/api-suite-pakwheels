@@ -1001,9 +1001,9 @@ def _extract_payment_id(payload: dict) -> Optional[str]:
 def _extract_ids(section: List[dict]) -> Set[int]: #Extracting ids of products from productlist api response  
     """Safely pull integer `id`s from a list of dicts."""
     return {
-        prod["id"]
+        prod["featureCarCount"]
         for prod in section
-        if isinstance(prod, dict) and isinstance(prod.get("id"), int)
+        if isinstance(prod, dict) and isinstance(prod.get("featureCarCount"), int)
     }
 
 def upsell_report(section: str, required: Set[int], actual: Set[int], range_name: str, ad_price: int) -> Optional[str]:
@@ -1050,9 +1050,9 @@ def upsell_product_validation(prod_list_resp: dict, ad_price: int) -> None:
     EIGHTY_LAC = 8_000_000
 
     PRICE_RANGES = [
-        (0,          FORTY_LAC,   {111, 112, 159}, "0 - 40 Lac",          {79, 80, 81}, "0 - 40 Lac (business)"),
-        (FORTY_LAC,  EIGHTY_LAC, {112, 159},      "40 Lac - 80 Lac",     {79, 80, 81},     "40 Lac - 80 Lac (business)"),
-        (EIGHTY_LAC, None,       {159, 322, 326}, "80 Lac and above",    {79, 80, 81},         "80 Lac and above (business)")
+        (0,          FORTY_LAC,   {1, 2, 4}, "0 - 40 Lac",          {5, 10, 20}, "0 - 40 Lac (business)"),
+        (FORTY_LAC,  EIGHTY_LAC, {2, 4},      "40 Lac - 80 Lac",     {5, 10, 20},     "40 Lac - 80 Lac (business)"),
+        (EIGHTY_LAC, None,       {4, 6, 8}, "80 Lac and above",    {5, 10, 20},         "80 Lac and above (business)")
     ]
 
     if ad_price < 0:
