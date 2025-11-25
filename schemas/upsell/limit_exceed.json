@@ -1,0 +1,244 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "feature_upsell_response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "products",
+    "businessProduct",
+    "normalProduct",
+    "payments",
+    "custom_dimensions"
+  ],
+  "properties": {
+    "products": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "featureCarCount",
+          "featureBikeCount",
+          "bumpAdCredits",
+          "normalCarCount",
+          "canUseFreeNormalCarCredits",
+          "description",
+          "isRecommended",
+          "slug",
+          "price",
+          "discount",
+          "discountedPercentage",
+          "package",
+          "defaultExpiryDuration",
+          "bundleWith"
+        ],
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "featureCarCount": { "type": ["integer", "null"] },
+          "featureBikeCount": { "type": ["integer", "null"] },
+          "bumpAdCredits": { "type": "integer" },
+          "normalCarCount": { "type": ["integer", "null"] },
+          "canUseFreeNormalCarCredits": { "type": ["boolean", "null"] },
+          "description": { "type": ["string", "null"] },
+          "isRecommended": { "type": "boolean" },
+          "slug": { "type": ["string", "null"] },
+          "price": { "type": "number" },
+          "discount": { "type": ["number", "null"] },
+          "discountedPercentage": { "type": ["string", "null"] },
+          "package": { "type": "boolean" },
+          "defaultExpiryDuration": { "type": ["integer", "null"] },
+          "bundleWith": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "childName",
+              "featureCarCount",
+              "bumpAdCredits",
+              "description",
+              "isRecommended",
+              "slug",
+              "price",
+              "package",
+              "defaultExpiryDuration",
+              "actualPrice",
+              "discountedPrice",
+              "discountedPercentage"
+            ],
+            "properties": {
+              "id": { "type": "integer" },
+              "name": { "type": "string" },
+              "childName": { "type": ["string", "null"] },
+              "featureCarCount": { "type": ["integer", "null"] },
+              "bumpAdCredits": { "type": "integer" },
+              "description": { "type": ["string", "null"] },
+              "isRecommended": { "type": "boolean" },
+              "slug": { "type": ["string", "null"] },
+              "price": { "type": "number" },
+              "package": { "type": "boolean" },
+              "defaultExpiryDuration": { "type": ["integer", "null"] },
+              "actualPrice": { "type": ["number", "null"] },
+              "discountedPrice": { "type": ["number", "null"] },
+              "discountedPercentage": { "type": ["string", "null"] }
+            }
+          }
+        }
+      }
+    },
+
+    "businessProduct": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "featureCarCount",
+          "featureBikeCount",
+          "bumpAdCredits",
+          "normalCarCount",
+          "canUseFreeNormalCarCredits",
+          "description",
+          "isRecommended",
+          "slug",
+          "price",
+          "discount",
+          "discountedPercentage",
+          "package",
+          "defaultExpiryDuration"
+        ],
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "featureCarCount": { "type": ["integer", "null"] },
+          "featureBikeCount": { "type": ["integer", "null"] },
+          "bumpAdCredits": { "type": "integer" },
+          "normalCarCount": { "type": ["integer", "null"] },
+          "canUseFreeNormalCarCredits": { "type": ["boolean", "null"] },
+          "description": { "type": ["string", "null"] },
+          "isRecommended": { "type": "boolean" },
+          "slug": { "type": ["string", "null"] },
+          "price": { "type": "number" },
+          "discount": { "type": ["number", "null"] },
+          "discountedPercentage": { "type": ["string", "null"] },
+          "package": { "type": "boolean" },
+          "defaultExpiryDuration": { "type": ["integer", "null"] }
+        }
+      }
+    },
+
+    "normalProduct": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "featureCarCount",
+          "featureBikeCount",
+          "bumpAdCredits",
+          "normalCarCount",
+          "canUseFreeNormalCarCredits",
+          "description",
+          "isRecommended",
+          "slug",
+          "price",
+          "discount",
+          "discountedPercentage",
+          "package",
+          "defaultExpiryDuration"
+        ],
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "featureCarCount": { "type": ["integer", "null"] },
+          "featureBikeCount": { "type": ["integer", "null"] },
+          "bumpAdCredits": { "type": "integer" },
+          "normalCarCount": { "type": ["integer", "null"] },
+          "canUseFreeNormalCarCredits": { "type": ["boolean", "null"] },
+          "description": { "type": ["string", "null"] },
+          "isRecommended": { "type": "boolean" },
+          "slug": { "type": ["string", "null"] },
+          "price": { "type": "number" },
+          "discount": { "type": ["number", "null"] },
+          "discountedPercentage": { "type": ["string", "null"] },
+          "package": { "type": "boolean" },
+          "defaultExpiryDuration": { "type": ["integer", "null"] }
+        }
+      }
+    },
+
+    "payments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "bank_deposit",
+          "logo"
+        ],
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "bank_deposit": { "type": "boolean" },
+          "logo": { "type": ["string", "null"] }
+        }
+      }
+    },
+
+    "savedPayments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "paymentMethodId",
+          "bankDeposit",
+          "logo",
+          "name",
+          "accountNo"
+        ],
+        "properties": {
+          "id": { "type": "integer" },
+          "paymentMethodId": { "type": "integer" },
+          "bankDeposit": { "type": "boolean" },
+          "logo": { "type": ["string", "null"] },
+          "name": { "type": "string" },
+          "accountNo": { "type": "string" }
+        }
+      }
+    },
+
+    "custom_dimensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "user_type",
+        "newsletter_subsriber",
+        "car_listings",
+        "bike_listings",
+        "parts_listings",
+        "private_rides",
+        "public_rides"
+      ],
+      "properties": {
+        "user_type": { "type": ["string", "null"] },
+        "newsletter_subsriber": { "type": ["boolean", "null"] },
+        "car_listings": { "type": ["string", "null"] },
+        "bike_listings": { "type": ["string", "null"] },
+        "parts_listings": { "type": ["string", "null"] },
+        "private_rides": { "type": ["string", "null"] },
+        "public_rides": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

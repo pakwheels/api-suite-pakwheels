@@ -1022,7 +1022,7 @@ def upsell_report(section: str, required: Set[int], actual: Set[int], range_name
         return msg
     return None
 
-def upsell_product_validation(prod_list_resp: dict, ad_price: int) -> None:
+def upsell_product_validation(prod_list_resp: dict, ad_price: int,include_normal: Optional[bool]=None) -> None:
     if not isinstance(prod_list_resp, dict):
         raise AssertionError("prod_list_resp must be a dict")
 
@@ -1085,6 +1085,51 @@ def upsell_product_validation(prod_list_resp: dict, ad_price: int) -> None:
     upsell_err = upsell_report("upsell", required_upsell, upsell_ids, upsell_range_name, ad_price)
     business_err = upsell_report("business", required_business, business_ids, business_range_name, ad_price)
 
+ # normalProduct validation
+    normal_products = json_data.get("normalProduct")
+
+    if include_normal:
+    # Must be present and exactly one item
+      if not isinstance(normal_products, list) or len(normal_products) != 1:
+        raise AssertionError(
+            f"'normalProduct' must be a list with exactly 1 item when include_normal=True. "
+            f"Got: {normal_products}"
+        )
+
+      prod = normal_products[0]  # Only one item always
+      if not isinstance(prod, dict):
+        raise AssertionError("normalProduct[0] must be an object")
+
+      if "normalCarCount" not in prod:
+        raise AssertionError("normalProduct[0] missing 'normalCarCount' key")
+
+      # Expected normalCarCount based on ad_price
+      if ad_price < FORTY_LAC:
+        expected_normal_count = 1
+      elif ad_price < EIGHTY_LAC:
+       expected_normal_count = 2
+      else:
+        expected_normal_count = 4
+
+      actual_count = prod["normalCarCount"]
+      if actual_count != expected_normal_count:
+        raise AssertionError(
+            f"normalProduct[0].normalCarCount={actual_count} "
+            f"but expected {expected_normal_count} for ad_price={ad_price}"
+        )
+
+      print(
+        f"normalProduct validated: normalCarCount={actual_count}, "
+        f"expected={expected_normal_count}"
+     )
+
+    else:
+    # include_normal = False, so normalProduct must NOT appear
+       if isinstance(normal_products, list) and len(normal_products) > 0:
+        raise AssertionError(
+            "normalProduct must be absent or empty when include_normal=False"
+        )
+    
     if upsell_err or business_err:
         full_err = "\n\n".join(filter(None, [upsell_err, business_err]))
         raise AssertionError(full_err)
