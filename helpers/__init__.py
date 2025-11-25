@@ -133,21 +133,23 @@ __all__ = [
 ]
 
 from .payment import (  # noqa: F401
-    get_my_credits,
+    my_credits_request,
     initiate_jazz_cash,
     list_feature_products,
     payment_status,
     proceed_checkout,
-    product_upsell_request
+    product_upsell_request,
+    get_user_credit
 )
 
 __all__.extend(
     [
         "list_feature_products",
-        "get_my_credits",
+        "my_credits_request",
         "proceed_checkout",
         "initiate_jazz_cash",
         "payment_status",
-        "product_upsell_request"
+        "product_upsell_request",
+        "get_user_credit"
     ]
 )

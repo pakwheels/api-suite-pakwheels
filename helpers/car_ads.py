@@ -27,7 +27,7 @@ from helpers.shared import (
 from helpers.picture_uploader import upload_ad_picture
 from helpers.payment import (
     complete_jazz_cash_payment,
-    get_my_credits,
+    my_credits_request,
     list_feature_products,
     proceed_checkout,
 )
@@ -91,7 +91,7 @@ def _coerce_int(value) -> Optional[int]:
 
 def _available_feature_credits(api_client) -> Optional[int]:
     try:
-        resp = get_my_credits(api_client)
+        resp = my_credits_request(api_client)
     except Exception:
         return None
     if not isinstance(resp, dict) or resp.get("status_code") != 200:
@@ -1022,7 +1022,7 @@ def upsell_report(section: str, required: Set[int], actual: Set[int], range_name
         return msg
     return None
 
-def upsell_product_validation(prod_list_resp: dict, ad_price: int,include_normal: Optional[bool]=None) -> None:
+def upsell_product_validation(prod_list_resp: dict, ad_price: int,include_normal: Optional[bool]=None, normal_credit_count: Optional[int]=None) -> None:
     if not isinstance(prod_list_resp, dict):
         raise AssertionError("prod_list_resp must be a dict")
 
@@ -1107,9 +1107,18 @@ def upsell_product_validation(prod_list_resp: dict, ad_price: int,include_normal
       if ad_price < FORTY_LAC:
         expected_normal_count = 1
       elif ad_price < EIGHTY_LAC:
-       expected_normal_count = 2
+            if(normal_credit_count == 1):
+                expected_normal_count = 1
+            else:
+                expected_normal_count = 2
       else:
-        expected_normal_count = 4
+          if(normal_credit_count == 2):
+              expected_normal_count = 2
+          elif(normal_credit_count == 3):
+              expected_normal_count = 1
+          else:
+              expected_normal_count = 4
+          
 
       actual_count = prod["normalCarCount"]
       if actual_count != expected_normal_count:

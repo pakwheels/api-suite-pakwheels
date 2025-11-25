@@ -13,7 +13,8 @@ from helpers import (
     logout_user,
     reactivate_used_car_existing,
     product_upsell_request,
-    upsell_product_validation
+    upsell_product_validation,
+    get_user_credit
 
 )
 
@@ -46,7 +47,8 @@ def test_boost_upsell(api_client,validator):
 def test_limitExceed_upsell(api_client,validator):
     posted_ad = get_session_ad_metadata(api_client, validator)
     product_list_data = product_upsell_request(api_client,validator,posted_ad["ad_id"],product_type="used_car_upsell", include_normal=True)
-    upsell_product_validation(product_list_data,posted_ad["price"],include_normal=True)
+    normal_car_credits= get_user_credit(api_client,"normal_used_car_credits")
+    upsell_product_validation(product_list_data,posted_ad["price"],include_normal=True,normal_credit_count=normal_car_credits)
 
 @pytest.mark.car_ad_post
 def test_edit_used_car_existing(api_client, validator, load_payload):
