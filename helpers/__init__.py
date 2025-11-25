@@ -138,7 +138,7 @@ from .payment import (  # noqa: F401
     list_feature_products,
     payment_status,
     proceed_checkout,
-    list_feature_products_upsell
+    product_upsell_request
 )
 
 __all__.extend(
@@ -148,6 +148,6 @@ __all__.extend(
         "proceed_checkout",
         "initiate_jazz_cash",
         "payment_status",
-        "list_feature_products_upsell"
+        "product_upsell_request"
     ]
 )

@@ -9,12 +9,14 @@ import os
 import time
 from typing import Optional
 
-def list_feature_products_upsell(
+def product_upsell_request(
     api_client,
     validator,
     ad_id: int,
     product_type: str,
-    schema_path: str = "schemas/upsell/feature_upsell.json",
+    schema_path=[
+    "schemas/upsell/feature_upsell.json",
+    "schemas/upsell/boost_upsell.json"]
 
 ):
     endpoint = os.getenv("FEATURE_PRODUCTS_ENDPOINT", "/products/products_list.json")
@@ -32,8 +34,14 @@ def list_feature_products_upsell(
     )
 
     validator.assert_status_code(resp["status_code"], 200)
+    print("Response Status Validated Successfully")
     json_resp = resp["json"] or {} # Get the response body (acknowledgement)
-    _validate_response(validator, json_resp, schema_path=schema_path)
+    if(product_type == "used_car_upsell"):
+        _validate_response(validator, json_resp, schema_path=schema_path[0])
+        print(product_type, "Schema Validated Succsssfully")
+    else:
+        _validate_response(validator, json_resp, schema_path=schema_path[1])
+        print(product_type, "Schema Validated Succsssfully")
 
     return resp
 

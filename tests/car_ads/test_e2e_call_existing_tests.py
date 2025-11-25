@@ -12,7 +12,7 @@ from helpers import (
     get_session_ad_metadata,
     logout_user,
     reactivate_used_car_existing,
-    list_feature_products_upsell,
+    product_upsell_request,
     upsell_product_validation
 
 )
@@ -34,8 +34,12 @@ def test_post_ad( api_client, validator, load_payload):
 @pytest.mark.car_ad_post
 def test_feature_upsell(api_client,validator):
     posted_ad = get_session_ad_metadata(api_client, validator)
-    product_list_data = list_feature_products_upsell(api_client,validator,posted_ad["ad_id"],product_type="used_car_upsell")
+    product_list_data = product_upsell_request(api_client,validator,posted_ad["ad_id"],product_type="used_car_upsell")
     upsell_product_validation(product_list_data,posted_ad["price"])
+
+def test_boost_upsell(api_client,validator):
+     posted_ad = get_session_ad_metadata(api_client, validator)
+     product_upsell_request(api_client,validator,posted_ad["ad_id"],product_type="boost_upsell")
 
 @pytest.mark.car_ad_post
 def test_edit_used_car_existing(api_client, validator, load_payload):
@@ -48,6 +52,7 @@ def test_edit_used_car_existing(api_client, validator, load_payload):
         ad_id=posted_ad["ad_id"],
         api_version=posted_ad["api_version"],
         )
+
 @pytest.mark.car_ad_post
 def test_close_used_car_existing( api_client, validator, load_payload):
     posted_ad = get_session_ad_metadata(api_client, validator)
@@ -82,8 +87,6 @@ def test_feature_used_car(api_client, validator):
         ad_ref=posted_ad,
         api_version=posted_ad["api_version"],
     )
-
-
 
 @pytest.mark.auth
 def test_logout_user_e2e( api_client, validator, load_payload):
