@@ -72,20 +72,13 @@ def submit_car_finance_lead(
         source_path = Path(payload_path) if payload_path else CAR_FINANCE_PAYLOAD_PATHS[payload_key]
         prepared_payload = _prepare_payload(_load_json(source_path))
 
-    params: dict[str, str] = {}
-    # client_id = os.getenv("CLIENT_ID")
-    # client_secret = os.getenv("CLIENT_SECRET")
-    # if client_id and client_secret:
-    #     params["client_id"] = client_id
-    #     params["client_secret"] = client_secret
-    # if api_version is not None:
-    #     params["api_version"] = str(api_version)
-
+    # params: dict[str, str] = {}
+ 
     response = api_client.request(
         "POST",
         "/car-loan-calculator.json",
         json_body=prepared_payload,
-        params=params or None,
+        # params=params or None,
     )
     validator.assert_status_code(response["status_code"], 200)
 
