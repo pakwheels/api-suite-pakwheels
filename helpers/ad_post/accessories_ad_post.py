@@ -1,10 +1,8 @@
 from __future__ import annotations
 
-import copy
-import json
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
 
 from helpers.picture_uploader import upload_ad_picture
 from helpers.payment import (
@@ -13,43 +11,22 @@ from helpers.payment import (
     list_feature_products,
     proceed_checkout,
 )
-
-PAYLOAD_PATH = Path("data/payloads/ad_post/accessories_ad_post.json")
-EXPECTED_PATH = Path("data/expected_responses/ad_post/accessories_ad_post.json")
-SCHEMA_PATH = Path("schemas/ad_post/accessories_ad_post_response_schema.json")
-METADATA_PATH = Path("tmp/accessories_ad_post.json")
-DEFAULT_IMAGE_PATH = Path("data/pictures/bikee.jpeg")
-EDIT_EXPECTED_PATH = Path("data/expected_responses/ad_post/accessories_ad_edit.json")
-EDIT_SCHEMA_PATH = Path("schemas/ad_post/accessories_ad_edit_response_schema.json")
-REMOVE_EXPECTED_PATH = Path("data/expected_responses/ad_post/accessories_ad_remove.json")
-REMOVE_SCHEMA_PATH = Path("schemas/ad_post/accessories_ad_remove_response_schema.json")
-REACTIVATE_EXPECTED_PATH = Path("data/expected_responses/ad_post/accessories_ad_reactivate.json")
-REACTIVATE_SCHEMA_PATH = Path("schemas/ad_post/accessories_ad_reactivate_response_schema.json")
-
-
-def _load_json(path: Path) -> Dict[str, Any]:
-    with path.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
-
-
-def _save_metadata(data: Dict[str, Any]) -> None:
-    metadata = {
-        "success": data.get("success"),
-        "ad_listing_id": data.get("ad_listing_id"),
-        "ad_id": data.get("ad_id"),
-    }
-    METADATA_PATH.parent.mkdir(parents=True, exist_ok=True)
-    METADATA_PATH.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
-
-
-def load_last_accessories_ad_metadata() -> Dict[str, Any]:
-    if not METADATA_PATH.exists():
-        return {}
-    return _load_json(METADATA_PATH)
+from helpers.shared import (
+    _read_json,
+    _load_payload_template,
+    _save_metadata_file,
+    _load_metadata_file,
+    _inject_listing_picture,
+    _extract_payment_id,
+)
 
 
 def _prepare_payload(payload: Optional[Dict[str, Any]] = None, payload_path: Optional[str] = None) -> Dict[str, Any]:
-    data = copy.deepcopy(payload) if payload else _load_json(Path(payload_path) if payload_path else PAYLOAD_PATH)
+    data = _load_payload_template(
+        base_payload=payload,
+        payload_path=payload_path,
+        default_path="data/payloads/ad_post/accessories_ad_post.json",
+    )
     listing = data.setdefault("ad_listing", {})
     listing.setdefault("display_name", os.getenv("AD_POST_NAME", "test"))
     listing.setdefault("phone", os.getenv("MOBILE_NUMBER", "03601234567"))
@@ -58,29 +35,23 @@ def _prepare_payload(payload: Optional[Dict[str, Any]] = None, payload_path: Opt
 
 def _inject_picture(api_client, payload: Dict[str, Any], image_path: Optional[str] = None) -> Dict[str, Any]:
     listing = payload.setdefault("ad_listing", {})
-    pictures_attrs = listing.setdefault("pictures_attributes", {})
-
-    candidate = Path(image_path or os.getenv("ACCESSORIES_IMAGE_PATH", DEFAULT_IMAGE_PATH))
-    if not candidate.exists():
-        print(f"[AccessoriesAdPost] Image not found at {candidate}; skipping upload.")
-        return payload
-
-    pictures_attrs.clear()
-    access_token = getattr(api_client, "access_token", None)
-    api_version = os.getenv("PICTURE_UPLOAD_API_VERSION", "18")
-    fcm_token = os.getenv("FCM_TOKEN")
-
-    pic_id = upload_ad_picture(
+    _inject_listing_picture(
         api_client,
-        file_path=str(candidate),
-        api_version=api_version,
-        access_token=access_token,
-        fcm_token=fcm_token,
-        new_version=True,
+        listing,
+        upload_fn=upload_ad_picture,
+        image_path=image_path,
+        image_env="ACCESSORIES_IMAGE_PATH",
+        default_image_path="data/pictures/bikee.jpeg",
     )
-    pictures_attrs["0"] = {"pictures_ids": str(pic_id)}
-    print(f"[AccessoriesAdPost] Uploaded picture id={pic_id}")
     return payload
+
+
+def _save_metadata(data: Dict[str, Any]) -> None:
+    _save_metadata_file("tmp/accessories_ad_post.json", data)
+
+
+def load_last_accessories_ad_metadata() -> Dict[str, Any]:
+    return _load_metadata_file("tmp/accessories_ad_post.json")
 
 
 def submit_accessories_ad(
@@ -111,13 +82,15 @@ def submit_accessories_ad(
 
     body = response.get("json") or {}
 
-    schema_file = Path(schema_path) if schema_path else SCHEMA_PATH
+    schema_file = Path(schema_path) if schema_path else Path("schemas/ad_post/accessories_ad_post_response_schema.json")
     if schema_file.exists():
         validator.assert_json_schema(body, str(schema_file))
 
-    compare_file = Path(expected_path) if expected_path else EDIT_EXPECTED_PATH
+    compare_file = Path(expected_path) if expected_path else Path(
+        "data/expected_responses/ad_post/accessories_ad_edit.json"
+    )
     if compare_file.exists():
-        expected = _load_json(compare_file)
+        expected = _read_json(compare_file)
         expected_success = expected.get("success")
         actual_success = body.get("success")
         if expected_success and actual_success:
@@ -155,22 +128,6 @@ def fetch_accessories_ad_details(
     body = response.get("json") or {}
     print("[AccessoriesAdPost] Ad details:", body)
     return body
-
-
-def _extract_payment_id(payload: Dict[str, Any]) -> Optional[str]:
-    if not isinstance(payload, dict):
-        return None
-    for key in ("payment_id", "paymentId"):
-        value = payload.get(key)
-        if value:
-            return str(value)
-    payment = payload.get("payment")
-    if isinstance(payment, dict):
-        for key in ("id", "payment_id"):
-            value = payment.get(key)
-            if value:
-                return str(value)
-    return None
 
 
 def feature_accessories_ad(
@@ -293,16 +250,18 @@ def edit_accessories_ad(
     validator.assert_status_code(response["status_code"], 200)
 
     body = response.get("json") or {}
-    compare_file = Path(expected_path) if expected_path else EXPECTED_PATH
+    compare_file = Path(expected_path) if expected_path else Path(
+        "data/expected_responses/ad_post/accessories_ad_post.json"
+    )
     if compare_file.exists():
-        expected = _load_json(compare_file)
+        expected = _read_json(compare_file)
         expected_success = expected.get("success")
         actual_success = body.get("success")
         if expected_success and actual_success:
             prefix, _, _ = expected_success.rpartition("-")
             assert actual_success.startswith(prefix), "Accessories edit success slug mismatch"
     _save_metadata(body)
-    schema_file = Path(schema_path) if schema_path else EDIT_SCHEMA_PATH
+    schema_file = Path(schema_path) if schema_path else Path("schemas/ad_post/accessories_ad_edit_response_schema.json")
     if schema_file.exists():
         validator.assert_json_schema(body, str(schema_file))
     return body
@@ -337,13 +296,13 @@ def remove_accessories_ad(
     validator.assert_status_code(response["status_code"], 200)
 
     body = response.get("json") or {}
-    schema_file = REMOVE_SCHEMA_PATH
+    schema_file = Path("schemas/ad_post/accessories_ad_remove_response_schema.json")
     if schema_file.exists():
         validator.assert_json_schema(body, str(schema_file))
 
-    expected_file = REMOVE_EXPECTED_PATH
+    expected_file = Path("data/expected_responses/ad_post/accessories_ad_remove.json")
     if expected_file.exists():
-        expected = _load_json(expected_file)
+        expected = _read_json(expected_file)
         assert body.get("success") == expected.get("success"), "Accessories removal success mismatch."
 
     return body
@@ -375,12 +334,12 @@ def reactivate_accessories_ad(
     validator.assert_status_code(response["status_code"], 200)
 
     body = response.get("json") or {}
-    schema_file = REACTIVATE_SCHEMA_PATH
+    schema_file = Path("schemas/ad_post/accessories_ad_reactivate_response_schema.json")
     if schema_file.exists():
         validator.assert_json_schema(body, str(schema_file))
 
-    expected_file = REACTIVATE_EXPECTED_PATH
+    expected_file = Path("data/expected_responses/ad_post/accessories_ad_reactivate.json")
     if expected_file.exists():
-        expected = _load_json(expected_file)
+        expected = _read_json(expected_file)
         assert body.get("ad_listing"), "Accessories reactivate response missing ad_listing"
     return body

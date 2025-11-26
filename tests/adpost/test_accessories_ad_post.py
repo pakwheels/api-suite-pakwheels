@@ -3,13 +3,16 @@ import os
 import pytest
 
 from helpers import (
-    submit_accessories_ad,
-    fetch_accessories_ad_details,
     feature_accessories_ad,
-    remove_accessories_ad,
+    fetch_accessories_ad_details,
     reactivate_accessories_ad,
+    remove_accessories_ad,
+    submit_accessories_ad,
 )
-from helpers.ad_post.accessories_ad_post import edit_accessories_ad
+from helpers.ad_post.accessories_ad_post import (
+    edit_accessories_ad,
+    load_last_accessories_ad_metadata,
+)
 
 pytestmark = pytest.mark.parametrize(
     "api_client",
@@ -26,45 +29,50 @@ pytestmark = pytest.mark.parametrize(
 )
 
 
-@pytest.mark.ad_post
-@pytest.mark.requires_auth
-def test_submit_accessories_ad(api_client, validator):
-    print("[AccessoriesAdPost] Creating accessories ad using default payload")
+@pytest.mark.accessories_ad_post
+def test_post_accessories_ad(api_client, validator):
     response = submit_accessories_ad(api_client, validator)
-    print("[AccessoriesAdPost] Post response:", response)
+    assert response.get("ad_id"), "Accessories ad posting failed to return ad_id."
+    slug = response.get("success", "")
+    if slug:
+        fetch_accessories_ad_details(api_client, validator, ad_url_slug=slug)
 
-    fetch_accessories_ad_details(
-        api_client,
-        validator,
-        ad_url_slug=response.get("success", ""),
-    )
-    print("[AccessoriesAdPost] Editing accessories ad")
-    edit_response = edit_accessories_ad(
-        api_client,
-        validator,
-        ad_id=response.get("ad_id"),
-        ad_listing_id=response.get("ad_listing_id"),
-    )
-    print("[AccessoriesAdPost] Edit response:", edit_response)
 
-    feature_response = feature_accessories_ad(
+@pytest.mark.accessories_ad_post
+def test_edit_accessories_ad_existing(api_client, validator):
+    metadata = load_last_accessories_ad_metadata()
+    assert metadata.get("ad_id") and metadata.get("ad_listing_id"), "Accessories ad metadata missing."
+    edit_accessories_ad(
         api_client,
         validator,
-        ad_id=response.get("ad_id"),
-        ad_listing_id=response.get("ad_listing_id"),
+        ad_id=metadata["ad_id"],
+        ad_listing_id=metadata["ad_listing_id"],
     )
-    print("[AccessoriesAdPost] Feature response:", feature_response)
 
-    remove_response = remove_accessories_ad(
-        api_client,
-        validator,
-        ad_url_slug=response.get("success", ""),
-    )
-    print("[AccessoriesAdPost] Remove response:", remove_response)
 
-    reactivate_response = reactivate_accessories_ad(
+@pytest.mark.accessories_ad_post
+def test_remove_accessories_ad(api_client, validator):
+    metadata = load_last_accessories_ad_metadata()
+    assert metadata.get("success"), "Accessories ad slug missing for removal."
+    result = remove_accessories_ad(api_client, validator)
+    assert result is not None
+
+
+@pytest.mark.accessories_ad_post
+def test_reactivate_accessories_ad(api_client, validator):
+    metadata = load_last_accessories_ad_metadata()
+    assert metadata.get("success"), "Accessories ad slug missing for reactivation."
+    resp = reactivate_accessories_ad(api_client, validator)
+    assert isinstance(resp, dict)
+
+
+@pytest.mark.accessories_ad_post
+def test_feature_accessories_ad(api_client, validator):
+    metadata = load_last_accessories_ad_metadata()
+    assert metadata.get("ad_id") and metadata.get("ad_listing_id"), "Accessories ad metadata missing."
+    feature_accessories_ad(
         api_client,
         validator,
-        ad_url_slug=response.get("success", ""),
+        ad_id=metadata["ad_id"],
+        ad_listing_id=metadata["ad_listing_id"],
     )
-    print("[AccessoriesAdPost] Reactivate response:", reactivate_response)
