@@ -9,14 +9,17 @@ import os
 import time
 from typing import Optional
 
-def list_feature_products_upsell(
+def product_upsell_request(
     api_client,
     validator,
     ad_id: int,
     product_type: str,
-    schema_path: str = "schemas/upsell/feature_upsell.json",
+    schema_path=[
+    "schemas/upsell/feature_upsell.json",
+    "schemas/upsell/boost_upsell.json",
+    "schemas/upsell/limit_exceed.json"],
+    include_normal: Optional[bool] = None):
 
-):
     endpoint = os.getenv("FEATURE_PRODUCTS_ENDPOINT", "/products/products_list.json")
     params = _env_params("FEATURE_PRODUCTS_QUERY") or {}
     params.update({
@@ -24,6 +27,8 @@ def list_feature_products_upsell(
         "product_type": product_type,
         "api_version": 18
     })
+    if include_normal:
+        params["include_normal"] = include_normal
 
     resp =  api_client.request(
         method=os.getenv("FEATURE_PRODUCTS_METHOD", "GET"),
@@ -32,8 +37,18 @@ def list_feature_products_upsell(
     )
 
     validator.assert_status_code(resp["status_code"], 200)
+    print("Response Status Validated Successfully")
+
     json_resp = resp["json"] or {} # Get the response body (acknowledgement)
-    _validate_response(validator, json_resp, schema_path=schema_path)
+    if(product_type == "used_car_upsell" and include_normal is not True):
+        _validate_response(validator, json_resp, schema_path=schema_path[0])
+        print(product_type, "Schema Validated Succsssfully")
+    elif(product_type == "boost_upsell" and include_normal is not True):
+        _validate_response(validator, json_resp, schema_path=schema_path[1])
+        print(product_type, "Schema Validated Succsssfully")
+    elif(product_type == "used_car_upsell" and include_normal is True):
+        _validate_response(validator, json_resp, schema_path=schema_path[2])
+        print(product_type, " with Noraml Car Product, Schema Validated Succsssfully")
 
     return resp
 
@@ -63,7 +78,7 @@ def list_feature_products(
     )
 
 
-def get_my_credits(api_client):
+def my_credits_request(api_client):
     endpoint = os.getenv("FEATURE_CREDITS_ENDPOINT", "/users/my-credits.json")
     params = _env_params("FEATURE_CREDITS_QUERY")
     return api_client.request(
@@ -71,6 +86,21 @@ def get_my_credits(api_client):
         endpoint=endpoint,
         params=params,
     )
+
+def get_user_credit(api_client, credit_name: str) -> int:
+    credits_resp = my_credits_request(api_client)
+
+    if not isinstance(credits_resp, dict):
+        raise AssertionError("json_resp must be a dict")
+
+    credit_details = credits_resp.get("credit_details", {})
+    user_credits = credit_details.get("user_credits", {})
+
+    if not isinstance(user_credits, dict):
+        raise AssertionError("'credit_details.user_credits' must be a dict")
+
+    # Safely return the credit (default: 0 if missing)
+    return int(user_credits.get(credit_name, 0))
 
 
 def proceed_checkout(
@@ -227,9 +257,10 @@ def _env_params(env_var: str):
 
 __all__ = [
     "list_feature_products",
-    "get_my_credits",
+    "my_credits_request",
     "proceed_checkout",
     "initiate_jazz_cash",
     "payment_status",
     "complete_jazz_cash_payment",
+    "get_user_credit"
 ]

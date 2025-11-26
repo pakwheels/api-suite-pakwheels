@@ -9,7 +9,7 @@ from helpers import (
     create_auction_sheet_request,
     fetch_auction_sheet_product_options,
     proceed_checkout,
-    get_my_credits,
+    my_credits_request,
     initiate_jazz_cash,
 )
 
@@ -131,7 +131,7 @@ def ensure_jazzcash_checkout(
 ) -> None:
     """Initiate a JazzCash checkout when auction sheet credits are unavailable."""
 
-    credits_response = get_my_credits(api_client)
+    credits_response = my_credits_request(api_client)
     validator.assert_status_code(credits_response["status_code"], 200)
     credits_body = credits_response.get("json") or {}
     auction_credits = (
