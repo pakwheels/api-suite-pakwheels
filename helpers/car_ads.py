@@ -998,7 +998,7 @@ def _extract_payment_id(payload: dict) -> Optional[str]:
     return None
 
 
-def _extract_ids(section: List[dict]) -> Set[int]: #Extracting ids of products from productlist api response  
+def _extract_FeatureCount(section: List[dict]) -> Set[int]: #Extracting ids of products from productlist api response  
     """Safely pull integer `id`s from a list of dicts."""
     return {
         prod["featureCarCount"]
@@ -1039,11 +1039,11 @@ def upsell_product_validation(prod_list_resp: dict, ad_price: int,include_normal
     if not isinstance(business_products, list):
         raise AssertionError(f"'json.businessProduct' must be a list. Keys: {list(json_data.keys())}")
 
-    upsell_ids = _extract_ids(upsell_products)
-    business_ids = _extract_ids(business_products)
+    upsell_FeatureCount = _extract_FeatureCount(upsell_products)
+    upsell_business_FeatureCount = _extract_FeatureCount(business_products)
 
-    print(f"Upsell IDs   : {sorted(upsell_ids)}")
-    print(f"Business IDs : {sorted(business_ids)}")
+    print(f"Upsell Feature Count   : {sorted(upsell_FeatureCount)}")
+    print(f"Business Feature Count : {sorted(upsell_business_FeatureCount)}")
 
     # Price ranges
     FORTY_LAC = 4_000_000
@@ -1082,8 +1082,8 @@ def upsell_product_validation(prod_list_resp: dict, ad_price: int,include_normal
     assert business_range_name is not None
 
     # Now safe to pass to _report (all are non-None)
-    upsell_err = upsell_report("upsell", required_upsell, upsell_ids, upsell_range_name, ad_price)
-    business_err = upsell_report("business", required_business, business_ids, business_range_name, ad_price)
+    upsell_err = upsell_report("upsell", required_upsell, upsell_FeatureCount, upsell_range_name, ad_price)
+    business_err = upsell_report("business", required_business, upsell_business_FeatureCount, business_range_name, ad_price)
 
  # normalProduct validation
     normal_products = json_data.get("normalProduct")
