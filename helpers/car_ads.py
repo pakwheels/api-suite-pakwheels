@@ -1039,10 +1039,10 @@ def upsell_product_validation(prod_list_resp: dict, ad_price: int,include_normal
     if not isinstance(business_products, list):
         raise AssertionError(f"'json.businessProduct' must be a list. Keys: {list(json_data.keys())}")
 
-    upsell_FeatureCount = _extract_FeatureCount(upsell_products)
+    actual_upsell = _extract_FeatureCount(upsell_products)
     upsell_business_FeatureCount = _extract_FeatureCount(business_products)
 
-    print(f"Upsell Feature Count   : {sorted(upsell_FeatureCount)}")
+    print(f"Upsell Feature Count   : {sorted(actual_upsell)}")
     print(f"Business Feature Count : {sorted(upsell_business_FeatureCount)}")
 
     # Price ranges
@@ -1082,7 +1082,7 @@ def upsell_product_validation(prod_list_resp: dict, ad_price: int,include_normal
     assert business_range_name is not None
 
     # Now safe to pass to _report (all are non-None)
-    upsell_err = upsell_report("upsell", required_upsell, upsell_FeatureCount, upsell_range_name, ad_price)
+    upsell_err = upsell_report("upsell", required_upsell, actual_upsell, upsell_range_name, ad_price)
     business_err = upsell_report("business", required_business, upsell_business_FeatureCount, business_range_name, ad_price)
 
  # normalProduct validation
