@@ -33,24 +33,6 @@ def test_post_ad( api_client, validator, load_payload):
     post_used_car(api_client, validator)
 
 @pytest.mark.car_ad_post
-def test_feature_upsell(api_client,validator):
-    posted_ad = get_session_ad_metadata(api_client, validator)
-    product_list_data = product_upsell_request(api_client,validator,posted_ad["ad_id"],product_type="used_car_upsell")
-    upsell_product_validation(product_list_data,posted_ad["price"])
-
-@pytest.mark.car_ad_post
-def test_boost_upsell(api_client,validator):
-     posted_ad = get_session_ad_metadata(api_client, validator)
-     product_upsell_request(api_client,validator,posted_ad["ad_id"],product_type="boost_upsell")
-
-@pytest.mark.car_ad_post
-def test_limitExceed_upsell(api_client,validator):
-    posted_ad = get_session_ad_metadata(api_client, validator)
-    product_list_data = product_upsell_request(api_client,validator,posted_ad["ad_id"],product_type="used_car_upsell", include_normal=True)
-    normal_car_credits= get_user_credit(api_client,"normal_used_car_credits")
-    upsell_product_validation(product_list_data,posted_ad["price"],include_normal=True,normal_credit_count=normal_car_credits)
-
-@pytest.mark.car_ad_post
 def test_edit_used_car_existing(api_client, validator, load_payload):
         posted_ad = get_session_ad_metadata(api_client, validator)
         edit_used_car_existing(
@@ -96,6 +78,24 @@ def test_feature_used_car(api_client, validator):
         ad_ref=posted_ad,
         api_version=posted_ad["api_version"],
     )
+
+@pytest.mark.car_ad_post
+def test_feature_upsell(api_client,validator):
+    posted_ad = get_session_ad_metadata(api_client, validator)
+    product_list_data = product_upsell_request(api_client,validator,posted_ad["ad_id"],product_type="used_car_upsell")
+    upsell_product_validation(product_list_data,posted_ad["price"])
+
+@pytest.mark.car_ad_post
+def test_boost_upsell(api_client,validator):
+     posted_ad = get_session_ad_metadata(api_client, validator)
+     product_upsell_request(api_client,validator,posted_ad["ad_id"],product_type="boost_upsell")
+
+@pytest.mark.car_ad_post
+def test_limitExceed_upsell(api_client,validator):
+    posted_ad = get_session_ad_metadata(api_client, validator)
+    product_list_data = product_upsell_request(api_client,validator,posted_ad["ad_id"],product_type="used_car_upsell", include_normal=True)
+    normal_car_credits= get_user_credit(api_client,"normal_used_car_credits")
+    upsell_product_validation(product_list_data,posted_ad["price"],include_normal=True,normal_credit_count=normal_car_credits)
 
 @pytest.mark.auth
 def test_logout_user_e2e( api_client, validator, load_payload):
