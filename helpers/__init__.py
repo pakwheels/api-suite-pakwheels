@@ -14,7 +14,7 @@ from .auth import (  # noqa: F401
     fetch_otp_from_maildrop,
     verify_email_pin,
 )
-from .ad_post.car_ad_post import (  # noqa: F401
+from .car_ads import (  # noqa: F401
     edit_payload_check,
     close_used_car_existing,
     edit_used_car,
@@ -121,6 +121,15 @@ from .ad_post.accessories_ad_post import (  # noqa: F401
     edit_accessories_ad,
     remove_accessories_ad,
     reactivate_accessories_ad,
+)
+from .payment import (  # noqa: F401
+    initiate_jazz_cash,
+    list_feature_products,
+    payment_status,
+    my_credits_request,
+    proceed_checkout,
+    get_user_credit,
+    complete_jazz_cash_payment,
 )
 
 __all__ = [
