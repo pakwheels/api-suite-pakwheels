@@ -5,7 +5,7 @@ import json
 import os
 import re
 from pathlib import Path
-from typing import Any, Callable, Iterable, Optional, Tuple
+from typing import Any, Callable, Iterable, Optional, Tuple, List, Set, Dict
 import requests
 
 from helpers import get_auth_token
@@ -34,7 +34,7 @@ from helpers.shared import (
 from helpers.picture_uploader import upload_ad_picture
 from helpers.payment import (
     complete_jazz_cash_payment,
-    get_my_credits,
+    my_credits_request,
     list_feature_products,
     proceed_checkout,
 )
@@ -155,7 +155,7 @@ _EDIT_PAYLOAD_RESPONSE_RULES: Tuple[FieldRule, ...] = (
 
 def _available_feature_credits(api_client) -> Optional[int]:
     try:
-        resp = get_my_credits(api_client)
+        resp = my_credits_request(api_client)
     except Exception:
         return None
     if not isinstance(resp, dict) or resp.get("status_code") != 200:
@@ -647,15 +647,39 @@ def _select_feature_product(payload: dict, target_week: Optional[int]):
 
 
 def wait_for_ad_state(
+    api_client,
+    slug_path: str,
     desired_states: Iterable[str] = ("st_live", "st_pending"),
-
+    attempts: int = 10,
+    delay: float = 0.8,
 ) -> Optional[str]:
     """
-    Poll the My-Ads lists until the ad appears in one of the desired states.
+    Poll the ad endpoint until the ad appears in one of the desired states.
 
     Returns the state name if found, otherwise None.
     """
     desired_states = tuple(desired_states)
+
+    for _ in range(attempts):
+        try:
+            resp = api_client.request("GET", _normalize_slug(slug_path, ensure_json_suffix=True), params={"api_version": DEFAULT_API_VERSION})
+            body = resp.get("json") or {}
+        except Exception:
+            body = {}
+
+        listing = body.get("ad_listing") or body.get("used_car") or body or {}
+        state = None
+        # Try common locations for state
+        if isinstance(listing, dict):
+            state = listing.get("state") or listing.get("ad_state") or listing.get("status")
+        state = state or body.get("state") or body.get("ad_state") or body.get("status")
+
+        if state in desired_states:
+            return state
+
+        import time
+
+        time.sleep(delay)
 
     return None
 
@@ -885,3 +909,185 @@ def reactivate_and_verify_lists(
         img_resp = api_client.session.get(image_url, timeout=30)
         print(f"\nGET {img_resp.url} → {img_resp.status_code}")
         assert img_resp.status_code in (200, 403), f"Unexpected static image status: {img_resp.status_code}"
+
+def _extract_payment_id(payload: dict) -> Optional[str]:
+    """Return a payment/order id from any checkout response shape."""
+    if not isinstance(payload, dict):
+        return None
+
+    direct = payload.get("payment_id") or payload.get("order_id")
+    if direct not in (None, ""):
+        return str(direct)
+
+    ack = payload.get("ack")
+    if isinstance(ack, dict):
+        direct = ack.get("payment_id") or ack.get("order_id")
+        if direct not in (None, ""):
+            return str(direct)
+
+    data = payload.get("data")
+    if isinstance(data, dict):
+        direct = data.get("payment_id") or data.get("order_id")
+        if direct not in (None, ""):
+            return str(direct)
+
+    for key in ("payment", "checkout", "response", "payload"):
+        nested = payload.get(key)
+        if isinstance(nested, dict):
+            result = _extract_payment_id(nested)
+            if result:
+                return result
+        elif isinstance(nested, list):
+            for item in nested:
+                result = _extract_payment_id(item)
+                if result:
+                    return result
+    return None
+
+
+def _extract_FeatureCount(section: List[dict]) -> Set[int]: #Extracting ids of products from productlist api response  
+    """Safely pull integer `id`s from a list of dicts."""
+    return {
+        prod["featureCarCount"]
+        for prod in section
+        if isinstance(prod, dict) and isinstance(prod.get("featureCarCount"), int)
+    }
+
+def upsell_report(section: str, required: Set[int], actual: Set[int], range_name: str, ad_price: int) -> Optional[str]:
+    missing = required - actual
+    extra = actual - required
+    if missing:
+        msg = (
+            f"{section.upper()} VALIDATION FAILED\n"
+            f"Price: {ad_price:,} PKR ({range_name})\n"
+            f"Required : {sorted(required)}\n"
+            f"Available: {sorted(actual)}\n"
+            f"Missing  : {sorted(missing)}"
+        )
+        if extra:
+            msg += f"\nExtra    : {sorted(extra)}"
+        return msg
+    return None
+
+def upsell_product_validation(prod_list_resp: dict, ad_price: int,include_normal: Optional[bool]=None, normal_credit_count: Optional[int]=None) -> None:
+    if not isinstance(prod_list_resp, dict):
+        raise AssertionError("prod_list_resp must be a dict")
+
+    json_data = prod_list_resp.get("json")
+    if not isinstance(json_data, dict):
+        raise AssertionError(f"Expected 'json' key with dict, got {type(json_data)}")
+
+    # Extract sections
+    upsell_products = json_data.get("products")
+    business_products = json_data.get("businessProduct")
+
+    if not isinstance(upsell_products, list):
+        raise AssertionError(f"'json.products' must be a list. Keys: {list(json_data.keys())}")
+    if not isinstance(business_products, list):
+        raise AssertionError(f"'json.businessProduct' must be a list. Keys: {list(json_data.keys())}")
+
+    actual_upsell = _extract_FeatureCount(upsell_products)
+    actual_business_upsell = _extract_FeatureCount(business_products)
+
+    print(f"Upsell Feature Count   : {sorted(actual_upsell)}")
+    print(f"Business Feature Count : {sorted(actual_business_upsell)}")
+
+    # Price ranges
+    FORTY_LAC = 4_000_000
+    EIGHTY_LAC = 8_000_000
+
+    PRICE_RANGES = [
+        (0,          FORTY_LAC,   {1, 2, 4}, "0 - 40 Lac",          {5, 10, 20}, "0 - 40 Lac (business)"),
+        (FORTY_LAC,  EIGHTY_LAC, {2, 4},      "40 Lac - 80 Lac",     {5, 10, 20},     "40 Lac - 80 Lac (business)"),
+        (EIGHTY_LAC, None,       {4, 6, 8}, "80 Lac and above",    {5, 10, 20},         "80 Lac and above (business)")
+    ]
+
+    if ad_price < 0:
+        raise AssertionError("ad_price cannot be negative")
+
+    # Find matching range
+    required_upsell: Set[int] | None = None
+    required_business: Set[int] | None = None
+    upsell_range_name: str | None = None
+    business_range_name: str | None = None
+
+    for low, high, ups_set, u_name, bus_set, b_name in PRICE_RANGES:
+        if high is None:
+            if ad_price >= low:
+                required_upsell, required_business = ups_set, bus_set
+                upsell_range_name, business_range_name = u_name, b_name
+                break
+        elif low <= ad_price < high:
+            required_upsell, required_business = ups_set, bus_set
+            upsell_range_name, business_range_name = u_name, b_name
+            break
+
+    # This can NEVER be None — every price matches a bucket
+    assert required_upsell is not None
+    assert required_business is not None
+    assert upsell_range_name is not None
+    assert business_range_name is not None
+
+    # Now safe to pass to _report (all are non-None)
+    upsell_err = upsell_report("upsell", required_upsell, actual_upsell, upsell_range_name, ad_price)
+    business_err = upsell_report("business", required_business, actual_business_upsell, business_range_name, ad_price)
+
+ # normalProduct validation
+    normal_products = json_data.get("normalProduct")
+
+    if include_normal:
+    # Must be present and exactly one item
+      if not isinstance(normal_products, list) or len(normal_products) != 1:
+        raise AssertionError(
+            f"'normalProduct' must be a list with exactly 1 item when include_normal=True. "
+            f"Got: {normal_products}"
+        )
+
+      prod = normal_products[0]  # Only one item always
+      if not isinstance(prod, dict):
+        raise AssertionError("normalProduct[0] must be an object")
+
+      if "normalCarCount" not in prod:
+        raise AssertionError("normalProduct[0] missing 'normalCarCount' key")
+
+      # Expected normalCarCount based on ad_price
+      if ad_price < FORTY_LAC:
+        expected_normal_count = 1
+      elif ad_price < EIGHTY_LAC:
+            if(normal_credit_count == 1):
+                expected_normal_count = 1
+            else:
+                expected_normal_count = 2
+      else:
+          if(normal_credit_count == 2):
+              expected_normal_count = 2
+          elif(normal_credit_count == 3):
+              expected_normal_count = 1
+          else:
+              expected_normal_count = 4
+          
+
+      actual_count = prod["normalCarCount"]
+      if actual_count != expected_normal_count:
+        raise AssertionError(
+            f"normalProduct[0].normalCarCount={actual_count} "
+            f"but expected {expected_normal_count} for ad_price={ad_price}"
+        )
+
+      print(
+        f"normalProduct validated: normalCarCount={actual_count}, "
+        f"expected={expected_normal_count}"
+     )
+
+    else:
+    # include_normal = False, so normalProduct must NOT appear
+       if isinstance(normal_products, list) and len(normal_products) > 0:
+        raise AssertionError(
+            "normalProduct must be absent or empty when include_normal=False"
+        )
+    
+    if upsell_err or business_err:
+        full_err = "\n\n".join(filter(None, [upsell_err, business_err]))
+        raise AssertionError(full_err)
+
+    print(f"Both upsell & business validated for {upsell_range_name}")

@@ -14,7 +14,7 @@ from .auth import (  # noqa: F401
     fetch_otp_from_maildrop,
     verify_email_pin,
 )
-from .ad_post.car_ad_post import (  # noqa: F401
+from .car_ads import (  # noqa: F401
     edit_payload_check,
     close_used_car_existing,
     edit_used_car,
@@ -36,9 +36,9 @@ from .ad_post.car_ad_post import (  # noqa: F401
 )
 
 import sys as _sys
-from .ad_post import car_ad_post as _car_ad_module
+# from .ad_post import car_ad_post as _car_ad_module
 
-_sys.modules.setdefault("helpers.car_ads", _car_ad_module)
+# _sys.modules.setdefault("helpers.car_ads", _car_ad_module)
 from .new_cars import (  # noqa: F401
     fetch_new_make_details,
     fetch_all_make_models,
@@ -110,6 +110,15 @@ from .ad_post.accessories_ad_post import (  # noqa: F401
     edit_accessories_ad,
     remove_accessories_ad,
     reactivate_accessories_ad,
+)
+from .payment import (  # noqa: F401
+    initiate_jazz_cash,
+    list_feature_products,
+    payment_status,
+    my_credits_request,
+    proceed_checkout,
+    get_user_credit,
+    complete_jazz_cash_payment,
 )
 
 __all__ = [
@@ -204,22 +213,18 @@ __all__ = [
     "edit_accessories_ad",
     "remove_accessories_ad",
     "reactivate_accessories_ad",
+
+    #Payment
+    "list_feature_products",
+    "my_credits_request",
+    "proceed_checkout",
+    "initiate_jazz_cash",
+    "payment_status",
+    "get_user_credit",
+    "complete_jazz_cash_payment",
+    
 ]
 
-from .payment import (  # noqa: F401
-    get_my_credits,
-    initiate_jazz_cash,
-    list_feature_products,
-    payment_status,
-    proceed_checkout,
-)
 
-__all__.extend(
-    [
-        "list_feature_products",
-        "get_my_credits",
-        "proceed_checkout",
-        "initiate_jazz_cash",
-        "payment_status",
-    ]
-)
+
+

@@ -9,3 +9,5 @@ __pycache__/
 reports/
 env
 tmp
+report.html
+.hypothesis/

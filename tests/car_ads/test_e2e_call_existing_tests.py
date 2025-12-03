@@ -1,10 +1,10 @@
 
 
 import os
-from helpers.ad_post.car_ad_post import post_used_car
 import pytest
 
 from helpers import (
+      post_used_car,
     close_used_car_existing,
     edit_used_car_existing,
     feature_used_car,
