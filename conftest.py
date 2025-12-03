@@ -4,7 +4,6 @@ import pytest
 import json
 from utils.api_client import APIClient
 from utils.validator import Validator
-from helpers.car_ads import get_session_ad_metadata
 from dotenv import load_dotenv
 import helpers.auth
 from helpers.auth import get_auth_token

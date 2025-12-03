@@ -1,50 +1,36 @@
 from __future__ import annotations
 
 import copy
-import json
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 from helpers.payment import get_my_credits, initiate_jazz_cash, proceed_checkout
+from helpers.shared import _load_payload_template
 
 from .utils import compare_against_snapshot, validate_against_schema
-
-VERIFY_SCHEMA_PATH = Path("schemas/lead_forms/auction_sheet_verify_schema.json")
-VERIFY_SNAPSHOT_PATH = Path("data/expected_responses/lead_forms/auction_sheet_verify.json")
-
-CREATE_SCHEMA_PATH = Path("schemas/lead_forms/auction_sheet_request_schema.json")
-CREATE_SNAPSHOT_PATH = Path("data/expected_responses/lead_forms/auction_sheet_request.json")
-REQUEST_PAYLOAD_PATH = Path("data/payloads/lead_forms/auction_sheet_request.json")
-DEFAULT_PAYMENT_METHOD_ID = 107
-
-
-def _load_json(path: Path) -> Dict[str, Any]:
-    with path.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
 
 
 def _prepare_auction_sheet_request_payload(
     auction_sheet_id: int,
     payload: Optional[Dict[str, Any]] = None,
     payload_path: Optional[str] = None,
-    email: Optional[str] = None,
-    mobile_phone: Optional[str] = None,
-    display_name: Optional[str] = None,
-    used_car_id: Optional[str] = None,
+
     product_id: Optional[int] = None,
 ) -> Dict[str, Any]:
-    base = copy.deepcopy(payload) if payload else _load_json(Path(payload_path) if payload_path else REQUEST_PAYLOAD_PATH)
+    base = _load_payload_template(
+        base_payload=payload,
+        payload_path=payload_path,
+        default_path="data/payloads/lead_forms/auction_sheet_request.json",
+    )
     inner_defaults = dict(base.get("auction_sheet_request") or {})
     request_body = dict(inner_defaults)
 
     request_body["auction_sheet_id"] = auction_sheet_id
-    request_body["display_name"] = display_name or inner_defaults.get("display_name") or "Test"
-    request_body["email"] = email or inner_defaults.get("email") or os.getenv("EMAIL", "apitest00@mailinator.com")
-    request_body["mobile_phone"] = (
-        mobile_phone or inner_defaults.get("mobile_phone") or os.getenv("MOBILE_NUMBER", "03601234567")
-    )
-    resolved_used_car_id = used_car_id or inner_defaults.get("used_car_id") or ""
+    request_body["display_name"] =  "Test"
+    request_body["email"] =  os.getenv("EMAIL")
+    request_body["mobile_phone"] =  os.getenv("MOBILE_NUMBER")
+    resolved_used_car_id =  inner_defaults.get("used_car_id") 
     request_body["used_car_id"] = str(resolved_used_car_id)
 
     resolved_product_id = product_id or inner_defaults.get("product_id")
@@ -75,12 +61,13 @@ def ensure_auction_sheet_jazzcash_checkout(
         print("[AuctionSheet] Credits available; skipping JazzCash checkout.")
         return
 
+    payment_method_id = int(os.getenv("AUCTION_SHEET_PAYMENT_METHOD_ID"))
     checkout_response = proceed_checkout(
         api_client,
         product_id=product_id,
         s_id=s_id,
         s_type="auction_sheet",
-        payment_method_id=DEFAULT_PAYMENT_METHOD_ID,
+        payment_method_id=payment_method_id,
     )
     validator.assert_status_code(checkout_response["status_code"], 200)
     checkout_body = checkout_response.get("json") or {}
@@ -88,8 +75,6 @@ def ensure_auction_sheet_jazzcash_checkout(
 
     payment_id = (
         checkout_body.get("payment_id")
-        or checkout_body.get("paymentId")
-        or (checkout_body.get("payment") or {}).get("id")
     )
     if not payment_id:
         print("[AuctionSheet] Checkout did not issue a payment id; skipping JazzCash initiation.")
@@ -98,9 +83,9 @@ def ensure_auction_sheet_jazzcash_checkout(
     jazz_response = initiate_jazz_cash(
         api_client,
         payment_id=payment_id,
-        mobile_number=os.getenv("MOBILE_NUMBER", "03123456789"),
-        cnic_number=os.getenv("CNIC_NUMBER", "12345-1234567-8"),
-        save_payment_info=os.getenv("SAVE_PAYMENT_INFO", "false").lower() == "true",
+        mobile_number=os.getenv("MOBILE_NUMBER"),
+        cnic_number=os.getenv("CNIC_NUMBER"),
+        save_payment_info=os.getenv( "false").lower() == "true",
     )
     validator.assert_status_code(jazz_response["status_code"], 200)
     print("[AuctionSheet] JazzCash initiation response:", jazz_response.get("json"))
@@ -112,8 +97,7 @@ def verify_auction_sheet(
     *,
     chassis_number: str,
     api_version: Optional[str] = None,
-    expected_path: Optional[str] = None,
-    schema_path: Optional[str] = None,
+
 ) -> dict:
     """Verify auction sheet information for the provided chassis number."""
 
@@ -132,8 +116,16 @@ def verify_auction_sheet(
     validator.assert_status_code(response["status_code"], 200)
 
     payload = response.get("json") or {}
-    validate_against_schema(validator, payload, Path(schema_path) if schema_path else VERIFY_SCHEMA_PATH)
-    compare_against_snapshot(validator, payload, Path(expected_path) if expected_path else VERIFY_SNAPSHOT_PATH)
+    validate_against_schema(
+        validator,
+        payload,
+       Path("schemas/lead_forms/auction_sheet_verify_schema.json"),
+    )
+    compare_against_snapshot(
+        validator,
+        payload,
+        Path("data/expected_responses/lead_forms/auction_sheet_verify.json"),
+    )
     return payload
 
 
@@ -143,8 +135,7 @@ def create_auction_sheet_request(
     *,
     payload: dict,
     api_version: Optional[str] = None,
-    expected_path: Optional[str] = None,
-    schema_path: Optional[str] = None,
+
 ) -> dict:
     """Create a new auction sheet request."""
 
@@ -161,8 +152,16 @@ def create_auction_sheet_request(
     validator.assert_status_code(response["status_code"], 200)
 
     body = response.get("json") or {}
-    validate_against_schema(validator, body, Path(schema_path) if schema_path else CREATE_SCHEMA_PATH)
-    compare_against_snapshot(validator, body, Path(expected_path) if expected_path else CREATE_SNAPSHOT_PATH)
+    validate_against_schema(
+        validator,
+        body,
+      Path("schemas/lead_forms/auction_sheet_request_schema.json"),
+    )
+    compare_against_snapshot(
+        validator,
+        body,
+      Path("data/expected_responses/lead_forms/auction_sheet_request.json"),
+    )
     return body
 
 

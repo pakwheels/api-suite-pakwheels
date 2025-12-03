@@ -39,7 +39,11 @@ __all__ = [
     "_product_label",
     "_product_id",
     "_extract_week_count",
+    "_format_slot_date",
+    "_normalize_slot_payload",
 ]
+
+_METADATA_STORE: Dict[str, Dict[str, Any]] = {}
 
 
 def _ensure_slug_path(slug_or_url: str) -> str:
@@ -195,20 +199,15 @@ def _load_payload_template(
 
 
 def _save_metadata_file(path: str, data: Dict[str, Any], fields: Optional[tuple] = None) -> None:
-    """Persist selected metadata keys to a tmp file."""
-    selected = fields or ("success", "ad_listing_id", "ad_id")
+    selected = fields or ("success", "ad_listing_id", "ad_id", "price","picture_id")
     payload = {key: data.get(key) for key in selected}
-    metadata_path = Path(path)
-    metadata_path.parent.mkdir(parents=True, exist_ok=True)
-    metadata_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    _METADATA_STORE[path] = payload
 
 
 def _load_metadata_file(path: str) -> Dict[str, Any]:
     """Load previously stored metadata from tmp directory."""
-    metadata_path = Path(path)
-    if not metadata_path.exists():
-        return {}
-    return _read_json(metadata_path)
+    stored = _METADATA_STORE.get(path)
+    return copy.deepcopy(stored) if stored else {}
 
 
 def _inject_listing_picture(
@@ -217,16 +216,12 @@ def _inject_listing_picture(
     *,
     upload_fn: Callable[..., int],
     pictures_key: str = "pictures_attributes",
-    image_path: Optional[str] = None,
-    image_env: Optional[str] = None,
     default_image_path: str,
 ) -> Dict[str, Any]:
     """Upload an image and inject the resulting picture id into listing payload."""
     pictures_attrs = listing.setdefault(pictures_key, {})
     candidate_path = Path(
-        image_path
-        or (os.getenv(image_env) if image_env else None)
-        or default_image_path
+        default_image_path
     )
     if not candidate_path.exists():
         print(f"[AdPost] Image not found at {candidate_path}; skipping upload.")
@@ -381,4 +376,77 @@ def _extract_week_count(label: str, category: Optional[str] = None) -> Optional[
             return value
     if category and isinstance(category, str):
         return _extract_week_count(category, None)
+    return None
+
+
+def _format_slot_date(raw: Optional[str], *, fmt: str = "%d-%m-%Y") -> Optional[str]:
+    """Convert API slot date strings to DD-MM-YYYY or best-effort fallback."""
+    if not raw:
+        return None
+    try:
+        from datetime import datetime
+        parsed = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+        return parsed.strftime(fmt)
+    except Exception:
+        text = str(raw)
+        return text[:10] if text else None
+
+
+def _normalize_slot_payload(
+    slot_payload: Dict[str, Any],
+    *,
+    city_id: Optional[int] = None,
+    city_area_id: Optional[int] = None,
+    require_available: bool = False,
+) -> Optional[Dict[str, Any]]:
+    """Flatten numerous slot payload shapes into a consistent dict."""
+
+    def _slot_is_available(slot: Dict[str, Any]) -> bool:
+        value = slot.get("slot_available")
+        if isinstance(value, bool):
+            return value
+        if isinstance(value, (int, float)):
+            return bool(value)
+        if isinstance(value, str):
+            return value.strip().lower() not in {"false", "0", "no", "n"}
+        return value is None
+
+    slot_candidates: Optional[list] = None
+    for key in ("slots", "free_slots", "data"):
+        value = slot_payload.get(key)
+        if isinstance(value, list) and value:
+            slot_candidates = [dict(item) for item in value if isinstance(item, dict)]
+            if slot_candidates:
+                break
+
+    if slot_candidates:
+        chosen = None
+        if require_available:
+            chosen = next((slot for slot in slot_candidates if _slot_is_available(slot)), None)
+        if chosen is None:
+            chosen = slot_candidates[0]
+        if "scheduled_date" not in chosen:
+            chosen["scheduled_date"] = chosen.get("date") or chosen.get("slot_date")
+        chosen["scheduled_date"] = _format_slot_date(chosen.get("scheduled_date"))
+        chosen.setdefault("slot_time", chosen.get("free_slot") or chosen.get("slot"))
+        chosen.setdefault("city_id", city_id)
+        chosen.setdefault("city_area_id", city_area_id)
+        return chosen if chosen.get("scheduled_date") else None
+
+    if slot_payload.get("free_slots_available") and (
+        slot_payload.get("free_slot") or slot_payload.get("slot")
+    ):
+        slot = {
+            "city_id": city_id,
+            "city_area_id": city_area_id,
+            "scheduled_date": _format_slot_date(
+                slot_payload.get("scheduled_date") or slot_payload.get("date")
+            ),
+            "slot_time": slot_payload.get("free_slot") or slot_payload.get("slot"),
+            "assessor_id": slot_payload.get("assessor_id"),
+            "slot_available": slot_payload.get("slot_available", True),
+        }
+        if require_available and not _slot_is_available(slot):
+            return None
+        return slot
     return None

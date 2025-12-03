@@ -25,23 +25,6 @@
     "paymentAttributes": {
       "type": "object",
       "additionalProperties": false,
-      "required": [
-        "pp_Version",
-        "pp_Language",
-        "pp_Password",
-        "pp_TxnCurrency",
-        "pp_MerchantID",
-        "pp_Description",
-        "pp_TxnRefNo",
-        "pp_Amount",
-        "pp_TxnDateTime",
-        "pp_BillReference",
-        "pp_TxnExpiryDateTime",
-        "pp_ReturnURL",
-        "pp_TxnType",
-        "pp_IsRegisteredCustomer",
-        "pp_SecureHash"
-      ],
       "properties": {
         "pp_Version": { "type": ["string", "null"] },
         "pp_Language": { "type": ["string", "null"] },
@@ -67,7 +50,7 @@
       "type": "boolean"
     },
     "paymentId": {
-      "type": "string"
+      "type": ["string", "null"]
     }
   }
 }

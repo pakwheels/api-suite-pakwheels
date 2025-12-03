@@ -12,13 +12,13 @@
     "is_request_added": { "type": "boolean" },
     "product": {
       "type": "object",
-      "required": ["id", "name", "price", "type", "original_price"],
+      "required": ["id", "name", "price", "type"],
       "properties": {
         "id": { "type": "integer" },
         "name": { "type": "string" },
         "price": { "type": "number" },
         "type": { "type": "string" },
-        "original_price": { "type": "number" }
+        "original_price": { "type": ["number", "null"] }
       },
       "additionalProperties": true
     },

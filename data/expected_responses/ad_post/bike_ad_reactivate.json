@@ -5,13 +5,13 @@
     "city_name": "Lahore",
     "city_area": "DHA Defence",
     "seller_comments": "This is a test ad",
-    "price": "199997",
+    "price": "199965",
     "url_slug": "/used-bikes/honda-cg-125-deluxe-2022-for-sale-in-lahore-208822",
     "pictures": [],
     "user": {
       "id": 1710789,
       "display_name": "Test",
-      "mobile_verified": false
+      "mobile_verified": true
     },
     "make": "Honda",
     "model": "CG 125 Deluxe",
@@ -19,6 +19,6 @@
     "engine_type": "4-stroke",
     "disc_break": true,
     "allow_whatsapp": true,
-    "phone": "03935134567"
+    "phone": "03601234567"
   }
 }
