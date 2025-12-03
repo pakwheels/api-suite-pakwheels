@@ -2,43 +2,12 @@
 
 from __future__ import annotations
 
-import copy
-import json
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from helpers.shared import _load_payload_template, _read_json
 from .utils import validate_against_schema
-
-CAR_REGISTRATION_SCHEMA_PATH = Path("schemas/lead_forms/car_registration_transfer_response_schema.json")
-CAR_REGISTRATION_UPDATE_SCHEMA_PATH = Path("schemas/lead_forms/car_registration_transfer_update_response_schema.json")
-CAR_REGISTRATION_PAYLOAD_PATH = Path("data/payloads/lead_forms/car_registration_transfer_request.json")
-CAR_REGISTRATION_EXPECTED_PATH = Path("data/expected_responses/lead_forms/car_registration_transfer_response.json")
-CAR_REGISTRATION_UPDATE_PAYLOAD_PATH = Path("data/payloads/lead_forms/car_registration_transfer_update.json")
-CAR_REGISTRATION_UPDATE_EXPECTED_PATH = Path(
-    "data/expected_responses/lead_forms/car_registration_transfer_update_response.json"
-)
-
-
-def _load_json(path: Path) -> Dict[str, Any]:
-    with path.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
-
-
-def _resolve_mobile(mobile_number: Optional[str], lead: Dict[str, Any]) -> str:
-    mobile = mobile_number or os.getenv("MOBILE_NUMBER") or lead.get("mobile_number")
-    if not mobile:
-        raise AssertionError("car_registration_transfer_lead requires a mobile_number")
-    return mobile
-
-
-def _compare_expected(actual: Dict[str, Any], path: Path) -> None:
-    if not path.exists():
-        return
-    expected = _load_json(path)
-    for key in ("success", "error", "mobile_verified"):
-        if key in expected:
-            assert actual.get(key) == expected.get(key), f"Mismatch for {key}"
 
 
 def submit_car_registration_transfer_lead(
@@ -54,10 +23,15 @@ def submit_car_registration_transfer_lead(
 ) -> dict:
     """Submit a car registration transfer lead and validate the response."""
 
-    source_path = Path(payload_path) if payload_path else CAR_REGISTRATION_PAYLOAD_PATH
-    payload_data = copy.deepcopy(payload) if payload else _load_json(source_path)
+    payload_data = _load_payload_template(
+        base_payload=payload,
+        payload_path=payload_path,
+        default_path="data/payloads/lead_forms/car_registration_transfer_request.json",
+    )
     lead = payload_data.setdefault("car_registration_transfer_lead", {})
-    lead["mobile_number"] = _resolve_mobile(mobile_number, lead)
+    lead["mobile_number"] = mobile_number or os.getenv("MOBILE_NUMBER") or lead.get("mobile_number")
+    if not lead["mobile_number"]:
+        raise AssertionError("car_registration_transfer_lead requires a mobile_number")
 
     params: dict[str, str] = {}
     # client_id = os.getenv("CLIENT_ID")
@@ -80,10 +54,18 @@ def submit_car_registration_transfer_lead(
     validate_against_schema(
         validator,
         body,
-        Path(schema_path) if schema_path else CAR_REGISTRATION_SCHEMA_PATH,
+        Path(schema_path)
+        if schema_path
+        else Path("schemas/lead_forms/car_registration_transfer_response_schema.json"),
     )
-    compare_path = Path(expected_path) if expected_path else CAR_REGISTRATION_EXPECTED_PATH
-    _compare_expected(body, compare_path)
+    compare_path = Path(expected_path) if expected_path else Path(
+        "data/expected_responses/lead_forms/car_registration_transfer_response.json"
+    )
+    if compare_path.exists():
+        expected = _read_json(compare_path)
+        for key in ("success", "error", "mobile_verified"):
+            if key in expected:
+                assert body.get(key) == expected.get(key), f"Mismatch for {key}"
     return body
 
 
@@ -102,8 +84,11 @@ def update_car_registration_transfer_lead(
 
     if not lead_id:
         raise ValueError("lead_id is required")
-    source_path = Path(payload_path) if payload_path else CAR_REGISTRATION_UPDATE_PAYLOAD_PATH
-    payload_data = copy.deepcopy(payload) if payload else _load_json(source_path)
+    payload_data = _load_payload_template(
+        base_payload=payload,
+        payload_path=payload_path,
+        default_path="data/payloads/lead_forms/car_registration_transfer_update.json",
+    )
 
     params: dict[str, str] = {}
     client_id = os.getenv("CLIENT_ID")
@@ -126,8 +111,16 @@ def update_car_registration_transfer_lead(
     validate_against_schema(
         validator,
         body,
-        Path(schema_path) if schema_path else CAR_REGISTRATION_UPDATE_SCHEMA_PATH,
+        Path(schema_path)
+        if schema_path
+        else Path("schemas/lead_forms/car_registration_transfer_update_response_schema.json"),
     )
-    compare_path = Path(expected_path) if expected_path else CAR_REGISTRATION_UPDATE_EXPECTED_PATH
-    _compare_expected(body, compare_path)
+    compare_path = Path(expected_path) if expected_path else Path(
+        "data/expected_responses/lead_forms/car_registration_transfer_update_response_schema.json"
+    )
+    if compare_path.exists():
+        expected = _read_json(compare_path)
+        for key in ("success", "error", "mobile_verified"):
+            if key in expected:
+                assert body.get(key) == expected.get(key), f"Mismatch for {key}"
     return body

@@ -2,71 +2,51 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 from helpers.picture_uploader import upload_ad_picture
 from helpers.payment import (
     initiate_jazz_cash,
-    get_my_credits,
     list_feature_products,
     proceed_checkout,
 )
 from helpers.shared import (
-    _read_json,
     _load_payload_template,
     _save_metadata_file,
     _load_metadata_file,
     _inject_listing_picture,
     _extract_payment_id,
+    _validate_response,
 )
 
 
-def _prepare_payload(payload: Optional[Dict[str, Any]] = None, payload_path: Optional[str] = None) -> Dict[str, Any]:
-    data = _load_payload_template(
-        base_payload=payload,
-        payload_path=payload_path,
+_ACCESSORIES_METADATA_KEY = "accessories_ad_post"
+
+
+def _save_metadata(data: Dict[str, Any]) -> None:
+    _save_metadata_file(_ACCESSORIES_METADATA_KEY, data)
+
+
+def load_last_accessories_ad_metadata() -> Dict[str, Any]:
+    return _load_metadata_file(_ACCESSORIES_METADATA_KEY)
+
+
+def post_accessories_ad(
+    api_client,
+    validator,
+    via_whatsapp: bool = True,
+    api_version: Optional[str] = None,
+) -> Dict[str, Any]:
+    prepared = _load_payload_template(
         default_path="data/payloads/ad_post/accessories_ad_post.json",
     )
-    listing = data.setdefault("ad_listing", {})
-    listing.setdefault("display_name", os.getenv("AD_POST_NAME", "test"))
-    listing.setdefault("phone", os.getenv("MOBILE_NUMBER", "03601234567"))
-    return data
-
-
-def _inject_picture(api_client, payload: Dict[str, Any], image_path: Optional[str] = None) -> Dict[str, Any]:
-    listing = payload.setdefault("ad_listing", {})
+    listing = prepared.setdefault("ad_listing", {})
     _inject_listing_picture(
         api_client,
         listing,
         upload_fn=upload_ad_picture,
-        image_path=image_path,
-        image_env="ACCESSORIES_IMAGE_PATH",
         default_image_path="data/pictures/bikee.jpeg",
     )
-    return payload
-
-
-def _save_metadata(data: Dict[str, Any]) -> None:
-    _save_metadata_file("tmp/accessories_ad_post.json", data)
-
-
-def load_last_accessories_ad_metadata() -> Dict[str, Any]:
-    return _load_metadata_file("tmp/accessories_ad_post.json")
-
-
-def submit_accessories_ad(
-    api_client,
-    validator,
-    *,
-    payload: Optional[Dict[str, Any]] = None,
-    payload_path: Optional[str] = None,
-    expected_path: Optional[str] = None,
-    schema_path: Optional[str] = None,
-    via_whatsapp: bool = True,
-    api_version: Optional[str] = None,
-) -> Dict[str, Any]:
-    prepared = _prepare_payload(payload, payload_path)
-    prepared = _inject_picture(api_client, prepared)
 
     version = str(api_version or os.getenv("API_VERSION", "22"))
     params = {"api_version": version, "via_whatsapp": "1" if via_whatsapp else "0"}
@@ -82,22 +62,16 @@ def submit_accessories_ad(
 
     body = response.get("json") or {}
 
-    schema_file = Path(schema_path) if schema_path else Path("schemas/ad_post/accessories_ad_post_response_schema.json")
-    if schema_file.exists():
-        validator.assert_json_schema(body, str(schema_file))
-
-    compare_file = Path(expected_path) if expected_path else Path(
+    schema_file =  Path("schemas/ad_post/accessories_ad_post_response_schema.json")
+    compare_file = Path(
         "data/expected_responses/ad_post/accessories_ad_edit.json"
     )
-    if compare_file.exists():
-        expected = _read_json(compare_file)
-        expected_success = expected.get("success")
-        actual_success = body.get("success")
-        if expected_success and actual_success:
-            prefix, _, _ = expected_success.rpartition("-")
-            assert actual_success.startswith(prefix), "Accessories ad success slug mismatch"
-        assert isinstance(body.get("ad_listing_id"), int)
-        assert isinstance(body.get("ad_id"), int)
+    _validate_response(
+        validator,
+        body,
+        schema_path=str(schema_file) if schema_file.exists() else None,
+        expected_path=str(compare_file) if compare_file.exists() else None,
+    )
 
     _save_metadata(body)
     return body
@@ -106,7 +80,7 @@ def submit_accessories_ad(
 def fetch_accessories_ad_details(
     api_client,
     validator,
-    *,
+
     ad_url_slug: Optional[str] = None,
     api_version: Optional[str] = None,
 ) -> Dict[str, Any]:
@@ -133,7 +107,6 @@ def fetch_accessories_ad_details(
 def feature_accessories_ad(
     api_client,
     validator,
-    *,
     ad_id: Optional[int] = None,
     ad_listing_id: Optional[int] = None,
     product_id: Optional[int] = None,
@@ -159,20 +132,6 @@ def feature_accessories_ad(
         raise AssertionError("No feature products available")
     resolved_product_id = int(product_id or products[0].get("id"))
 
-    confirm_resp = list_feature_products(
-        api_client,
-        resolved_ad_id,
-        product_id=resolved_product_id,
-        discount_code="",
-        s_id=resolved_listing_id,
-        s_type=s_type,
-    )
-    validator.assert_status_code(confirm_resp["status_code"], 200)
-
-    credits_resp = get_my_credits(api_client)
-    validator.assert_status_code(credits_resp["status_code"], 200)
-    print("[AccessoriesAdPost] Credits snapshot:", credits_resp.get("json"))
-
     checkout_resp = proceed_checkout(
         api_client,
         product_id=resolved_product_id,
@@ -189,8 +148,8 @@ def feature_accessories_ad(
     if not payment_id:
         raise AssertionError("Unable to resolve payment_id for accessories ad feature.")
 
-    jazz_mobile = os.getenv("JAZZ_CASH_MOBILE", os.getenv("MOBILE_NUMBER", "03123456789"))
-    jazz_cnic = os.getenv("JAZZ_CASH_CNIC", os.getenv("CNIC_NUMBER", "12345-1234567-8"))
+    jazz_mobile = os.getenv("JAZZ_CASH_MOBILE")
+    jazz_cnic = os.getenv("JAZZ_CASH_CNIC")
     save_flag = os.getenv("JAZZ_CASH_SAVE_INFO", "false").lower() == "true"
 
     jazz_resp = initiate_jazz_cash(
@@ -216,14 +175,10 @@ def feature_accessories_ad(
 def edit_accessories_ad(
     api_client,
     validator,
-    *,
     ad_id: Optional[int] = None,
     ad_listing_id: Optional[int] = None,
     api_version: Optional[str] = None,
-    payload: Optional[Dict[str, Any]] = None,
-    payload_path: Optional[str] = None,
-    expected_path: Optional[str] = None,
-    schema_path: Optional[str] = None,
+  
     via_whatsapp: bool = True,
 ) -> Dict[str, Any]:
     metadata = load_last_accessories_ad_metadata()
@@ -232,9 +187,18 @@ def edit_accessories_ad(
     if not resolved_ad_id or not resolved_listing_id:
         raise ValueError("ad_id and ad_listing_id required to edit accessories ad")
 
-    prepared = _prepare_payload(payload, payload_path)
-    prepared["ad_listing"]["id"] = resolved_listing_id
-    prepared = _inject_picture(api_client, prepared)
+    prepared = _load_payload_template(
+
+        default_path="data/payloads/ad_post/accessories_ad_post.json",
+    )
+    listing = prepared.setdefault("ad_listing", {})
+    listing["id"] = resolved_listing_id
+    _inject_listing_picture(
+        api_client,
+        listing,
+        upload_fn=upload_ad_picture,
+        default_image_path="data/pictures/bikee.jpeg",
+    )
 
     version = str(api_version or os.getenv("API_VERSION", "22"))
     params = {"api_version": version, "via_whatsapp": "1" if via_whatsapp else "0"}
@@ -250,20 +214,27 @@ def edit_accessories_ad(
     validator.assert_status_code(response["status_code"], 200)
 
     body = response.get("json") or {}
-    compare_file = Path(expected_path) if expected_path else Path(
+    compare_file =  Path(
         "data/expected_responses/ad_post/accessories_ad_post.json"
     )
-    if compare_file.exists():
-        expected = _read_json(compare_file)
-        expected_success = expected.get("success")
-        actual_success = body.get("success")
-        if expected_success and actual_success:
-            prefix, _, _ = expected_success.rpartition("-")
-            assert actual_success.startswith(prefix), "Accessories edit success slug mismatch"
-    _save_metadata(body)
-    schema_file = Path(schema_path) if schema_path else Path("schemas/ad_post/accessories_ad_edit_response_schema.json")
-    if schema_file.exists():
-        validator.assert_json_schema(body, str(schema_file))
+    schema_file = Path("schemas/ad_post/accessories_ad_edit_response_schema.json")
+    _validate_response(
+        validator,
+        body,
+        schema_path=str(schema_file) if schema_file.exists() else None,
+        expected_path=str(compare_file) if compare_file.exists() else None,
+    )
+    existing_meta = load_last_accessories_ad_metadata()
+    metadata_update = {
+        "success": body.get("success") or existing_meta.get("success"),
+        "slug": body.get("slug") or existing_meta.get("slug"),
+        "ad_id": resolved_ad_id,
+        "ad_listing_id": resolved_listing_id,
+        "price": body.get("price") or listing.get("price") or existing_meta.get("price"),
+        "api_version": existing_meta.get("api_version") or version,
+    }
+    _save_metadata(metadata_update)
+    print("[AccessoriesAdPost] Metadata after edit:", load_last_accessories_ad_metadata())
     return body
 
 
@@ -297,13 +268,13 @@ def remove_accessories_ad(
 
     body = response.get("json") or {}
     schema_file = Path("schemas/ad_post/accessories_ad_remove_response_schema.json")
-    if schema_file.exists():
-        validator.assert_json_schema(body, str(schema_file))
-
     expected_file = Path("data/expected_responses/ad_post/accessories_ad_remove.json")
-    if expected_file.exists():
-        expected = _read_json(expected_file)
-        assert body.get("success") == expected.get("success"), "Accessories removal success mismatch."
+    _validate_response(
+        validator,
+        body,
+        schema_path=str(schema_file) if schema_file.exists() else None,
+        expected_path=str(expected_file) if expected_file.exists() else None,
+    )
 
     return body
 
@@ -311,7 +282,6 @@ def remove_accessories_ad(
 def reactivate_accessories_ad(
     api_client,
     validator,
-    *,
     ad_url_slug: Optional[str] = None,
     api_version: Optional[str] = None,
 ) -> Dict[str, Any]:
@@ -335,11 +305,11 @@ def reactivate_accessories_ad(
 
     body = response.get("json") or {}
     schema_file = Path("schemas/ad_post/accessories_ad_reactivate_response_schema.json")
-    if schema_file.exists():
-        validator.assert_json_schema(body, str(schema_file))
-
     expected_file = Path("data/expected_responses/ad_post/accessories_ad_reactivate.json")
-    if expected_file.exists():
-        expected = _read_json(expected_file)
-        assert body.get("ad_listing"), "Accessories reactivate response missing ad_listing"
+    _validate_response(
+        validator,
+        body,
+        schema_path=str(schema_file) if schema_file.exists() else None,
+        expected_path=str(expected_file) if expected_file.exists() else None,
+    )
     return body

@@ -24,9 +24,9 @@ from .ad_post.car_ad_post import (  # noqa: F401
     feature_used_car_with_credit,
     feature_used_car_with_payment,
     post_used_car,
-    get_ad_ids,
-    get_ad_ref,
-    get_session_ad_metadata,
+    # get_ad_ids,
+    # get_ad_ref,
+    load_last_car_ad_metadata,
     reactivate_and_verify_lists,
     reactivate_and_get_ad,
     reactivate_used_car_existing,
@@ -48,17 +48,23 @@ from .new_cars import (  # noqa: F401
 from .lead_forms.sifm import (  # noqa: F401
     fetch_sell_it_for_me_cities,
     fetch_sell_it_for_me_city_areas,
+    fetch_sell_it_for_me_free_slots,
     submit_sell_it_for_me_lead,
     update_sell_it_for_me_lead,
     schedule_sell_it_for_me_lead,
     reserve_sell_it_for_me_slot,
     checkout_sell_it_for_me_lead,
     initiate_sell_it_for_me_jazz_cash,
+    resolve_sifm_location,
+    create_sifm_lead,
+    fetch_sell_it_for_me_inspection_days
 )
 from .landing_page import fetch_main_landing_page  # noqa: F401
 from .lead_forms.inspection import (  # noqa: F401
-    fetch_carsure_cities,
-    fetch_carsure_city_areas,
+    # fetch_carsure_cities,
+    # resolve_default_carsure_city_id,
+    # fetch_carsure_city_areas,
+    # resolve_default_carsure_city_area_id,
     submit_carsure_inspection_request,
     update_carsure_inspection_request,
     validate_checkout_response,
@@ -89,7 +95,7 @@ from .number_verification import (  # noqa: F401
     verify_phone_number,
 )
 from .ad_post.bike_ad_post import (  # noqa: F401
-    submit_bike_ad,
+    post_bike_ad,
     fetch_bike_ad_details,
     edit_bike_ad,
     remove_bike_ad,
@@ -97,7 +103,7 @@ from .ad_post.bike_ad_post import (  # noqa: F401
     feature_bike_ad,
 )
 from .ad_post.accessories_ad_post import (  # noqa: F401
-    submit_accessories_ad,
+    post_accessories_ad,
     fetch_accessories_ad_details,
     feature_accessories_ad,
     load_last_accessories_ad_metadata,
@@ -127,9 +133,9 @@ __all__ = [
     "feature_used_car_with_credit",
     "feature_used_car_with_payment",
     "post_used_car",
-    "get_session_ad_metadata",
-    "get_ad_ref",
-    "get_ad_ids",
+    "load_last_car_ad_metadata",
+    # "get_ad_ref",
+    # "get_ad_ids",
     "reactivate_and_verify_lists",
     "reactivate_and_get_ad",
     "reactivate_used_car_existing",
@@ -145,12 +151,16 @@ __all__ = [
     # Sell-it-for-me workflow helpers
     "fetch_sell_it_for_me_cities",
     "fetch_sell_it_for_me_city_areas",
+    "fetch_sell_it_for_me_free_slots",
     "submit_sell_it_for_me_lead",
     "update_sell_it_for_me_lead",
     "schedule_sell_it_for_me_lead",
     "reserve_sell_it_for_me_slot",
     "checkout_sell_it_for_me_lead",
     "initiate_sell_it_for_me_jazz_cash",
+    "resolve_sifm_location",
+    "create_sifm_lead",
+    "fetch_sell_it_for_me_inspection_days",
 
     # Landing page + My Ads
     "fetch_main_landing_page",
@@ -159,8 +169,10 @@ __all__ = [
     "fetch_my_removed_ads",
 
     # Carsure + inspection flows
-    "fetch_carsure_cities",
-    "fetch_carsure_city_areas",
+    # "fetch_carsure_cities",
+    # "resolve_default_carsure_city_id",
+    # "fetch_carsure_city_areas",
+    # "resolve_default_carsure_city_area_id",
     "submit_carsure_inspection_request",
     "update_carsure_inspection_request",
     "validate_checkout_response",
@@ -179,13 +191,13 @@ __all__ = [
     "update_car_registration_transfer_lead",
 
     # Bike & accessories ad helpers
-    "submit_bike_ad",
+    "post_bike_ad",
     "fetch_bike_ad_details",
     "edit_bike_ad",
     "remove_bike_ad",
     "reactivate_bike_ad",
     "feature_bike_ad",
-    "submit_accessories_ad",
+    "post_accessories_ad",
     "fetch_accessories_ad_details",
     "feature_accessories_ad",
     "load_last_accessories_ad_metadata",

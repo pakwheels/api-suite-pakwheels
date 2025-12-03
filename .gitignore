@@ -7,3 +7,5 @@ venv/
 .mypy_cache/
 __pycache__/
 reports/
+env
+tmp

@@ -1,63 +1,3175 @@
 {
-  "popular": [
-    {
-      "city_id": 1,
-      "id": 272,
-      "name": "Ayub Medical Complex",
-      "position": 1,
-      "url_slug": "ayub-medical-complex--2",
-      "zone": 1
-    }
-  ],
-  "other": [
-    {
-      "city_id": 1,
-      "id": 273,
-      "name": "Azam Town",
-      "position": 5,
-      "url_slug": "azam-town-0",
-      "zone": 1
-    },
-    {
-      "city_id": 1,
-      "id": 274,
-      "name": "Balkasar",
-      "position": 5,
-      "url_slug": "balkasar-0",
-      "zone": 1
-    },
-    {
-      "city_id": 1,
-      "id": 275,
-      "name": "Bilal Town",
-      "position": 5,
-      "url_slug": "bilal-town-0",
-      "zone": 1
-    },
-    {
-      "city_id": 1,
-      "id": 276,
-      "name": "Habibullah Colony",
-      "position": 5,
-      "url_slug": "habibullah-colony-0",
-      "zone": 1
-    },
-    {
-      "city_id": 1,
-      "id": 277,
-      "name": "Jhangi Syedan",
-      "position": 5,
-      "url_slug": "jhangi-syedan--2",
-      "zone": 8
-    },
-    {
-      "city_id": 1,
-      "id": 286,
-      "name": "Mansehra",
-      "position": 5,
-      "url_slug": "mansehra--2",
-      "zone": 1
-    }
-  ],
-  "error": ""
+    "popular": [
+        {
+            "city_id": 410,
+            "id": 106,
+            "name": "Allama Iqbal Town",
+            "position": 4,
+            "url_slug": "allama-iqbal-town",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 127,
+            "name": "Cantt",
+            "position": 3,
+            "url_slug": "cantt-0",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 133,
+            "name": "DHA Defence",
+            "position": 1,
+            "url_slug": "dha-defence--7",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 160,
+            "name": "Gulberg",
+            "position": 2,
+            "url_slug": "gulberg",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 181,
+            "name": "Johar Town",
+            "position": 0,
+            "url_slug": "johar-town",
+            "zone": 3
+        }
+    ],
+    "other": [
+        {
+            "city_id": 410,
+            "id": 1698,
+            "name": "Aabpara Coop Housing Society",
+            "position": 5,
+            "url_slug": "aabpara-coop-housing-society",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 99,
+            "name": "Abbot Road",
+            "position": 5,
+            "url_slug": "abbot-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 100,
+            "name": "Abdalians Housing Society",
+            "position": 5,
+            "url_slug": "abdalians-housing-society",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1700,
+            "name": "Abid Market",
+            "position": 5,
+            "url_slug": "abid-market",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1701,
+            "name": "Aftab Garden",
+            "position": 5,
+            "url_slug": "aftab-garden",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1702,
+            "name": "Agrics Town",
+            "position": 5,
+            "url_slug": "agrics-town",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1703,
+            "name": "Ahbab Housing Society",
+            "position": 5,
+            "url_slug": "ahbab-housing-society",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 101,
+            "name": "Air Avenue",
+            "position": 5,
+            "url_slug": "air-avenue",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 102,
+            "name": "AirLine Housing Society",
+            "position": 5,
+            "url_slug": "airline-housing-society",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1704,
+            "name": "Aitchison Society",
+            "position": 5,
+            "url_slug": "aitchison-society",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1120,
+            "name": "Akbar Chowk",
+            "position": 5,
+            "url_slug": "akbar-chowk",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1705,
+            "name": "Al Ameen Society",
+            "position": 5,
+            "url_slug": "al-ameen-society",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1706,
+            "name": "Al Faisal Town",
+            "position": 5,
+            "url_slug": "al-faisal-town",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1707,
+            "name": "Al Hafeez Gardens",
+            "position": 5,
+            "url_slug": "al-hafeez-gardens",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1708,
+            "name": "Al Hamad Colony",
+            "position": 5,
+            "url_slug": "al-hamad-colony",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1709,
+            "name": "Al Hamra Town",
+            "position": 5,
+            "url_slug": "al-hamra-town",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1712,
+            "name": "Al Jannat Housing Scheme",
+            "position": 5,
+            "url_slug": "al-jannat-housing-scheme",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 1713,
+            "name": "Al Kareem Garden",
+            "position": 5,
+            "url_slug": "al-kareem-garden",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1714,
+            "name": "Al Madina Avenue",
+            "position": 5,
+            "url_slug": "al-madina-avenue",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1715,
+            "name": "Al Noor Town",
+            "position": 5,
+            "url_slug": "al-noor-town",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1717,
+            "name": "Al Rahim Homes",
+            "position": 5,
+            "url_slug": "al-rahim-homes",
+            "zone": 8
+        },
+        {
+            "city_id": 410,
+            "id": 1718,
+            "name": "Al Rehman Garden",
+            "position": 5,
+            "url_slug": "al-rehman-garden",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 103,
+            "name": "Alfalah Town",
+            "position": 5,
+            "url_slug": "alfalah-town",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1720,
+            "name": "Ali View Garden",
+            "position": 5,
+            "url_slug": "ali-view-garden",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 104,
+            "name": "Ali View Park",
+            "position": 5,
+            "url_slug": "ali-view-park",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 105,
+            "name": "Allama Iqbal Air Port",
+            "position": 5,
+            "url_slug": "allama-iqbal-air-port",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 107,
+            "name": "Alpha Society",
+            "position": 5,
+            "url_slug": "alpha-society",
+            "zone": 8
+        },
+        {
+            "city_id": 410,
+            "id": 1723,
+            "name": "Ameen Park",
+            "position": 5,
+            "url_slug": "ameen-park",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1725,
+            "name": "Anarkali",
+            "position": 5,
+            "url_slug": "anarkali",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1123,
+            "name": "Anarkali Bazar ",
+            "position": 5,
+            "url_slug": "anarkali-bazar",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1726,
+            "name": "Angoori Bagh",
+            "position": 5,
+            "url_slug": "angoori-bagh",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1727,
+            "name": "Anmol Society",
+            "position": 5,
+            "url_slug": "anmol-society",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 108,
+            "name": "Architects Engineers Housing Society",
+            "position": 5,
+            "url_slug": "architects-engineers-housing-society",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 109,
+            "name": "Army Housing",
+            "position": 5,
+            "url_slug": "army-housing-0",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1728,
+            "name": "Ashrafi Town",
+            "position": 5,
+            "url_slug": "ashrafi-town",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1729,
+            "name": "Asif Town",
+            "position": 5,
+            "url_slug": "asif-town",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 2581,
+            "name": "Askari-11",
+            "position": 100,
+            "url_slug": "askari-11--2",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 110,
+            "name": "Askari-X",
+            "position": 5,
+            "url_slug": "askari-x",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1730,
+            "name": "Atomic Energy Society - PAEC",
+            "position": 5,
+            "url_slug": "atomic-energy-society-paec",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 111,
+            "name": "Audit \u0026 Accounts Co-operative Society",
+            "position": 5,
+            "url_slug": "audit-accounts-co-operative-society",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1731,
+            "name": "Awan Town",
+            "position": 5,
+            "url_slug": "awan-town",
+            "zone": 8
+        },
+        {
+            "city_id": 410,
+            "id": 1732,
+            "name": "Awasia Housing Society",
+            "position": 5,
+            "url_slug": "awasia-housing-society",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 112,
+            "name": "AWT Army Welfare Trust",
+            "position": 5,
+            "url_slug": "awt-army-welfare-trust",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 113,
+            "name": "Ayub Medical Complex",
+            "position": 5,
+            "url_slug": "ayub-medical-complex",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1733,
+            "name": "Azam Gardens",
+            "position": 5,
+            "url_slug": "azam-gardens",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1734,
+            "name": "Azimabad",
+            "position": 5,
+            "url_slug": "azimabad",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1078,
+            "name": "Aziz Avenue ",
+            "position": 5,
+            "url_slug": "aziz-avenue",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1736,
+            "name": "Babu Sabu",
+            "position": 5,
+            "url_slug": "babu-sabu",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 114,
+            "name": "Badami Bagh",
+            "position": 5,
+            "url_slug": "badami-bagh",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1737,
+            "name": "Bagh-e-Iram Housing Society",
+            "position": 5,
+            "url_slug": "bagh-e-iram-housing-society",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 115,
+            "name": "Baghban Pura",
+            "position": 5,
+            "url_slug": "baghban-pura",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1738,
+            "name": "Bahria Education \u0026 Medical City",
+            "position": 5,
+            "url_slug": "bahria-education-medical-city",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1739,
+            "name": "Bahria Nasheman",
+            "position": 5,
+            "url_slug": "bahria-nasheman",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 1740,
+            "name": "Bahria Orchard",
+            "position": 5,
+            "url_slug": "bahria-orchard",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 116,
+            "name": "Bahria Town",
+            "position": 5,
+            "url_slug": "bahria-town",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 117,
+            "name": "Balkasar",
+            "position": 5,
+            "url_slug": "balkasar",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1741,
+            "name": "Bankers Avenue",
+            "position": 5,
+            "url_slug": "bankers-avenue",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 118,
+            "name": "Bankers Cooperative Housing Scheme",
+            "position": 5,
+            "url_slug": "bankers-cooperative-housing-scheme",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1742,
+            "name": "Batapur",
+            "position": 5,
+            "url_slug": "batapur",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1743,
+            "name": "Beacon House Society",
+            "position": 5,
+            "url_slug": "beacon-house-society",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 119,
+            "name": "Beadon Road",
+            "position": 5,
+            "url_slug": "beadon-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 120,
+            "name": "Bedian Road",
+            "position": 5,
+            "url_slug": "bedian-road",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1744,
+            "name": "Bhatta Chowk",
+            "position": 5,
+            "url_slug": "bhatta-chowk",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1745,
+            "name": "Bilal Gunj",
+            "position": 5,
+            "url_slug": "bilal-gunj",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 121,
+            "name": "Bilal Town",
+            "position": 5,
+            "url_slug": "bilal-town",
+            "zone": 16
+        },
+        {
+            "city_id": 410,
+            "id": 1746,
+            "name": "Bismillah Housing Scheme",
+            "position": 5,
+            "url_slug": "bismillah-housing-scheme",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 122,
+            "name": "BOR Housing Society",
+            "position": 5,
+            "url_slug": "bor-housing-society",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1747,
+            "name": "Brandreth Road",
+            "position": 5,
+            "url_slug": "brandreth-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 123,
+            "name": "Bund Road",
+            "position": 5,
+            "url_slug": "bund-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1748,
+            "name": "Burj Attari",
+            "position": 5,
+            "url_slug": "burj-attari",
+            "zone": 8
+        },
+        {
+            "city_id": 410,
+            "id": 124,
+            "name": "Canal Bank Housing Scheme",
+            "position": 5,
+            "url_slug": "canal-bank-housing-scheme",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1749,
+            "name": "Canal Bank Road",
+            "position": 5,
+            "url_slug": "canal-bank-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1751,
+            "name": "Canal Colony",
+            "position": 5,
+            "url_slug": "canal-colony",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 125,
+            "name": "Canal Garden",
+            "position": 5,
+            "url_slug": "canal-garden",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 126,
+            "name": "Canal View",
+            "position": 5,
+            "url_slug": "canal-view",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1752,
+            "name": "Canalberg Housing Society",
+            "position": 5,
+            "url_slug": "canalberg-housing-society",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1753,
+            "name": "Cantt View Society",
+            "position": 5,
+            "url_slug": "cantt-view-society",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 128,
+            "name": "Cavalry Ground",
+            "position": 5,
+            "url_slug": "cavalry-ground",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 129,
+            "name": "Central Park Housing Scheme",
+            "position": 5,
+            "url_slug": "central-park-housing-scheme",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1754,
+            "name": "Chah Miran",
+            "position": 5,
+            "url_slug": "chah-miran",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 130,
+            "name": "Chauburji Park",
+            "position": 5,
+            "url_slug": "chauburji-park",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1755,
+            "name": "Chaudhary Colony",
+            "position": 5,
+            "url_slug": "chaudhary-colony",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 1756,
+            "name": "Chaudhary Park",
+            "position": 5,
+            "url_slug": "chaudhary-park",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1757,
+            "name": "China Scheme",
+            "position": 5,
+            "url_slug": "china-scheme",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 131,
+            "name": "Chinar Bagh",
+            "position": 5,
+            "url_slug": "chinar-bagh",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1758,
+            "name": "Chinar Court",
+            "position": 5,
+            "url_slug": "chinar-court",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1759,
+            "name": "Chungi Amar Sadhu",
+            "position": 5,
+            "url_slug": "chungi-amar-sadhu",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 1760,
+            "name": "Civil Defence",
+            "position": 5,
+            "url_slug": "civil-defence",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1761,
+            "name": "Clifton Colony",
+            "position": 5,
+            "url_slug": "clifton-colony",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1093,
+            "name": "COLLEGE ROAD",
+            "position": 5,
+            "url_slug": "college-road",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1118,
+            "name": "Cooper Road",
+            "position": 5,
+            "url_slug": "cooper-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1763,
+            "name": "Crescent Town",
+            "position": 5,
+            "url_slug": "crescent-town",
+            "zone": 8
+        },
+        {
+            "city_id": 410,
+            "id": 1124,
+            "name": "Darogawala",
+            "position": 5,
+            "url_slug": "darogawala",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 132,
+            "name": "Davis Road",
+            "position": 5,
+            "url_slug": "davis-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1765,
+            "name": "Defence Fort",
+            "position": 5,
+            "url_slug": "defence-fort",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1766,
+            "name": "Defence Road",
+            "position": 5,
+            "url_slug": "defence-road",
+            "zone": 1
+        },
+        {
+            "city_id": 410,
+            "id": 1767,
+            "name": "DHA City",
+            "position": 5,
+            "url_slug": "dha-city--2",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 134,
+            "name": "DHA Rehbar",
+            "position": 5,
+            "url_slug": "dha-rehbar",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 135,
+            "name": "Dharam Pura",
+            "position": 5,
+            "url_slug": "dharam-pura",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1768,
+            "name": "Dilkusha Gardens",
+            "position": 5,
+            "url_slug": "dilkusha-gardens",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1769,
+            "name": "Divine Gardens",
+            "position": 5,
+            "url_slug": "divine-gardens",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1771,
+            "name": "Dogech",
+            "position": 5,
+            "url_slug": "dogech",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1772,
+            "name": "Dream Avenue Lahore",
+            "position": 5,
+            "url_slug": "dream-avenue-lahore",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1773,
+            "name": "Dream Gardens",
+            "position": 5,
+            "url_slug": "dream-gardens",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1774,
+            "name": "Dubai Town",
+            "position": 5,
+            "url_slug": "dubai-town",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 136,
+            "name": "Eden Avenue",
+            "position": 5,
+            "url_slug": "eden-avenue",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1776,
+            "name": "Eden Avenue Extension",
+            "position": 5,
+            "url_slug": "eden-avenue-extension",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 137,
+            "name": "Eden Canal Villas",
+            "position": 5,
+            "url_slug": "eden-canal-villas",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 138,
+            "name": "Eden City",
+            "position": 5,
+            "url_slug": "eden-city",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 139,
+            "name": "Eden Cottage",
+            "position": 5,
+            "url_slug": "eden-cottage",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1777,
+            "name": "Eden Park",
+            "position": 5,
+            "url_slug": "eden-park",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 140,
+            "name": "Edenabad",
+            "position": 5,
+            "url_slug": "edenabad",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1779,
+            "name": "Education Town",
+            "position": 5,
+            "url_slug": "education-town",
+            "zone": 8
+        },
+        {
+            "city_id": 410,
+            "id": 141,
+            "name": "Egerton Road",
+            "position": 5,
+            "url_slug": "egerton-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 142,
+            "name": "Elite Town",
+            "position": 5,
+            "url_slug": "elite-town",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 143,
+            "name": "EME Society",
+            "position": 5,
+            "url_slug": "eme-society",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 144,
+            "name": "Empress Road",
+            "position": 5,
+            "url_slug": "empress-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1780,
+            "name": "Excise \u0026 Taxation Housing Scheme",
+            "position": 5,
+            "url_slug": "excise-taxation-housing-scheme",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1067,
+            "name": "Expo Center Near Shaukat Khannam Hospital",
+            "position": 5,
+            "url_slug": "expo-center-near-shaukat-khannam-hospital",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 145,
+            "name": "Faisal Town",
+            "position": 5,
+            "url_slug": "faisal-town",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 2575,
+            "name": "Faiz Bagh",
+            "position": 5,
+            "url_slug": "faiz-bagh",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1076,
+            "name": "Faiz Pur interchange",
+            "position": 5,
+            "url_slug": "faiz-pur-interchange",
+            "zone": 8
+        },
+        {
+            "city_id": 410,
+            "id": 1782,
+            "name": "Fane Road",
+            "position": 5,
+            "url_slug": "fane-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1783,
+            "name": "Farooq Colony",
+            "position": 5,
+            "url_slug": "farooq-colony",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1784,
+            "name": "Fateh Villas",
+            "position": 5,
+            "url_slug": "fateh-villas",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 146,
+            "name": "Fatehgarh",
+            "position": 5,
+            "url_slug": "fatehgarh",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 148,
+            "name": "Formanites Housing Scheme",
+            "position": 5,
+            "url_slug": "formanites-housing-scheme",
+            "zone": 1
+        },
+        {
+            "city_id": 410,
+            "id": 1786,
+            "name": "Fort Villas",
+            "position": 5,
+            "url_slug": "fort-villas",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1113,
+            "name": "Fotress Stadium",
+            "position": 5,
+            "url_slug": "fotress-stadium",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1787,
+            "name": "Gaddafi Stadium",
+            "position": 5,
+            "url_slug": "gaddafi-stadium",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1788,
+            "name": "Gajju Matah",
+            "position": 5,
+            "url_slug": "gajju-matah",
+            "zone": 8
+        },
+        {
+            "city_id": 410,
+            "id": 150,
+            "name": "Garden Town",
+            "position": 5,
+            "url_slug": "garden-town",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 151,
+            "name": "Garhi Shahu",
+            "position": 5,
+            "url_slug": "garhi-shahu",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1114,
+            "name": "Gari Shahu",
+            "position": 5,
+            "url_slug": "gari-shahu",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1789,
+            "name": "Garrison Model Homes",
+            "position": 5,
+            "url_slug": "garrison-model-homes",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1790,
+            "name": "Gawalmandi",
+            "position": 5,
+            "url_slug": "gawalmandi",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1791,
+            "name": "GCP Housing Scheme",
+            "position": 5,
+            "url_slug": "gcp-housing-scheme",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1792,
+            "name": "Ghausia Colony",
+            "position": 5,
+            "url_slug": "ghausia-colony",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 152,
+            "name": "Ghazi Road",
+            "position": 5,
+            "url_slug": "ghazi-road",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 153,
+            "name": "Ghaziabad",
+            "position": 5,
+            "url_slug": "ghaziabad",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 154,
+            "name": "GOR",
+            "position": 5,
+            "url_slug": "gor",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1793,
+            "name": "Gosha-e-Ahbab",
+            "position": 5,
+            "url_slug": "gosha-e-ahbab",
+            "zone": 8
+        },
+        {
+            "city_id": 410,
+            "id": 1794,
+            "name": "Government Employees Cooperative Housing Society (GECHS)",
+            "position": 5,
+            "url_slug": "government-employees-cooperative-housing-society-gechs",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 155,
+            "name": "Govt. Transport Coop. Housing Society",
+            "position": 5,
+            "url_slug": "govt-transport-coop-housing-society",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 1797,
+            "name": "Grand Avenue Housing Scheme",
+            "position": 5,
+            "url_slug": "grand-avenue-housing-scheme",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1016,
+            "name": "Green Acres Housing Society",
+            "position": 5,
+            "url_slug": "green-acres-housing-society",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1798,
+            "name": "Green Cap Housing Society",
+            "position": 5,
+            "url_slug": "green-cap-housing-society",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 156,
+            "name": "Green City",
+            "position": 5,
+            "url_slug": "green-city",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 157,
+            "name": "Green Fort",
+            "position": 5,
+            "url_slug": "green-fort",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1799,
+            "name": "Green Park Society",
+            "position": 5,
+            "url_slug": "green-park-society",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 158,
+            "name": "Green Town",
+            "position": 5,
+            "url_slug": "green-town",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1800,
+            "name": "Gujjar Colony",
+            "position": 5,
+            "url_slug": "gujjar-colony",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 159,
+            "name": "Gujjar Pura",
+            "position": 5,
+            "url_slug": "gujjar-pura",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1803,
+            "name": "Gul-e-Damin",
+            "position": 5,
+            "url_slug": "gul-e-damin",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 161,
+            "name": "Guldasht Town",
+            "position": 5,
+            "url_slug": "guldasht-town",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 162,
+            "name": "Gulshan Ravi",
+            "position": 5,
+            "url_slug": "gulshan-ravi",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 163,
+            "name": "Gulshan-e-Ahbab",
+            "position": 5,
+            "url_slug": "gulshan-e-ahbab",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 164,
+            "name": "Gulshan-e-Lahore",
+            "position": 5,
+            "url_slug": "gulshan-e-lahore",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1804,
+            "name": "Gurumangat",
+            "position": 5,
+            "url_slug": "gurumangat",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1805,
+            "name": "Hajvery Housing Scheme",
+            "position": 5,
+            "url_slug": "hajvery-housing-scheme",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 166,
+            "name": "Hall Road",
+            "position": 5,
+            "url_slug": "hall-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 167,
+            "name": "Harbans Pura",
+            "position": 5,
+            "url_slug": "harbans-pura",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1807,
+            "name": "HBFC Housing Society",
+            "position": 5,
+            "url_slug": "hbfc-housing-society",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1808,
+            "name": "Heaven Homes",
+            "position": 5,
+            "url_slug": "heaven-homes",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1809,
+            "name": "Highcourt Society",
+            "position": 5,
+            "url_slug": "highcourt-society",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 169,
+            "name": "I.E.P Town",
+            "position": 5,
+            "url_slug": "i-e-p-town",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1810,
+            "name": "IBL Housing Scheme",
+            "position": 5,
+            "url_slug": "ibl-housing-scheme",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 170,
+            "name": "Ichhra",
+            "position": 5,
+            "url_slug": "ichhra",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1811,
+            "name": "Icon Valley",
+            "position": 5,
+            "url_slug": "icon-valley",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1812,
+            "name": "IEP Engineers Town",
+            "position": 5,
+            "url_slug": "iep-engineers-town",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1813,
+            "name": "Immad Garden Housing Scheme",
+            "position": 5,
+            "url_slug": "immad-garden-housing-scheme",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 171,
+            "name": "Inmol Employees Co-operative Housing Society",
+            "position": 5,
+            "url_slug": "inmol-employees-co-operative-housing-society",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 172,
+            "name": "Iqbal Avenue",
+            "position": 5,
+            "url_slug": "iqbal-avenue",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1814,
+            "name": "Irrigation Colony",
+            "position": 5,
+            "url_slug": "irrigation-colony",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 174,
+            "name": "Islam Pura",
+            "position": 5,
+            "url_slug": "islam-pura",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 175,
+            "name": "Ittefaq Town",
+            "position": 5,
+            "url_slug": "ittefaq-town",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1815,
+            "name": "Ittehad Colony",
+            "position": 5,
+            "url_slug": "ittehad-colony",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 176,
+            "name": "Izmir Town",
+            "position": 5,
+            "url_slug": "izmir-town",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1816,
+            "name": "Jaffar Town",
+            "position": 5,
+            "url_slug": "jaffar-town",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1817,
+            "name": "Jaffaria Colony",
+            "position": 5,
+            "url_slug": "jaffaria-colony",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 177,
+            "name": "Jail Road",
+            "position": 5,
+            "url_slug": "jail-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1818,
+            "name": "Jalal Colony",
+            "position": 5,
+            "url_slug": "jalal-colony",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 178,
+            "name": "Jallo",
+            "position": 5,
+            "url_slug": "jallo",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1819,
+            "name": "Javed Colony",
+            "position": 5,
+            "url_slug": "javed-colony",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 182,
+            "name": "Jubilee Town",
+            "position": 5,
+            "url_slug": "jubilee-town",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1820,
+            "name": "Kacha Jail Road",
+            "position": 5,
+            "url_slug": "kacha-jail-road",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 1821,
+            "name": "Kachupura",
+            "position": 5,
+            "url_slug": "kachupura",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1822,
+            "name": "Kahna",
+            "position": 5,
+            "url_slug": "kahna",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 1823,
+            "name": "Kakezai Housing Society",
+            "position": 5,
+            "url_slug": "kakezai-housing-society",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1824,
+            "name": "Kamahan Road",
+            "position": 5,
+            "url_slug": "kamahan-road",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1825,
+            "name": "Karbath",
+            "position": 5,
+            "url_slug": "karbath",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1017,
+            "name": "Karim Park",
+            "position": 5,
+            "url_slug": "karim-park",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1018,
+            "name": "KEMC Housing Society",
+            "position": 5,
+            "url_slug": "kemc-housing-society",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1019,
+            "name": "Khayaban-e-Amin",
+            "position": 5,
+            "url_slug": "khayaban-e-amin",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1826,
+            "name": "Khayaban-e-Jinnah Road",
+            "position": 5,
+            "url_slug": "khayaban-e-jinnah-road",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1827,
+            "name": "Kot Abdul Malik",
+            "position": 5,
+            "url_slug": "kot-abdul-malik",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1828,
+            "name": "Kot Khawaja Saeed",
+            "position": 5,
+            "url_slug": "kot-khawaja-saeed",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1829,
+            "name": "Kot Lakhpat",
+            "position": 5,
+            "url_slug": "kot-lakhpat",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1830,
+            "name": "Kotli Abdur Rahman",
+            "position": 5,
+            "url_slug": "kotli-abdur-rahman",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1831,
+            "name": "Krishan Nagar",
+            "position": 5,
+            "url_slug": "krishan-nagar",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 188,
+            "name": "L.C.C.H.S",
+            "position": 5,
+            "url_slug": "l-c-c-h-s",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1832,
+            "name": "Lahore Cantt Coop Housing",
+            "position": 5,
+            "url_slug": "lahore-cantt-coop-housing",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1833,
+            "name": "Lahore Medical Housing Society",
+            "position": 5,
+            "url_slug": "lahore-medical-housing-society",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1834,
+            "name": "Lahore Motorway City ",
+            "position": 5,
+            "url_slug": "lahore-motorway-city",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1835,
+            "name": "Lahore Press Club Housing Scheme",
+            "position": 5,
+            "url_slug": "lahore-press-club-housing-scheme",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 189,
+            "name": "Lake City",
+            "position": 5,
+            "url_slug": "lake-city",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1836,
+            "name": "Lakhodher",
+            "position": 5,
+            "url_slug": "lakhodher",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1020,
+            "name": "Lakshmi Chowk",
+            "position": 5,
+            "url_slug": "lakshmi-chowk",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1837,
+            "name": "Lawrence Road",
+            "position": 5,
+            "url_slug": "lawrence-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 191,
+            "name": "LDA Avenue",
+            "position": 5,
+            "url_slug": "lda-avenue",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1838,
+            "name": "LDA City",
+            "position": 5,
+            "url_slug": "lda-city",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 192,
+            "name": "Liberty Market",
+            "position": 5,
+            "url_slug": "liberty-market",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 193,
+            "name": "Lower Mall",
+            "position": 5,
+            "url_slug": "lower-mall",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1841,
+            "name": "Lytton Road",
+            "position": 5,
+            "url_slug": "lytton-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1117,
+            "name": "M.M Alam Road",
+            "position": 5,
+            "url_slug": "m-m-alam-road",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1842,
+            "name": "Makkah Colony",
+            "position": 5,
+            "url_slug": "makkah-colony",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1843,
+            "name": "Malik Park",
+            "position": 5,
+            "url_slug": "malik-park",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1844,
+            "name": "Malipura",
+            "position": 5,
+            "url_slug": "malipura",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 196,
+            "name": "Mall Road",
+            "position": 5,
+            "url_slug": "mall-road",
+            "zone": 11
+        },
+        {
+            "city_id": 410,
+            "id": 1846,
+            "name": "Manga Mandi",
+            "position": 5,
+            "url_slug": "manga-mandi",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1847,
+            "name": "Mansoorah",
+            "position": 5,
+            "url_slug": "mansoorah",
+            "zone": 8
+        },
+        {
+            "city_id": 410,
+            "id": 199,
+            "name": "Marghzar Officers Colony",
+            "position": 5,
+            "url_slug": "marghzar-officers-colony",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1848,
+            "name": "Mason Road",
+            "position": 5,
+            "url_slug": "mason-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1849,
+            "name": "Mateen Avenue",
+            "position": 5,
+            "url_slug": "mateen-avenue",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1125,
+            "name": "Maulana Shaukat Ali Road",
+            "position": 5,
+            "url_slug": "maulana-shaukat-ali-road",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1850,
+            "name": "McLeod Road",
+            "position": 5,
+            "url_slug": "mcleod-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1089,
+            "name": "Mecload Road",
+            "position": 5,
+            "url_slug": "mecload-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 200,
+            "name": "Medical Housing Scheme",
+            "position": 5,
+            "url_slug": "medical-housing-scheme",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1852,
+            "name": "Mehmood Booti",
+            "position": 5,
+            "url_slug": "mehmood-booti",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 201,
+            "name": "Military Accounts",
+            "position": 5,
+            "url_slug": "military-accounts",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1853,
+            "name": "Military Accounts Housing Society",
+            "position": 5,
+            "url_slug": "military-accounts-housing-society",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 203,
+            "name": "Misri Shah",
+            "position": 5,
+            "url_slug": "misri-shah",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 204,
+            "name": "Model Town",
+            "position": 5,
+            "url_slug": "model-town",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 205,
+            "name": "Mohafiz Town",
+            "position": 5,
+            "url_slug": "mohafiz-town",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1854,
+            "name": "Mohlanwal Scheme",
+            "position": 5,
+            "url_slug": "mohlanwal-scheme",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1855,
+            "name": "Mominpur",
+            "position": 5,
+            "url_slug": "mominpur",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1856,
+            "name": "Montgomery Road",
+            "position": 5,
+            "url_slug": "montgomery-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1857,
+            "name": "Moon Colony",
+            "position": 5,
+            "url_slug": "moon-colony",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 206,
+            "name": "Mozang Chungi",
+            "position": 5,
+            "url_slug": "mozang-chungi",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 207,
+            "name": "Mughal Pura",
+            "position": 5,
+            "url_slug": "mughal-pura",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1858,
+            "name": "Muslim Nagar Housing Scheme",
+            "position": 5,
+            "url_slug": "muslim-nagar-housing-scheme",
+            "zone": 8
+        },
+        {
+            "city_id": 410,
+            "id": 209,
+            "name": "Muslim Town",
+            "position": 5,
+            "url_slug": "muslim-town",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 210,
+            "name": "Mustafa Town",
+            "position": 5,
+            "url_slug": "mustafa-town",
+            "zone": 8
+        },
+        {
+            "city_id": 410,
+            "id": 1859,
+            "name": "Nadeem Shaheed Road",
+            "position": 5,
+            "url_slug": "nadeem-shaheed-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1860,
+            "name": "Nadeem Town",
+            "position": 5,
+            "url_slug": "nadeem-town",
+            "zone": 8
+        },
+        {
+            "city_id": 410,
+            "id": 211,
+            "name": "Nadirabad",
+            "position": 5,
+            "url_slug": "nadirabad",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 212,
+            "name": "Nasheman-e-Iqbal",
+            "position": 5,
+            "url_slug": "nasheman-e-iqbal",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1861,
+            "name": "Nasirabad",
+            "position": 5,
+            "url_slug": "nasirabad",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1862,
+            "name": "Nawab Town",
+            "position": 5,
+            "url_slug": "nawab-town",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1863,
+            "name": "Nawaz Sharif Colony",
+            "position": 5,
+            "url_slug": "nawaz-sharif-colony",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1864,
+            "name": "Nayyab Villas",
+            "position": 5,
+            "url_slug": "nayyab-villas",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1865,
+            "name": "Naz Town",
+            "position": 5,
+            "url_slug": "naz-town",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1866,
+            "name": "Nazir Garden Society",
+            "position": 5,
+            "url_slug": "nazir-garden-society",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 213,
+            "name": "Nespak Housing Scheme",
+            "position": 5,
+            "url_slug": "nespak-housing-scheme",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 214,
+            "name": "New Choburji Park",
+            "position": 5,
+            "url_slug": "new-choburji-park",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1867,
+            "name": "New Lahore City",
+            "position": 5,
+            "url_slug": "new-lahore-city",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 215,
+            "name": "New Muslim Town",
+            "position": 5,
+            "url_slug": "new-muslim-town",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 216,
+            "name": "New Super Town",
+            "position": 5,
+            "url_slug": "new-super-town",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 217,
+            "name": "NFC",
+            "position": 5,
+            "url_slug": "nfc",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1868,
+            "name": "NFC 1",
+            "position": 5,
+            "url_slug": "nfc-1",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1869,
+            "name": "NFC 2",
+            "position": 5,
+            "url_slug": "nfc-2",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 218,
+            "name": "NFC-II",
+            "position": 5,
+            "url_slug": "nfc-ii",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 219,
+            "name": "Nisbat Road",
+            "position": 5,
+            "url_slug": "nisbat-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1104,
+            "name": "Nishter Colony",
+            "position": 5,
+            "url_slug": "nishter-colony",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 220,
+            "name": "Officers Colony",
+            "position": 5,
+            "url_slug": "officers-colony",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1870,
+            "name": "Okaf Colony",
+            "position": 5,
+            "url_slug": "okaf-colony",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 221,
+            "name": "OPF Housing Scheme",
+            "position": 5,
+            "url_slug": "opf-housing-scheme",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1022,
+            "name": "P \u0026 D Housing Society",
+            "position": 5,
+            "url_slug": "p-d-housing-society",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1871,
+            "name": "Pace Woodlands",
+            "position": 5,
+            "url_slug": "pace-woodlands",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 224,
+            "name": "PAF Society",
+            "position": 5,
+            "url_slug": "paf-society",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 225,
+            "name": "Pak Arab Housing Society",
+            "position": 5,
+            "url_slug": "pak-arab-housing-society",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 1872,
+            "name": "Pakistan Medical Housing Society",
+            "position": 5,
+            "url_slug": "pakistan-medical-housing-society",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1873,
+            "name": "Palm City",
+            "position": 5,
+            "url_slug": "palm-city",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 226,
+            "name": "Paragon City",
+            "position": 5,
+            "url_slug": "paragon-city",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 227,
+            "name": "Park View",
+            "position": 5,
+            "url_slug": "park-view",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1024,
+            "name": "Park View Villas",
+            "position": 5,
+            "url_slug": "park-view-villas",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1025,
+            "name": "PASCO Housing Society",
+            "position": 5,
+            "url_slug": "pasco-housing-society",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 228,
+            "name": "PCSIR Housing Scheme",
+            "position": 5,
+            "url_slug": "pcsir-housing-scheme",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1874,
+            "name": "PCSIR Staff Colony",
+            "position": 5,
+            "url_slug": "pcsir-staff-colony",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1875,
+            "name": "Pearl Garden Housing Scheme",
+            "position": 5,
+            "url_slug": "pearl-garden-housing-scheme",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 229,
+            "name": "Peco Road",
+            "position": 5,
+            "url_slug": "peco-road",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 230,
+            "name": "PIA Housing Scheme",
+            "position": 5,
+            "url_slug": "pia-housing-scheme",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1876,
+            "name": "Pine Villas",
+            "position": 5,
+            "url_slug": "pine-villas",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1877,
+            "name": "Public Health Society",
+            "position": 5,
+            "url_slug": "public-health-society",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 232,
+            "name": "Punjab Co-operative Housing Society",
+            "position": 5,
+            "url_slug": "punjab-co-operative-housing-society",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1878,
+            "name": "Punjab Coop Housing Society",
+            "position": 5,
+            "url_slug": "punjab-coop-housing-society",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1879,
+            "name": "Punjab Govt Employees Society",
+            "position": 5,
+            "url_slug": "punjab-govt-employees-society",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1880,
+            "name": "Punjab Govt Servant Society",
+            "position": 5,
+            "url_slug": "punjab-govt-servant-society",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1882,
+            "name": "Punjab University Employees Society",
+            "position": 5,
+            "url_slug": "punjab-university-employees-society",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1883,
+            "name": "Qadri Colony",
+            "position": 5,
+            "url_slug": "qadri-colony",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1884,
+            "name": "Qasurpura",
+            "position": 5,
+            "url_slug": "qasurpura",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1886,
+            "name": "Qilla Gujjar Singh",
+            "position": 5,
+            "url_slug": "qilla-gujjar-singh",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1887,
+            "name": "Quaid-e-Azam Industrial Estate",
+            "position": 5,
+            "url_slug": "quaid-e-azam-industrial-estate",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 233,
+            "name": "Quaid-e-Azam Town",
+            "position": 5,
+            "url_slug": "quaid-e-azam-town",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1126,
+            "name": "Queens Road",
+            "position": 5,
+            "url_slug": "queens-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1888,
+            "name": "Race View",
+            "position": 5,
+            "url_slug": "race-view",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1026,
+            "name": "Rail Town",
+            "position": 5,
+            "url_slug": "rail-town",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 234,
+            "name": "Railway Officers Colony",
+            "position": 5,
+            "url_slug": "railway-officers-colony",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1889,
+            "name": "Raj Garh",
+            "position": 5,
+            "url_slug": "raj-garh",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1027,
+            "name": "Rajpoot Town",
+            "position": 5,
+            "url_slug": "rajpoot-town",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1890,
+            "name": "Rana Town",
+            "position": 5,
+            "url_slug": "rana-town",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 236,
+            "name": "Rang Mahal",
+            "position": 5,
+            "url_slug": "rang-mahal",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1892,
+            "name": "Ravi Park",
+            "position": 5,
+            "url_slug": "ravi-park",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1893,
+            "name": "Ravi Road",
+            "position": 5,
+            "url_slug": "ravi-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1894,
+            "name": "Real Cottages",
+            "position": 5,
+            "url_slug": "real-cottages",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1895,
+            "name": "Rehman City - Phase 4",
+            "position": 5,
+            "url_slug": "rehman-city-phase-4",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1898,
+            "name": "Rehman Villas",
+            "position": 5,
+            "url_slug": "rehman-villas",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1028,
+            "name": "Rehmanpura",
+            "position": 5,
+            "url_slug": "rehmanpura",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 238,
+            "name": "Revenue Society",
+            "position": 5,
+            "url_slug": "revenue-society",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1899,
+            "name": "Rifle Range Road",
+            "position": 5,
+            "url_slug": "rifle-range-road",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1900,
+            "name": "River View Coop Housing Society",
+            "position": 5,
+            "url_slug": "river-view-coop-housing-society",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 239,
+            "name": "Riwaz Garden",
+            "position": 5,
+            "url_slug": "riwaz-garden",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1901,
+            "name": "Rizwan Garden Scheme",
+            "position": 5,
+            "url_slug": "rizwan-garden-scheme",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1902,
+            "name": "Royal Residencia",
+            "position": 5,
+            "url_slug": "royal-residencia",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 240,
+            "name": "Sabzazar Scheme",
+            "position": 5,
+            "url_slug": "sabzazar-scheme",
+            "zone": 8
+        },
+        {
+            "city_id": 410,
+            "id": 1903,
+            "name": "Sadaat Town",
+            "position": 5,
+            "url_slug": "sadaat-town",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1905,
+            "name": "Sagian",
+            "position": 5,
+            "url_slug": "sagian",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1906,
+            "name": "Sahafi Colony",
+            "position": 5,
+            "url_slug": "sahafi-colony",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1908,
+            "name": "Salamatpura",
+            "position": 5,
+            "url_slug": "salamatpura",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 241,
+            "name": "Samanabad",
+            "position": 5,
+            "url_slug": "samanabad",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 242,
+            "name": "Sanda",
+            "position": 5,
+            "url_slug": "sanda",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1909,
+            "name": "Sant Nagar",
+            "position": 5,
+            "url_slug": "sant-nagar",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1910,
+            "name": "Saqib Town",
+            "position": 5,
+            "url_slug": "saqib-town",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1912,
+            "name": "Shabbir Town",
+            "position": 5,
+            "url_slug": "shabbir-town",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1913,
+            "name": "Shadab Garden",
+            "position": 5,
+            "url_slug": "shadab-garden",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 243,
+            "name": "Shadbagh",
+            "position": 5,
+            "url_slug": "shadbagh",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1914,
+            "name": "Shadipura",
+            "position": 5,
+            "url_slug": "shadipura",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 244,
+            "name": "Shadman",
+            "position": 5,
+            "url_slug": "shadman",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1915,
+            "name": "Shadman 1",
+            "position": 5,
+            "url_slug": "shadman-1",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1029,
+            "name": "Shah Jamal",
+            "position": 5,
+            "url_slug": "shah-jamal",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1917,
+            "name": "Shah Kamal",
+            "position": 5,
+            "url_slug": "shah-kamal",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1918,
+            "name": "Shah Khawar Town",
+            "position": 5,
+            "url_slug": "shah-khawar-town",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 245,
+            "name": "Shahdara",
+            "position": 5,
+            "url_slug": "shahdara",
+            "zone": 8
+        },
+        {
+            "city_id": 410,
+            "id": 1919,
+            "name": "Shahpur Kanjra",
+            "position": 5,
+            "url_slug": "shahpur-kanjra",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1920,
+            "name": "Shahtaj Colony",
+            "position": 5,
+            "url_slug": "shahtaj-colony",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1030,
+            "name": "Shalimar Housing Scheme",
+            "position": 5,
+            "url_slug": "shalimar-housing-scheme",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1921,
+            "name": "Shalimar Link Road",
+            "position": 5,
+            "url_slug": "shalimar-link-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 247,
+            "name": "Shalimar Town",
+            "position": 5,
+            "url_slug": "shalimar-town",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1922,
+            "name": "Sher Shah Colony",
+            "position": 5,
+            "url_slug": "sher-shah-colony",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1923,
+            "name": "Sheraz Town",
+            "position": 5,
+            "url_slug": "sheraz-town",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1924,
+            "name": "Shershah Colony",
+            "position": 5,
+            "url_slug": "shershah-colony",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1925,
+            "name": "Sherwanee Town Housing Scheme",
+            "position": 5,
+            "url_slug": "sherwanee-town-housing-scheme",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 1926,
+            "name": "Shoukat Town",
+            "position": 5,
+            "url_slug": "shoukat-town",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1927,
+            "name": "Siddiqia Colony",
+            "position": 5,
+            "url_slug": "siddiqia-colony",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1928,
+            "name": "Singhpura",
+            "position": 5,
+            "url_slug": "singhpura",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1929,
+            "name": "Spring Meadows",
+            "position": 5,
+            "url_slug": "spring-meadows",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 249,
+            "name": "State Life Housing Society",
+            "position": 5,
+            "url_slug": "state-life-housing-society",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1930,
+            "name": "Sue-e-Asal",
+            "position": 5,
+            "url_slug": "sue-e-asal",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 251,
+            "name": "Sukh Chayn Gardens",
+            "position": 5,
+            "url_slug": "sukh-chayn-gardens",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1931,
+            "name": "Sultan Park",
+            "position": 5,
+            "url_slug": "sultan-park",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1932,
+            "name": "Sultan Town",
+            "position": 5,
+            "url_slug": "sultan-town",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 252,
+            "name": "Sundar State",
+            "position": 5,
+            "url_slug": "sundar-state",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1933,
+            "name": "Sunderdas Road",
+            "position": 5,
+            "url_slug": "sunderdas-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1934,
+            "name": "Sunfort Gardens",
+            "position": 5,
+            "url_slug": "sunfort-gardens",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1935,
+            "name": "Sunny Park",
+            "position": 5,
+            "url_slug": "sunny-park",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1107,
+            "name": "Super Town",
+            "position": 5,
+            "url_slug": "super-town",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1936,
+            "name": "Supreme Villas",
+            "position": 5,
+            "url_slug": "supreme-villas",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 1937,
+            "name": "Swami Nagar",
+            "position": 5,
+            "url_slug": "swami-nagar",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1938,
+            "name": "T \u0026 T Aabpara Housing Society",
+            "position": 5,
+            "url_slug": "t-t-aabpara-housing-society",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 254,
+            "name": "Taj Bagh",
+            "position": 5,
+            "url_slug": "taj-bagh",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 255,
+            "name": "Taj Pura",
+            "position": 5,
+            "url_slug": "taj-pura",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 256,
+            "name": "Tariq Gardens",
+            "position": 5,
+            "url_slug": "tariq-gardens",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 258,
+            "name": "Tech Society",
+            "position": 5,
+            "url_slug": "tech-society",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 1939,
+            "name": "Temple Road",
+            "position": 5,
+            "url_slug": "temple-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 259,
+            "name": "Thokar Niaz Baig",
+            "position": 5,
+            "url_slug": "thokar-niaz-baig",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 260,
+            "name": "Town Ship",
+            "position": 5,
+            "url_slug": "town-ship",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1941,
+            "name": "Tricon Village",
+            "position": 5,
+            "url_slug": "tricon-village",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 261,
+            "name": "UET Housing Society",
+            "position": 5,
+            "url_slug": "uet-housing-society",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 1942,
+            "name": "United Bank Officers Cooperative Housing Society",
+            "position": 5,
+            "url_slug": "united-bank-officers-cooperative-housing-society",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 262,
+            "name": "Upper Mall",
+            "position": 5,
+            "url_slug": "upper-mall",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1943,
+            "name": "Urdu Bazar",
+            "position": 5,
+            "url_slug": "urdu-bazar",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 263,
+            "name": "Valencia Housing Society",
+            "position": 5,
+            "url_slug": "valencia-housing-society",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1944,
+            "name": "Venus Housing Scheme",
+            "position": 5,
+            "url_slug": "venus-housing-scheme",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 1945,
+            "name": "Vital Homes Housing Scheme",
+            "position": 5,
+            "url_slug": "vital-homes-housing-scheme",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 1946,
+            "name": "Wafaqi Colony",
+            "position": 5,
+            "url_slug": "wafaqi-colony",
+            "zone": 9
+        },
+        {
+            "city_id": 410,
+            "id": 264,
+            "name": "Wahdat Road",
+            "position": 5,
+            "url_slug": "wahdat-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1947,
+            "name": "Waheed Brother Colony",
+            "position": 5,
+            "url_slug": "waheed-brother-colony",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 265,
+            "name": "Walled City",
+            "position": 5,
+            "url_slug": "walled-city",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1948,
+            "name": "Walton Railway Officers Colony",
+            "position": 5,
+            "url_slug": "walton-railway-officers-colony",
+            "zone": 4
+        },
+        {
+            "city_id": 410,
+            "id": 1949,
+            "name": "Wapda Finance Officers Subsistence Farm Homes Cooperative Society",
+            "position": 5,
+            "url_slug": "wapda-finance-officers-subsistence-farm-homes-cooperative-society",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 267,
+            "name": "Wapda Town",
+            "position": 5,
+            "url_slug": "wapda-town",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 268,
+            "name": "Waris Road",
+            "position": 5,
+            "url_slug": "waris-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1950,
+            "name": "Wassanpura",
+            "position": 5,
+            "url_slug": "wassanpura",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1031,
+            "name": "West wood Housing Society",
+            "position": 5,
+            "url_slug": "west-wood-housing-society",
+            "zone": 3
+        },
+        {
+            "city_id": 410,
+            "id": 1951,
+            "name": "Wocland Villas",
+            "position": 5,
+            "url_slug": "wocland-villas",
+            "zone": 7
+        },
+        {
+            "city_id": 410,
+            "id": 1952,
+            "name": "Youhanabad",
+            "position": 5,
+            "url_slug": "youhanabad",
+            "zone": 6
+        },
+        {
+            "city_id": 410,
+            "id": 269,
+            "name": "Zafar Ali Road",
+            "position": 5,
+            "url_slug": "zafar-ali-road",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1953,
+            "name": "Zafar Colony",
+            "position": 5,
+            "url_slug": "zafar-colony",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 1954,
+            "name": "Zaheer Villas",
+            "position": 5,
+            "url_slug": "zaheer-villas",
+            "zone": 2
+        },
+        {
+            "city_id": 410,
+            "id": 270,
+            "name": "Zaman Park",
+            "position": 5,
+            "url_slug": "zaman-park",
+            "zone": 5
+        },
+        {
+            "city_id": 410,
+            "id": 2574,
+            "name": "Zarar Shaheed Road",
+            "position": 5,
+            "url_slug": "zarar-shaheed-road",
+            "zone": 9
+        }
+    ],
+    "error": ""
 }

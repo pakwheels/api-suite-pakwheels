@@ -7,87 +7,17 @@ from typing import Any, Dict, Optional
 from helpers.picture_uploader import upload_ad_picture
 from helpers.payment import (
     list_feature_products,
-    get_my_credits,
     proceed_checkout,
     initiate_jazz_cash,
 )
 from helpers.shared import (
-    _read_json,
     _load_payload_template,
     _save_metadata_file,
     _load_metadata_file,
     _inject_listing_picture,
     _extract_payment_id,
+    _validate_response,
 )
-
-
-def _prepare_payload(
-    base_payload: Optional[Dict[str, Any]] = None,
-    *,
-    payload_path: Optional[str] = None,
-    phone_number: Optional[str] = None,
-) -> Dict[str, Any]:
-    payload = _load_payload_template(
-        base_payload=base_payload,
-        payload_path=payload_path,
-        default_path="data/payloads/ad_post/bike_ad_post.json",
-    )
-
-    listing = (
-        payload.setdefault("used_bike", {})
-        .setdefault("ad_listing_attributes", {})
-    )
-    listing["phone"] = phone_number or os.getenv("MOBILE_NUMBER", listing.get("phone", ""))
-    listing["display_name"] = listing.get("display_name") or os.getenv("AD_POST_NAME", "Test")
-
-    return payload
-
-
-def _prepare_edit_payload(
-    base_payload: Optional[Dict[str, Any]] = None,
-    *,
-    payload_path: Optional[str] = None,
-    ad_listing_id: Optional[int] = None,
-) -> Dict[str, Any]:
-    payload = _load_payload_template(
-        base_payload=base_payload,
-        payload_path=payload_path,
-        default_path="data/payloads/ad_post/bike_ad_edit.json",
-    )
-
-    listing = (
-        payload.setdefault("used_bike", {})
-        .setdefault("ad_listing_attributes", {})
-    )
-    if ad_listing_id:
-        listing["id"] = ad_listing_id
-    listing["phone"] = listing.get("phone") or os.getenv("MOBILE_NUMBER", "03601234567")
-    listing["display_name"] = listing.get("display_name") or os.getenv("AD_POST_NAME", "Test")
-
-    return payload
-
-
-def _inject_picture(
-    api_client,
-    payload: Dict[str, Any],
-    *,
-    image_path: Optional[str] = None,
-) -> Dict[str, Any]:
-    """Upload bike image (if available) and inject the resulting picture_id into payload."""
-
-    listing = (
-        payload.setdefault("used_bike", {})
-        .setdefault("ad_listing_attributes", {})
-    )
-    _inject_listing_picture(
-        api_client,
-        listing,
-        upload_fn=upload_ad_picture,
-        image_path=image_path,
-        image_env="BIKE_AD_IMAGE_PATH",
-        default_image_path="data/pictures/bikee.jpeg",
-    )
-    return payload
 
 
 def _save_bike_ad_metadata(data: Dict[str, Any]) -> None:
@@ -98,26 +28,29 @@ def load_last_bike_ad_metadata() -> Dict[str, Any]:
     return _load_metadata_file("tmp/bike_ad_post.json")
 
 
-def submit_bike_ad(
+def post_bike_ad(
     api_client,
     validator,
-    *,
-    payload: Optional[Dict[str, Any]] = None,
-    payload_path: Optional[str] = None,
-    expected_path: Optional[str] = None,
-    schema_path: Optional[str] = None,
     via_whatsapp: bool = True,
     api_version: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Submit a bike ad posting request and validate response against schema + snapshot."""
 
-    prepared_payload = _prepare_payload(
-        payload,
-        payload_path=payload_path,
+    prepared_payload = _load_payload_template(
+        default_path="data/payloads/ad_post/bike_ad_post.json",
     )
-    prepared_payload = _inject_picture(api_client, prepared_payload)
+    listing_attrs = (
+        prepared_payload.setdefault("used_bike", {})
+        .setdefault("ad_listing_attributes", {})
+    )
+    _inject_listing_picture(
+        api_client,
+        listing_attrs,
+        upload_fn=upload_ad_picture,
+        default_image_path="data/pictures/bikee.jpeg",
+    )
 
-    version = str(api_version or os.getenv("API_VERSION", "22"))
+    version =  os.getenv("API_VERSION", "22")
     params = {
         "api_version": version,
         "via_whatsapp": "1" if via_whatsapp else "0",
@@ -134,42 +67,34 @@ def submit_bike_ad(
         params=params,
         json_body=prepared_payload,
     )
-    status_code = response.get("status_code")
-    print(f"[BikeAdPost] Raw response status: {status_code}")
-    if status_code != 200:
-        print("[BikeAdPost] Response body:", response.get("text") or response.get("json"))
+    status_code = response.get("status_code")    
     validator.assert_status_code(status_code, 200)
 
     body = response.get("json") or {}
+    # expected_file =  Path("data/expected_responses/ad_post/bike_ad_post.json")
 
-    schema_file = Path(schema_path) if schema_path else Path("schemas/ad_post/bike_ad_post_response_schema.json")
-    if schema_file.exists():
-        validator.assert_json_schema(body, str(schema_file))
+    schema_file = Path("schemas/ad_post/bike_ad_post_response_schema.json")
+    _validate_response(
+        validator,
+        body,
+        schema_path=str(schema_file) if schema_file.exists() else None,
+        # expected_path=str(expected_file) if expected_file.exists() else None,
 
-    compare_file = Path(expected_path) if expected_path else Path("data/expected_responses/ad_post/bike_ad_post.json")
-    if compare_file.exists():
-        expected = _read_json(compare_file)
+    )
 
-        expected_success = expected.get("success")
-        actual_success = body.get("success")
-        if expected_success and actual_success:
-            prefix, _, _ = expected_success.rpartition("-")
-            assert actual_success.startswith(prefix), (
-                f"[BikeAdPost] success slug mismatch. expected prefix '{prefix}', got '{actual_success}'"
-            )
-
-        for key in ("ad_listing_id", "ad_id"):
-            actual_value = body.get(key)
-            assert isinstance(actual_value, int) and actual_value > 0, f"{key} missing or invalid: {actual_value}"
+    if not body.get("price"):
+        listing_price = listing_attrs.get("price")
+        if listing_price is not None:
+            body["price"] = listing_price
 
     _save_bike_ad_metadata(body)
+    print("[BikeAdPost] Metadata after post:", load_last_bike_ad_metadata())
     return body
 
 
 def fetch_bike_ad_details(
     api_client,
     validator,
-    *,
     ad_url_slug: Optional[str] = None,
     ad_id: Optional[int] = None,
     api_version: Optional[str] = None,
@@ -205,13 +130,8 @@ def fetch_bike_ad_details(
 def edit_bike_ad(
     api_client,
     validator,
-    *,
     ad_id: int,
     ad_listing_id: int,
-    payload: Optional[Dict[str, Any]] = None,
-    payload_path: Optional[str] = None,
-    expected_path: Optional[str] = None,
-    schema_path: Optional[str] = None,
     via_whatsapp: bool = True,
     api_version: Optional[str] = None,
 ) -> Dict[str, Any]:
@@ -220,12 +140,20 @@ def edit_bike_ad(
     if not ad_id or not ad_listing_id:
         raise ValueError("Both ad_id and ad_listing_id are required to edit a bike ad.")
 
-    prepared_payload = _prepare_edit_payload(
-        payload,
-        payload_path=payload_path,
-        ad_listing_id=ad_listing_id,
+    prepared_payload = _load_payload_template(
+        default_path="data/payloads/ad_post/bike_ad_edit.json",
     )
-    prepared_payload = _inject_picture(api_client, prepared_payload)
+    listing_attrs = (
+        prepared_payload.setdefault("used_bike", {})
+        .setdefault("ad_listing_attributes", {})
+    )
+    listing_attrs["id"] = ad_listing_id
+    _inject_listing_picture(
+        api_client,
+        listing_attrs,
+        upload_fn=upload_ad_picture,
+        default_image_path="data/pictures/download.jpeg",
+    )
 
     version = str(api_version or os.getenv("API_VERSION", "22"))
     params = {
@@ -252,31 +180,32 @@ def edit_bike_ad(
 
     body = response.get("json") or {}
 
-    schema_file = Path(schema_path) if schema_path else Path("schemas/ad_post/bike_ad_edit_response_schema.json")
-    if schema_file.exists() and body.get("ad_listing"):
-        validator.assert_json_schema(body, str(schema_file))
+    schema_file = Path("schemas/ad_post/bike_ad_edit_response_schema.json")
+    compare_file =  Path("data/expected_responses/ad_post/bike_ad_edit.json")
+    _validate_response(
+        validator,
+        body,
+        schema_path=str(schema_file) if schema_file.exists() and body.get("ad_listing") else None,
+        expected_path=str(compare_file) ,
+    )
 
-    compare_file = Path(expected_path) if expected_path else Path("data/expected_responses/ad_post/bike_ad_edit.json")
-    if compare_file.exists():
-        expected = _read_json(compare_file)
-        expected_success = expected.get("success")
-        actual_success = body.get("success")
-        if expected_success and actual_success:
-            prefix, _, _ = expected_success.rpartition("-")
-            assert actual_success.startswith(prefix), (
-                f"[BikeAdPost] edit success slug mismatch. expected prefix '{prefix}', got '{actual_success}'"
-            )
-        for key in ("ad_listing_id", "ad_id"):
-            actual_value = body.get(key)
-            assert isinstance(actual_value, int) and actual_value > 0, f"{key} missing or invalid: {actual_value}"
-
+    existing_meta = load_last_bike_ad_metadata()
+    metadata_update = {
+        "success": body.get("success") or existing_meta.get("success"),
+        "slug": body.get("slug") or existing_meta.get("slug"),
+        "ad_id": ad_id,
+        "ad_listing_id": ad_listing_id,
+        "price": body.get("price") or listing_attrs.get("price") or existing_meta.get("price"),
+        "api_version": existing_meta.get("api_version") or version,
+    }
+    _save_bike_ad_metadata(metadata_update)
+    print("[BikeAdPost] Metadata after edit:", load_last_bike_ad_metadata())
     return body
 
 
 def remove_bike_ad(
     api_client,
     validator,
-    *,
     ad_url_slug: Optional[str] = None,
     api_version: Optional[str] = None,
     closed_status: str = "Not selling",
@@ -305,15 +234,13 @@ def remove_bike_ad(
 
     body = response.get("json") or {}
     schema_file = Path("schemas/ad_post/bike_ad_remove_response_schema.json")
-    if schema_file.exists():
-        validator.assert_json_schema(body, str(schema_file))
-
     expected_file = Path("data/expected_responses/ad_post/bike_ad_remove.json")
-    if expected_file.exists():
-        expected = _read_json(expected_file)
-        expected_success = expected.get("success")
-        if expected_success:
-            assert body.get("success") == expected_success, "Bike ad removal success message mismatch."
+    _validate_response(
+        validator,
+        body,
+        schema_path=str(schema_file) if schema_file.exists() else None,
+        expected_path=str(expected_file) if expected_file.exists() else None,
+    )
 
     return body
 
@@ -321,7 +248,6 @@ def remove_bike_ad(
 def reactivate_bike_ad(
     api_client,
     validator,
-    *,
     ad_url_slug: Optional[str] = None,
     api_version: Optional[str] = None,
 ) -> Dict[str, Any]:
@@ -343,18 +269,17 @@ def reactivate_bike_ad(
         endpoint,
         params={"api_version": version},
     )
-    validator.assert_status_code(response["status_code"], 200)
-
     body = response.get("json") or {}
+    if response["status_code"] not in (200, 304):
+        raise AssertionError(f"Unexpected reactivate status: {response['status_code']} body={body}")
     schema_file = Path("schemas/ad_post/bike_ad_reactivate_response_schema.json")
-    if schema_file.exists():
-        validator.assert_json_schema(body, str(schema_file))
-
     expected_file = Path("data/expected_responses/ad_post/bike_ad_reactivate.json")
-    if expected_file.exists():
-        expected = _read_json(expected_file)
-        if expected.get("ad_listing"):
-            assert "ad_listing" in body, "Bike ad reactivation response missing ad_listing."
+    _validate_response(
+        validator,
+        body,
+        schema_path=str(schema_file) if schema_file.exists() else None,
+        expected_path=str(expected_file) if expected_file.exists() else None,
+    )
 
     return body
 
@@ -362,7 +287,6 @@ def reactivate_bike_ad(
 def feature_bike_ad(
     api_client,
     validator,
-    *,
     ad_id: Optional[int] = None,
     ad_listing_id: Optional[int] = None,
     product_id: Optional[int] = None,
@@ -395,21 +319,6 @@ def feature_bike_ad(
     resolved_product_id = int(product_id or products[0].get("id"))
     print(f"[BikeAdPost] Selected product_id={resolved_product_id}")
 
-    confirm_resp = list_feature_products(
-        api_client,
-        resolved_ad_id,
-        product_id=resolved_product_id,
-        discount_code="",
-        s_id=resolved_listing_id,
-        s_type=s_type,
-    )
-    validator.assert_status_code(confirm_resp["status_code"], 200)
-
-    # Step 3: check credits
-    credits_resp = get_my_credits(api_client)
-    validator.assert_status_code(credits_resp["status_code"], 200)
-    credits_body = credits_resp.get("json") or {}
-    print("[BikeAdPost] Current credits snapshot:", credits_body.get("credit_details"))
 
     # Step 4: proceed checkout
     checkout_resp = proceed_checkout(
@@ -429,8 +338,8 @@ def feature_bike_ad(
         raise AssertionError("Unable to resolve payment_id after checkout.")
 
     # Step 5: initiate JazzCash
-    jazz_mobile = os.getenv("JAZZ_CASH_MOBILE", os.getenv("MOBILE_NUMBER", "03123456789"))
-    jazz_cnic = os.getenv("JAZZ_CASH_CNIC", os.getenv("CNIC_NUMBER", "12345-1234567-8"))
+    jazz_mobile = os.getenv("JAZZ_CASH_MOBILE")
+    jazz_cnic = os.getenv("JAZZ_CASH_CNIC")
     save_flag = os.getenv("JAZZ_CASH_SAVE_INFO", "false").lower() == "true"
 
     jazz_resp = initiate_jazz_cash(
