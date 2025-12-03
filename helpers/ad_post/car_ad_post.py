@@ -221,27 +221,6 @@ def post_used_car(
     print("[CarAdPost] Metadata after post:", json.dumps(body, indent=2))
   
     return body
-# def get_session_ad_metadata() -> dict:
-#     metadata = load_last_car_ad_metadata()
-#     if metadata:
-#         metadata.setdefault("slug", metadata.get("success"))
-#         return metadata
-#     raise Exception("No ad has been posted yet. Please post an ad first.")
-
-# def get_ad_ref(posted_ad: dict) -> dict:
-#     slug = posted_ad.get("slug") or posted_ad.get("success")
-#     return {
-#         "slug": _normalize_slug(slug) if slug else None,
-#         "ad_listing_id": int(posted_ad["ad_listing_id"]),
-#         "ad_id": int(posted_ad["ad_id"]),
-#     }
-
-
-# def get_ad_ids(posted_ad: dict) -> dict:
-#     return {
-#         "ad_id": int(posted_ad["ad_id"]),
-#         "ad_listing_id": int(posted_ad["ad_listing_id"]),
-#     }
 
 def edit_payload_check(payload: dict, response: dict) -> None:
     """
