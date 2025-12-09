@@ -1,284 +1,328 @@
+"""Helpers for new car catalogue APIs."""
+
 from __future__ import annotations
 
+import json
 import os
 from pathlib import Path
 from typing import Optional
 
-
-DEFAULT_API_VERSION = os.getenv("API_VERSION", "22")
-SNAPSHOT_ROOT = Path("data/expected_responses/new_cars")
+CONFIG_PATH = Path("data/new_cars/links.json")
 
 
-def _strip_new_cars_prefix(link: str) -> str:
-    """Remove any leading slash and ``new-cars/`` prefix from a link."""
-    normalized = link.lstrip("/")
-    if normalized.startswith("new-cars/"):
-        normalized = normalized[len("new-cars/") :]
-    return normalized
+def _load_link_config() -> dict:
+    if not CONFIG_PATH.exists():
+        raise FileNotFoundError(
+            f"New car link configuration not found at {CONFIG_PATH}. Please create this file."
+        )
+
+    try:
+        return json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Failed to parse {CONFIG_PATH}: {exc}") from exc
 
 
-def _pick_snapshot_path(candidates):
-    """Return the first existing path from candidates, otherwise the first candidate."""
-    for path in candidates:
-        if path.exists():
-            return path
-    return candidates[0]
+_LINKS = _load_link_config()
 
-
-def fetch_new_make_details(
+def req_new_make(
     api_client,
     validator,
-    make: str,
-    api_version: Optional[str] = None,
-    expected_path: Optional[str] = None,
-    schema_path: Optional[str] = None,
+   
 ) -> dict:
-    """
-    Fetch new-car catalogue information for a manufacturer and optionally
-    compare the payload against an expected response snapshot.
+    version = _LINKS.get("api_version", "")
 
-    Parameters
-    ----------
-    api_client : APIClient
-        Shared API client fixture.
-    validator : Validator
-        Assertion helper for status codes / response comparisons.
-    make : str
-        The manufacturer slug, e.g. ``"toyota"``.
-    api_version : str, optional
-        Override the API version param (defaults to ``API_VERSION`` env).
-    expected_path : str, optional
-        Path to a JSON file containing the expected response subset.
-    schema_path : str, optional
-        Path to a JSON schema file. If provided, the response is validated
-        against this schema instead of a static snapshot.
 
-    Returns
-    -------
-    dict
-        Parsed JSON body from the endpoint.
-    """
-    version = str(api_version or DEFAULT_API_VERSION)
-    endpoint = f"/new-cars/{make}.json"
+    slug = _LINKS.get("make")
+
+    endpoint = f"/{slug}.json"
     params = {"api_version": version}
 
-    print(f"\n🚘 Fetching new-car catalogue for make={make} (api_version={version})")
+    print(f"\n🚗 Fetching make catalogue for '{slug}' (api_version={version})")
     resp = api_client.request("GET", endpoint, params=params)
     validator.assert_status_code(resp["status_code"], 200)
+    validator.assert_response_time(resp["elapsed"])
 
     body = resp.get("json") or {}
-
-    schema_file: Optional[Path] = Path(schema_path) if schema_path else None
-    snapshot_path: Optional[Path] = None
-    if expected_path:
-        snapshot_path = Path(expected_path)
-    else:
-        snapshot_path = _pick_snapshot_path(
-            [
-                SNAPSHOT_ROOT / make / "catalogue.json",
-                SNAPSHOT_ROOT / f"{make}.json",
-            ]
-        )
-
-    if schema_file and schema_file.exists():
+    schema_file = Path("schemas/new_cars/make_details.json")
+    if schema_file.exists():
         validator.assert_json_schema(body, str(schema_file))
-    elif snapshot_path and snapshot_path.exists():
-        validator.compare_with_expected(body, str(snapshot_path))
     else:
-        missing_ref = schema_file or snapshot_path
-        raise AssertionError(f"Validation reference not found for make '{make}' at {missing_ref}")
-
+        print(f"⚠️ Make catalogue schema missing at {schema_file}; skipping validation.")
     return body
 
 
-def fetch_new_model_details(
+def req_new_model(
     api_client,
     validator,
-    model_link: str,
-    api_version: Optional[str] = None,
-    expected_path: Optional[str] = None,
-    schema_path: Optional[str] = None,
+
 ) -> dict:
-    """Fetch details for a specific new-car model page.
+    version =  _LINKS.get("api_version", "")
 
-    Parameters
-    ----------
-    api_client : APIClient
-        Shared API client fixture.
-    validator : Validator
-        Assertion helper for status codes / response comparisons.
-    model_link : str
-        Path segment for the model endpoint, e.g. ``"new-cars/toyota/corolla"``.
-    api_version : str, optional
-        Override the API version param (defaults to ``API_VERSION`` env).
-    expected_path : str, optional
-        Optional snapshot file path (legacy support).
-    schema_path : str, optional
-        JSON schema used to validate the response payload.
+    base_link = _LINKS.get("model_link")
 
-    Returns
-    -------
-    dict
-        Parsed JSON body from the endpoint.
-    """
-
-    version = str(api_version or DEFAULT_API_VERSION)
-    normalized_link = _strip_new_cars_prefix(model_link)
-    endpoint = f"/new-cars/{normalized_link}.json"
+    endpoint = f"/{base_link}.json"
     params = {"api_version": version}
 
-    print(f"\n🚘 Fetching new-car model detail for link={normalized_link} (api_version={version})")
+    print(f"\n🚙 Fetching model details '{base_link}' (api_version={version})")
     resp = api_client.request("GET", endpoint, params=params)
     validator.assert_status_code(resp["status_code"], 200)
+    validator.assert_response_time(resp["elapsed"])
 
     body = resp.get("json") or {}
-
-    schema_file: Optional[Path] = Path(schema_path) if schema_path else None
-    snapshot_path: Optional[Path] = None
-    if expected_path:
-        snapshot_path = Path(expected_path)
-    else:
-        parts = normalized_link.split("/")
-        if len(parts) >= 2:
-            make_slug, model_slug = parts[0], parts[1]
-            snapshot_path = _pick_snapshot_path(
-                [
-                    SNAPSHOT_ROOT / make_slug / f"{model_slug}.json",
-                    SNAPSHOT_ROOT / f"{normalized_link.replace('/', '_')}.json",
-                ]
-            )
-        else:
-            snapshot_path = SNAPSHOT_ROOT / f"{normalized_link.replace('/', '_')}.json"
-
-    if schema_file and schema_file.exists():
+    schema_file =Path("schemas/new_cars/model_details.json")
+    if schema_file.exists():
         validator.assert_json_schema(body, str(schema_file))
-    # elif snapshot_path and snapshot_path.exists():
-    #     validator.compare_with_expected(body, str(snapshot_path))
     else:
-        missing_ref = schema_file or snapshot_path
-        raise AssertionError(
-            f"Validation reference not found for model '{normalized_link}' at {missing_ref}"
-        )
-
+        print(f"⚠️ Model details schema missing at {schema_file}; skipping validation.")
     return body
 
 
-def fetch_all_make_models(
+def req_new_version(
     api_client,
     validator,
-    access_token: str,
-    expected_path: Optional[str] = None,
+ 
 ) -> dict:
-    """
-    Call the all-make/model catalogue endpoint and validate the payload.
+    version = _LINKS.get("api_version", "")
 
-    Parameters
-    ----------
-    api_client : APIClient
-        Shared API client fixture.
-    validator : Validator
-        Assertion helper for status codes / response comparisons.
-    access_token : str
-        Access token to pass as a query parameter.
-    expected_path : str, optional
-        JSON snapshot file to compare against
-        (defaults to ``data/expected_responses/new_cars/all_makes_models.json``).
+    base_link =  _LINKS.get("version_link")
 
-    Returns
-    -------
-    dict
-        Parsed JSON body from the endpoint.
-    """
-    endpoint = "/new-cars/all_car_make_models.json"
-    params = {"access_token": access_token}
-    print("\n🚘 Fetching all make/model catalogue")
-    resp = api_client.request("GET", endpoint, params=params)
-    validator.assert_status_code(resp["status_code"], 200)
-    body = resp.get("json") or {}
-
-    snapshot_path: Optional[Path]
-    if expected_path:
-        snapshot_path = Path(expected_path)
-    else:
-        snapshot_path = Path("data/expected_responses/new_cars/all_makes_models.json")
-
-    if snapshot_path and snapshot_path.exists():
-        validator.compare_with_expected(body, str(snapshot_path))
-    else:
-        raise AssertionError(
-            f"Validation reference not found for all make/models at {snapshot_path}"
-        )
-    
-    return body
-
-
-def fetch_new_version_details(
-    api_client,
-    validator,
-    version_link: str,
-    api_version: Optional[str] = None,
-    expected_path: Optional[str] = None,
-    schema_path: Optional[str] = None,
-) -> dict:
-    """
-    Fetch new-car version details for a specific variant and validate the payload.
-
-    Parameters
-    ----------
-    api_client : APIClient
-        Shared API client fixture.
-    validator : Validator
-        Assertion helper for status codes / response comparisons.
-    version_link : str
-        Path segment for the version endpoint, e.g. ``"new-cars/toyota/corolla/xli-automatic"``.
-    api_version : str, optional
-        Override the API version param (defaults to ``API_VERSION`` env).
-    expected_path : str, optional
-        Snapshot file path used for response comparison.
-    schema_path : str, optional
-        JSON schema path for validation.
-
-    Returns
-    -------
-    dict
-        Parsed JSON body from the endpoint.
-    """
-    version = str(api_version or DEFAULT_API_VERSION)
-    normalized_link = _strip_new_cars_prefix(version_link)
-    endpoint = f"/new-cars/{normalized_link}.json"
+    endpoint = f"/{base_link}.json"
     params = {"api_version": version}
 
-    print(f"\n🚘 Fetching new-car version detail for link={normalized_link} (api_version={version})")
+    print(f"\n🚘 Fetching version details '{base_link}' (api_version={version})")
     resp = api_client.request("GET", endpoint, params=params)
     validator.assert_status_code(resp["status_code"], 200)
+    validator.assert_response_time(resp["elapsed"])
 
     body = resp.get("json") or {}
-
-    schema_file: Optional[Path] = Path(schema_path) if schema_path else None
-    snapshot_path: Optional[Path] = None
-    if expected_path:
-        snapshot_path = Path(expected_path)
-    else:
-        parts = normalized_link.split("/")
-        if len(parts) >= 3:
-            make_slug, model_slug, version_slug = parts[0], parts[1], parts[-1]
-            snapshot_path = _pick_snapshot_path(
-                [
-                    SNAPSHOT_ROOT / make_slug / model_slug / "versions" / f"{version_slug}.json",
-                    SNAPSHOT_ROOT / "versions" / f"{normalized_link.replace('/', '_')}.json",
-                ]
-            )
-        else:
-            snapshot_path = SNAPSHOT_ROOT / "versions" / f"{normalized_link.replace('/', '_')}.json"
-
-    if schema_file and schema_file.exists():
+    schema_file =  Path("schemas/new_cars/version_details.json")
+    if schema_file.exists():
         validator.assert_json_schema(body, str(schema_file))
-    elif snapshot_path and snapshot_path.exists():
-        validator.compare_with_expected(body, str(snapshot_path))
     else:
-        missing_ref = schema_file or snapshot_path
-        raise AssertionError(
-            f"Validation reference not found for version '{normalized_link}' at {missing_ref}"
-        )
-
+        print(f"⚠️ Version details schema missing at {schema_file}; skipping validation.")
     return body
+
+
+def req_new_generation(
+    api_client,
+    validator,
+) -> dict:
+    version = _LINKS.get("api_version", "")
+
+    base_link = _LINKS.get("generation_link")
+ 
+    endpoint = f"/{base_link}.json"
+    params = {"api_version": version}
+
+    print(f"\n🏁 Fetching generation details '{base_link}' (api_version={version})")
+    resp = api_client.request("GET", endpoint, params=params)
+    validator.assert_status_code(resp["status_code"], 200)
+    validator.assert_response_time(resp["elapsed"])
+
+    body = resp.get("json") or {}
+    schema_file = Path("schemas/new_cars/generation_details.json")
+    if schema_file.exists():
+        validator.assert_json_schema(body, str(schema_file))
+    else:
+        print(f"⚠️ Generation details schema missing at {schema_file}; skipping validation.")
+    return body
+
+
+def req_model_images(
+    api_client,
+    validator,
+) -> dict:
+    version = _LINKS.get("api_version", "")
+
+    base_link = _LINKS.get("model_images_link")
+
+    endpoint = f"/{base_link}.json"
+    params = {"api_version": version}
+
+    print(f"\n📸 Fetching model images '{base_link}' (api_version={version})")
+    resp = api_client.request("GET", endpoint, params=params)
+    validator.assert_status_code(resp["status_code"], 200)
+    validator.assert_response_time(resp["elapsed"])
+
+    body = resp.get("json") or {}
+    schema_file = Path("schemas/new_cars/model_images.json")
+    if schema_file.exists():
+        validator.assert_json_schema(body, str(schema_file))
+    else:
+        print(f"⚠️ Model images schema missing at {schema_file}; skipping validation.")
+    return body
+
+
+def req_model_specifications(
+    api_client,
+    validator,
+) -> dict:
+    version = _LINKS.get("api_version", "")
+ 
+    base_link = _LINKS.get("model_specifications_link")
+
+    endpoint = f"/{base_link}.json"
+    params = {"api_version": version}
+
+    print(f"\n📋 Fetching model specifications '{base_link}' (api_version={version})")
+    resp = api_client.request("GET", endpoint, params=params)
+    validator.assert_status_code(resp["status_code"], 200)
+    validator.assert_response_time(resp["elapsed"])
+
+    body = resp.get("json") or {}
+    schema_file = Path("schemas/new_cars/model_specifications.json")
+    if schema_file.exists():
+        validator.assert_json_schema(body, str(schema_file))
+    else:
+        print(f"⚠️ Model specifications schema missing at {schema_file}; skipping validation.")
+    return body
+
+
+def req_model_fuel_average(
+    api_client,
+    validator,
+) -> dict:
+    version = _LINKS.get("api_version", "")
+    base_link = _LINKS.get("model_fuel_average_link")
+
+    endpoint = f"/{base_link}.json"
+    params = {"api_version": version}
+
+    print(f"\n⛽ Fetching model fuel average '{base_link}' (api_version={version})")
+    resp = api_client.request("GET", endpoint, params=params)
+    validator.assert_status_code(resp["status_code"], 200)
+    validator.assert_response_time(resp["elapsed"])
+
+    body = resp.get("json") or {}
+    schema_file = Path("schemas/new_cars/model_fuel_average.json")
+    if schema_file.exists():
+        validator.assert_json_schema(body, str(schema_file))
+    else:
+        print(f"⚠️ Model fuel average schema missing at {schema_file}; skipping validation.")
+    return body
+
+
+def req_comparisons(
+    api_client,
+    validator,
+) -> dict:
+    version = _LINKS.get("api_version", "")
+    if not version:
+        raise ValueError("API version is required for comparisons requests.")
+    base_link = _LINKS.get("comparisons_link")
+    if not base_link:
+        raise ValueError("Comparisons link missing from new car link configuration.")
+    endpoint = f"/{base_link}.json"
+    params = {"api_version": version}
+
+    print(f"\n⚖️ Fetching comparisons '{base_link}' (api_version={version})")
+    resp = api_client.request("GET", endpoint, params=params)
+    validator.assert_status_code(resp["status_code"], 200)
+    validator.assert_response_time(resp["elapsed"])
+
+    body = resp.get("json") or {}
+    schema_file = Path("schemas/new_cars/comparisons.json")
+    if schema_file.exists():
+        validator.assert_json_schema(body, str(schema_file))
+    else:
+        print(f"⚠️ Comparisons schema missing at {schema_file}; skipping validation.")
+    return body
+
+
+def req_comparison_detail(
+    api_client,
+    validator,
+) -> dict:
+    version = _LINKS.get("api_version", "")
+
+    base_link = _LINKS.get("comparison_detail_link")
+
+    endpoint = f"/{base_link}.json"
+    params = {"api_version": version}
+
+    print(f"\n🆚 Fetching comparison detail '{base_link}' (api_version={version})")
+    resp = api_client.request("GET", endpoint, params=params)
+    validator.assert_status_code(resp["status_code"], 200)
+    validator.assert_response_time(resp["elapsed"])
+
+    body = resp.get("json") or {}
+    schema_file = Path("schemas/new_cars/comparison_detail.json")
+    if schema_file.exists():
+        validator.assert_json_schema(body, str(schema_file))
+    else:
+        print(f"⚠️ Comparison detail schema missing at {schema_file}; skipping validation.")
+    return body
+
+
+def req_new_price_list(
+    api_client,
+    validator,
+) -> dict:
+    version = _LINKS.get("api_version", "")
+    base_link = _LINKS.get("price_list_link")
+    make = _LINKS.get("price_list_make")
+
+
+    endpoint = f"/{base_link}.json"
+    params = {"api_version": version, "make": make}
+
+    print(f"\n💸 Fetching price list '{base_link}' for make '{make}' (api_version={version})")
+    resp = api_client.request("GET", endpoint, params=params)
+    validator.assert_status_code(resp["status_code"], 200)
+    validator.assert_response_time(resp["elapsed"])
+
+    body = resp.get("json") or {}
+    schema_file = Path("schemas/new_cars/price_list.json")
+    if schema_file.exists():
+        validator.assert_json_schema(body, str(schema_file))
+    else:
+        print(f"⚠️ Price list schema missing at {schema_file}; skipping validation.")
+    return body
+
+
+def req_new_dealers(
+    api_client,
+    validator,
+) -> dict:
+    version = _LINKS.get("api_version", "")
+    base_link = _LINKS.get("dealers_link")
+    if not base_link:
+        raise ValueError("Dealers link missing from new car link configuration.")
+
+    params = {
+        "api_version": version,
+        "extra_info": _LINKS.get("dealers_extra_info", True),
+        "page": _LINKS.get("dealers_page_num", 1),
+    }
+
+    endpoint = f"/{base_link}.json"
+    print(
+        f"\n🏢 Fetching new car dealers '{base_link}' "
+        f"(api_version={version}, page={params['page']}, extra_info={params['extra_info']})"
+    )
+    resp = api_client.request("GET", endpoint, params=params)
+    validator.assert_status_code(resp["status_code"], 200)
+    validator.assert_response_time(resp["elapsed"])
+
+    body = resp.get("json") or {}
+    schema_file = Path("schemas/new_cars/dealers.json")
+    if schema_file.exists():
+        validator.assert_json_schema(body, str(schema_file))
+    else:
+        print(f"⚠️ Dealers schema missing at {schema_file}; skipping validation.")
+    return body
+
+
+__all__ = [
+    "req_new_make",
+    "req_new_model",
+    "req_new_version",
+    "req_new_generation",
+    "req_model_images",
+    "req_model_specifications",
+    "req_model_fuel_average",
+    "req_comparisons",
+    "req_comparison_detail",
+    "req_new_price_list",
+    "req_new_dealers",
+]

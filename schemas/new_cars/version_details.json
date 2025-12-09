@@ -1,0 +1,246 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "New Car Version Details",
+  "type": "object",
+  "additionalProperties": true,
+
+  "required": [
+    "heading",
+    "version_id",
+    "version_name",
+    "model_id",
+    "make_id",
+    "engine_capacity",
+    "price",
+    "specifications",
+    "features",
+    "faqs",
+    "price_block"
+  ],
+
+  "properties": {
+    "heading": { "type": "string" },
+
+    "version_id": { "type": ["integer", "number"] },
+    "version_name": { "type": "string" },
+
+    "model_id": { "type": ["integer", "number"] },
+    "make_id": { "type": ["integer", "number"] },
+
+    "engine_capacity": { "type": "string" },
+    "engine_type": { "type": ["string", "null"] },
+    "transmission_type": { "type": ["string", "null"] },
+
+    "price": { "type": "string" },
+    "inactive_price": { "type": ["number", "string", "null"] },
+
+    "rating": { "type": ["integer", "number", "null"] },
+
+    "description": { "type": ["string", "null"] },
+    "mileage": { "type": ["string", "null"] },
+    "imported": { "type": ["boolean", "null"] },
+
+    "rich_price_paragraph": { "type": ["string", "null"] },
+
+    "car_version_specification_id": { "type": ["integer", "number", "null"] },
+
+    "used_cars_link": { "type": ["string", "null"] },
+
+    "price_block": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "specifications": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["text", "subcategories"],
+        "properties": {
+          "text": { "type": "string" },
+          "subcategories": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": ["text", "value"],
+              "properties": {
+                "text": { "type": "string" },
+                "value": { "type": ["string", "number", "boolean", "null"] }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["text", "subcategories"],
+        "properties": {
+          "text": { "type": "string" },
+          "subcategories": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": ["text", "value"],
+              "properties": {
+                "text": { "type": "string" },
+                "value": { "type": ["string", "number", "boolean", "null"] }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "faqs": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["h2", "data"],
+      "properties": {
+        "h2": { "type": "string" },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["question", "answer"],
+            "properties": {
+              "question": { "type": "string" },
+              "answer": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "model_alternatives": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "alternatives": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["h2", "data"],
+      "properties": {
+        "h2": { "type": "string" },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "id",
+              "name",
+              "price",
+              "link",
+              "rating",
+              "medium",
+              "original",
+              "thumbnail"
+            ],
+            "properties": {
+              "id": { "type": "integer" },
+              "name": { "type": "string" },
+              "price": { "type": ["string", "null"] },
+              "link": { "type": "string" },
+              "rating": { "type": ["integer", "number"] },
+              "medium": { "type": "string" },
+              "original": { "type": "string" },
+              "thumbnail": { "type": "string" },
+              "schema": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "colors": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["h2", "data", "colors_rich_content"],
+      "properties": {
+        "h2": { "type": "string" },
+        "colors_rich_content": { "type": "string" },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["name", "hex_code"],
+            "properties": {
+              "name": { "type": "string" },
+              "hex_code": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "similar_links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["heading", "links"],
+        "properties": {
+          "heading": { "type": "string" },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": ["title", "url", "h1", "result_count"],
+              "properties": {
+                "title": { "type": "string" },
+                "url": { "type": "string" },
+                "h1": { "type": "string" },
+                "result_count": {
+                  "oneOf": [
+                    { "type": "string" },
+                    { "type": "integer" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "custom_dimensions": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "user_type",
+        "newsletter_subsriber",
+        "car_listings",
+        "bike_listings",
+        "parts_listings",
+        "private_rides",
+        "public_rides"
+      ],
+      "properties": {
+        "user_type": { "type": "string" },
+        "newsletter_subsriber": { "type": "boolean" },
+        "car_listings": { "type": "string" },
+        "bike_listings": { "type": "string" },
+        "parts_listings": { "type": "string" },
+        "private_rides": { "type": "string" },
+        "public_rides": { "type": "string" }
+      }
+    },
+
+    "error": { "type": "string" }
+  }
+}

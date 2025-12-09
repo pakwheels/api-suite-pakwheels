@@ -1,0 +1,968 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "New Car Model Details",
+  "type": "object",
+  "additionalProperties": true,
+
+  "required": [
+    "heading",
+    "page_type",
+    "pictures",
+    "model_id",
+    "make_id",
+    "price_block",
+    "model_name",
+    "full_slug",
+    "overview",
+    "launch_date",
+    "launch_year",
+    "generation_name",
+    "review_rating",
+    "reviewCount",
+    "price",
+    "schema",
+    "schema_price",
+    "videos",
+    "related_ads",
+    "pros_and_cons",
+    "detailed_specifications",
+    "brochure",
+    "specifications_path",
+    "fuel_average_path",
+    "error",
+    "over_all_rating",
+    "is_active",
+    "similar_links",
+    "other_generations",
+    "search_text",
+    "images_path",
+    "more_used_cars_pretty_url",
+    "used_cars",
+    "alternatives",
+    "faqs",
+    "reviews",
+    "comparisons",
+    "spec_section",
+    "colors",
+    "bread_crumbs",
+    "custom_dimensions"
+  ],
+
+  "properties": {
+    "heading": { "type": "string" },
+
+    "page_type": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "latest_generation",
+        "upcoming_generation",
+        "next_year_model",
+        "old_generation"
+      ],
+      "properties": {
+        "latest_generation": { "type": "boolean" },
+        "upcoming_generation": { "type": "boolean" },
+        "next_year_model": { "type": "boolean" },
+        "old_generation": { "type": "boolean" }
+      }
+    },
+
+    "pictures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "medium",
+          "original",
+          "thumbnail",
+          "image_alt",
+          "image_title"
+        ],
+        "properties": {
+          "medium": { "type": "string" },
+          "original": { "type": "string" },
+          "thumbnail": { "type": "string" },
+          "image_alt": { "type": "string" },
+          "image_title": { "type": "string" }
+        }
+      }
+    },
+
+    "model_id": { "type": "integer" },
+    "make_id": { "type": "integer" },
+
+    "price_block": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "price_rich_content",
+        "data",
+        "table_headers",
+        "asterisk_content",
+        "min_price",
+        "max_price",
+        "car_versions",
+        "price_updated_at",
+        "h2",
+        "used_links"
+      ],
+      "properties": {
+        "price_rich_content": { "type": "string" },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "generation_id",
+              "name",
+              "id",
+              "price",
+              "schema_price",
+              "link",
+              "engine_capacity",
+              "transmission_type",
+              "engine_type",
+              "delivery_time",
+              "key_features",
+              "is_base_variant",
+              "is_top_variant"
+            ],
+            "properties": {
+              "generation_id": { "type": "integer" },
+              "name": { "type": "string" },
+              "id": { "type": "integer" },
+              "price": { "type": "string" },
+              "schema_price": { "type": ["string", "number"] },
+              "link": { "type": "string" },
+              "engine_capacity": { "type": "string" },
+              "transmission_type": { "type": "string" },
+              "engine_type": { "type": "string" },
+              "delivery_time": { "type": "string" },
+              "key_features": { "type": "string" },
+              "is_base_variant": { "type": "boolean" },
+              "is_top_variant": { "type": "boolean" }
+            }
+          }
+        },
+        "table_headers": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "asterisk_content": { "type": "string" },
+        "min_price": { "type": "number" },
+        "max_price": { "type": "number" },
+
+        "car_versions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["car_version"],
+            "properties": {
+              "car_version": {
+                "type": "object",
+                "additionalProperties": true,
+                "required": [
+                  "id",
+                  "car_model_id",
+                  "version_name",
+                  "is_active",
+                  "viewed",
+                  "air_conditioner_bk",
+                  "power_windows_bk",
+                  "power_door_locks_bk",
+                  "power_steering_bk",
+                  "anti_lock_braking_bk",
+                  "traction_control_bk",
+                  "driver_air_bag_bk",
+                  "passenger_air_bag_bk",
+                  "immobilizer_bk",
+                  "cup_holders_bk",
+                  "folding_rear_seat_bk",
+                  "rears_wash_wiper_bk",
+                  "alloy_wheels_bk",
+                  "tubeless_tyres_bk",
+                  "central_locking_bk",
+                  "remote_boot_bk",
+                  "steering_adjustment_bk",
+                  "tachometer_bk",
+                  "child_safety_locks_bk",
+                  "front_fog_ligths_bk",
+                  "rear_defroster_bk",
+                  "defogger_bk",
+                  "leather_seats_bk",
+                  "power_seats_bk",
+                  "am_fm_radio_bk",
+                  "cassette_player_bk",
+                  "cd_player_bk",
+                  "sun_roof_bk",
+                  "url_slug",
+                  "created_at",
+                  "updated_at",
+                  "version_review_count",
+                  "moon_roof_bk",
+                  "review_rating",
+                  "status",
+                  "popular",
+                  "is_published",
+                  "page_title",
+                  "page_heading",
+                  "car_body_type_id",
+                  "is_imported",
+                  "cool_box_bk",
+                  "dvd_player_bk",
+                  "position",
+                  "version_name_ur",
+                  "page_title_ur",
+                  "page_heading_ur",
+                  "linkable",
+                  "latest_version_specification_id"
+                ],
+                "properties": {
+                  "id": { "type": "integer" },
+                  "car_model_id": { "type": "integer" },
+                  "version_name": { "type": "string" },
+                  "launch_year": { "type": ["string", "null"] },
+                  "description": { "type": ["string", "null"] },
+                  "capacity_bk": { "type": ["string", "null"] },
+                  "is_active": { "type": "boolean" },
+                  "price_bk": { "type": ["number", "null"] },
+                  "viewed": { "type": "integer" },
+                  "overall_length_bk": { "type": ["string", "null"] },
+                  "overall_width_bk": { "type": ["string", "null"] },
+                  "overall_height_bk": { "type": ["string", "null"] },
+                  "wheel_base_bk": { "type": ["string", "null"] },
+                  "ground_clearance_bk": { "type": ["string", "null"] },
+                  "boot_space_bk": { "type": ["string", "null"] },
+                  "kerb_weight_bk": { "type": ["string", "null"] },
+                  "no_of_doors_bk": { "type": ["string", "null"] },
+                  "displacement_bk": { "type": ["string", "null"] },
+                  "engine_power_bk": { "type": ["string", "null"] },
+                  "torque_bk": { "type": ["string", "null"] },
+                  "valve_mechanism_bk": { "type": ["string", "null"] },
+                  "compression_ratio_bk": { "type": ["string", "null"] },
+                  "no_of_cylinders_bk": { "type": ["string", "null"] },
+                  "cylinder_config_bk": { "type": ["string", "null"] },
+                  "valves_per_cylinder_bk": { "type": ["string", "null"] },
+                  "fuel_type_bk": { "type": ["string", "null"] },
+                  "fuel_system_bk": { "type": ["string", "null"] },
+                  "steering_type_bk": { "type": ["string", "null"] },
+                  "power_assisted_bk": { "type": ["string", "null"] },
+                  "min_turning_radius_bk": { "type": ["string", "null"] },
+                  "seating_capacity_bk": { "type": ["string", "null"] },
+                  "fuel_tank_capacity_bk": { "type": ["string", "null"] },
+                  "mileage_high_way_bk": { "type": ["string", "null"] },
+                  "mileage_city_bk": { "type": ["string", "null"] },
+                  "mileage_overall_bk": { "type": ["string", "null"] },
+                  "max_speed_bk": { "type": ["string", "null"] },
+                  "transmission_type_bk": { "type": ["string", "null"] },
+                  "gears_speed_bk": { "type": ["string", "null"] },
+                  "front_suspension_bk": { "type": ["string", "null"] },
+                  "rear_suspension_bk": { "type": ["string", "null"] },
+                  "front_brakes_bk": { "type": ["string", "null"] },
+                  "rear_brakes_bk": { "type": ["string", "null"] },
+                  "wheel_type_bk": { "type": ["string", "null"] },
+                  "wheel_size_bk": { "type": ["string", "null"] },
+                  "tyres_bk": { "type": ["string", "null"] },
+
+                  "air_conditioner_bk": { "type": "boolean" },
+                  "power_windows_bk": { "type": "boolean" },
+                  "power_door_locks_bk": { "type": "boolean" },
+                  "power_steering_bk": { "type": "boolean" },
+                  "anti_lock_braking_bk": { "type": "boolean" },
+                  "traction_control_bk": { "type": "boolean" },
+                  "driver_air_bag_bk": { "type": "boolean" },
+                  "passenger_air_bag_bk": { "type": "boolean" },
+                  "immobilizer_bk": { "type": "boolean" },
+                  "cup_holders_bk": { "type": "boolean" },
+                  "folding_rear_seat_bk": { "type": "boolean" },
+                  "rears_wash_wiper_bk": { "type": "boolean" },
+                  "alloy_wheels_bk": { "type": "boolean" },
+                  "tubeless_tyres_bk": { "type": "boolean" },
+                  "central_locking_bk": { "type": "boolean" },
+                  "remote_boot_bk": { "type": "boolean" },
+                  "steering_adjustment_bk": { "type": "boolean" },
+                  "tachometer_bk": { "type": "boolean" },
+                  "child_safety_locks_bk": { "type": "boolean" },
+                  "front_fog_ligths_bk": { "type": "boolean" },
+                  "rear_defroster_bk": { "type": "boolean" },
+                  "defogger_bk": { "type": "boolean" },
+                  "leather_seats_bk": { "type": "boolean" },
+                  "power_seats_bk": { "type": "boolean" },
+                  "am_fm_radio_bk": { "type": "boolean" },
+                  "cassette_player_bk": { "type": "boolean" },
+                  "cd_player_bk": { "type": "boolean" },
+                  "sun_roof_bk": { "type": "boolean" },
+                  "version_review_bk": { "type": ["string", "null"] },
+
+                  "url_slug": { "type": "string" },
+                  "created_at": { "type": "string" },
+                  "updated_at": { "type": "string" },
+                  "version_review_count": { "type": "integer" },
+                  "moon_roof_bk": { "type": "boolean" },
+                  "review_rating": { "type": "integer" },
+                  "colour": { "type": ["string", "null"] },
+                  "status": { "type": "integer" },
+                  "popular": { "type": "boolean" },
+                  "is_published": { "type": "boolean" },
+                  "page_title": { "type": ["string", "null"] },
+                  "page_heading": { "type": ["string", "null"] },
+                  "car_body_type_id": { "type": ["integer", "null"] },
+                  "is_imported": { "type": "boolean" },
+
+                  "cool_box_bk": { "type": "boolean" },
+                  "dvd_player_bk": { "type": "boolean" },
+                  "position": { "type": ["integer", "null"] },
+                  "meta_description": { "type": ["string", "null"] },
+                  "is_custom_meta": { "type": ["boolean", "null"] },
+                  "version_name_ur": { "type": ["string", "null"] },
+                  "page_title_ur": { "type": ["string", "null"] },
+                  "page_heading_ur": { "type": ["string", "null"] },
+                  "meta_description_ur": { "type": ["string", "null"] },
+                  "car_version_group_id_bk": { "type": ["integer", "null"] },
+                  "linkable": { "type": "boolean" },
+                  "deleted_at": { "type": ["string", "null"] },
+                  "redirect_url_slug": { "type": ["string", "null"] },
+                  "latest_version_specification_id": {
+                    "type": ["integer", "null"]
+                  }
+                }
+              }
+            }
+          }
+        },
+
+        "price_updated_at": { "type": ["string", "null"] },
+        "h2": { "type": "string" },
+
+        "used_links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["url", "title", "h1"],
+            "properties": {
+              "url": { "type": "string" },
+              "title": { "type": "string" },
+              "h1": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "model_name": { "type": "string" },
+    "full_slug": { "type": "string" },
+
+    "overview": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "h2",
+        "description",
+        "exterior",
+        "interior",
+        "engine",
+        "mileage",
+        "competitors",
+        "specifications"
+      ],
+      "properties": {
+        "h2": { "type": "string" },
+        "description": { "type": "string" },
+        "exterior": { "type": "string" },
+        "interior": { "type": "string" },
+        "engine": { "type": "string" },
+        "mileage": { "type": "string" },
+        "competitors": { "type": "string" },
+        "specifications": { "type": "string" }
+      }
+    },
+
+    "upcoming_details": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "engine": { "type": "string" },
+        "mileage": { "type": "string" },
+        "horse_power": { "type": "string" },
+        "torque": { "type": "string" },
+        "estimated_price": { "type": "string" },
+        "mailchimp_list_name": { "type": "string" },
+        "mailchimp_list_id": { "type": "string" }
+      }
+    },
+
+    "launch_date": { "type": "string" },
+    "launch_year": { "type": "string" },
+    "generation_name": { "type": "string" },
+    "review_rating": { "type": "integer" },
+    "reviewCount": { "type": "integer" },
+    "price": { "type": "string" },
+
+    "schema": {
+      "type": "object",
+      "additionalProperties": true
+    },
+
+    "schema_price": { "type": "number" },
+
+    "videos": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["h2", "data"],
+      "properties": {
+        "h2": { "type": "string" },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["video"],
+            "properties": {
+              "video": {
+                "type": "object",
+                "additionalProperties": true,
+                "required": [
+                  "id",
+                  "title",
+                  "url",
+                  "manufacturer_id",
+                  "model_id",
+                  "generation_id",
+                  "video_type",
+                  "is_popular",
+                  "created_at",
+                  "updated_at",
+                  "is_featured",
+                  "url_slug",
+                  "youtube_id"
+                ],
+                "properties": {
+                  "id": { "type": "integer" },
+                  "title": { "type": "string" },
+                  "url": { "type": "string" },
+                  "manufacturer_id": { "type": ["integer", "null"] },
+                  "model_id": { "type": ["integer", "null"] },
+                  "version_id": { "type": ["integer", "null"] },
+                  "generation_id": { "type": ["integer", "null"] },
+                  "version_group_id": { "type": ["integer", "null"] },
+                  "version_specification_id": {
+                    "type": ["integer", "null"]
+                  },
+                  "video_type": { "type": ["integer", "null"] },
+                  "is_popular": { "type": "boolean" },
+                  "created_at": { "type": "string" },
+                  "updated_at": { "type": "string" },
+                  "is_featured": { "type": "boolean" },
+                  "description": { "type": ["string", "null"] },
+                  "description_ur": { "type": ["string", "null"] },
+                  "category": { "type": ["integer", "null"] },
+                  "url_slug": { "type": "string" },
+                  "youtube_id": { "type": "string" },
+                  "deleted_at": { "type": ["string", "null"] },
+                  "title_ur": { "type": ["string", "null"] },
+                  "ctg_id": { "type": ["integer", "null"] },
+                  "sctg_id": { "type": ["integer", "null"] }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "related_ads": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["heading", "ads", "view_more"],
+      "properties": {
+        "heading": { "type": "string" },
+        "ads": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "alt_title",
+              "city",
+              "engine_type",
+              "mileage",
+              "model_year",
+              "picture_url",
+              "price",
+              "title",
+              "url_slug"
+            ],
+            "properties": {
+              "alt_title": { "type": "string" },
+              "city": { "type": "string" },
+              "engine_type": { "type": "string" },
+              "mileage": { "type": "integer" },
+              "model_year": { "type": "integer" },
+              "picture_url": { "type": "string" },
+              "price": { "type": "number" },
+              "title": { "type": "string" },
+              "url_slug": { "type": "string" }
+            }
+          }
+        },
+        "view_more": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": ["link_text", "url", "tooltip"],
+          "properties": {
+            "link_text": { "type": "string" },
+            "url": { "type": "string" },
+            "tooltip": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "pros_and_cons": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["h2", "pros", "pros_heading", "cons", "cons_heading"],
+      "properties": {
+        "h2": { "type": "string" },
+        "pros": { "type": "array", "items": { "type": "string" } },
+        "pros_heading": { "type": "string" },
+        "cons": { "type": "array", "items": { "type": "string" } },
+        "cons_heading": { "type": "string" }
+      }
+    },
+
+    "detailed_specifications": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["h2", "data"],
+      "properties": {
+        "h2": { "type": "string" },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["text", "value"],
+            "properties": {
+              "text": { "type": "string" },
+              "value": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "brochure": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["url", "title", "description", "text"],
+      "properties": {
+        "url": { "type": ["string", "null"] },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "text": { "type": "string" }
+      }
+    },
+
+    "specifications_path": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["url", "text"],
+      "properties": {
+        "url": { "type": "string" },
+        "text": { "type": "string" }
+      }
+    },
+
+    "fuel_average_path": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["url", "text"],
+      "properties": {
+        "url": { "type": "string" },
+        "text": { "type": "string" }
+      }
+    },
+
+    "error": { "type": "string" },
+
+    "over_all_rating": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "style",
+        "comfort",
+        "fuel_economy",
+        "performance",
+        "value_for_money"
+      ],
+      "properties": {
+        "style": { "type": "integer" },
+        "comfort": { "type": "integer" },
+        "fuel_economy": { "type": "integer" },
+        "performance": { "type": "integer" },
+        "value_for_money": { "type": "integer" }
+      }
+    },
+
+    "is_active": { "type": "boolean" },
+
+    "car_finance": {
+      "type": ["object", "null"],
+      "additionalProperties": true
+    },
+
+    "similar_links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["links", "heading"],
+        "properties": {
+          "heading": { "type": "string" },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": ["title", "url", "h1", "result_count"],
+              "properties": {
+                "title": { "type": "string" },
+                "h1": { "type": ["string", "null"] },
+                "url": { "type": "string" },
+                "result_count": {
+                  "oneOf": [
+                    { "type": "string" },
+                    { "type": "integer" }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "other_generations": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["h2", "data"],
+      "properties": {
+        "h2": { "type": "string" },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["name", "eta", "link", "price", "pictures"],
+            "properties": {
+              "name": { "type": "string" },
+              "eta": { "type": "string" },
+              "link": { "type": "string" },
+              "price": { "type": ["string", "null"] },
+              "pictures": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "required": [
+                    "original",
+                    "medium",
+                    "thumbnail",
+                    "image_alt",
+                    "image_title"
+                  ],
+                  "properties": {
+                    "original": { "type": "string" },
+                    "medium": { "type": "string" },
+                    "thumbnail": { "type": "string" },
+                    "image_alt": { "type": "string" },
+                    "image_title": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "search_text": { "type": "string" },
+
+    "images_path": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["url", "text"],
+      "properties": {
+        "url": { "type": "string" },
+        "text": { "type": "string" }
+      }
+    },
+
+    "more_used_cars_pretty_url": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["ads_count", "url_slug"],
+      "properties": {
+        "ads_count": { "type": "integer" },
+        "url_slug": { "type": "string" }
+      }
+    },
+
+    "used_cars": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["ads_count", "url_slug"],
+      "properties": {
+        "ads_count": { "type": "integer" },
+        "url_slug": { "type": "string" }
+      }
+    },
+
+    "alternatives": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["h2", "data"],
+      "properties": {
+        "h2": { "type": "string" },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "id",
+              "name",
+              "price",
+              "link",
+              "rating",
+              "medium",
+              "original",
+              "thumbnail",
+              "schema"
+            ],
+            "properties": {
+              "id": { "type": "integer" },
+              "name": { "type": "string" },
+              "price": { "type": ["string", "null"] },
+              "link": { "type": "string" },
+              "rating": { "type": "integer" },
+              "medium": { "type": "string" },
+              "original": { "type": "string" },
+              "thumbnail": { "type": "string" },
+              "schema": { "type": "object", "additionalProperties": true }
+            }
+          }
+        }
+      }
+    },
+
+    "faqs": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["h2", "data"],
+      "properties": {
+        "h2": { "type": "string" },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["question", "answer"],
+            "properties": {
+              "question": { "type": "string" },
+              "answer": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "trending_searches": {
+      "type": ["array", "null"],
+      "items": {}
+    },
+
+    "reviews": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["h2", "data"],
+      "properties": {
+        "h2": { "type": "string" },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "id",
+              "title",
+              "sub_title",
+              "url",
+              "detail_url",
+              "pictures",
+              "overall_rating",
+              "owner",
+              "created_at",
+              "description",
+              "style",
+              "comfort",
+              "fuel_economy",
+              "performance",
+              "value_for_money"
+            ],
+            "properties": {
+              "id": { "type": "integer" },
+              "title": { "type": "string" },
+              "sub_title": { "type": "string" },
+              "url": { "type": "string" },
+              "detail_url": { "type": "string" },
+              "pictures": {
+                "type": "object",
+                "additionalProperties": true,
+                "required": ["medium", "original", "thumbnail"],
+                "properties": {
+                  "medium": { "type": "string" },
+                  "original": { "type": "string" },
+                  "thumbnail": { "type": "string" }
+                }
+              },
+              "overall_rating": { "type": "integer" },
+              "owner": { "type": "string" },
+              "created_at": { "type": "string" },
+              "description": { "type": "string" },
+              "style": { "type": "integer" },
+              "comfort": { "type": "integer" },
+              "fuel_economy": { "type": "integer" },
+              "performance": { "type": "integer" },
+              "value_for_money": { "type": "integer" }
+            }
+          }
+        }
+      }
+    },
+
+    "comparisons": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["h2", "data"],
+      "properties": {
+        "h2": { "type": "string" },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "url",
+              "title",
+              "comparison_pictures_1",
+              "comparison_pictures_2",
+              "is_featured"
+            ],
+            "properties": {
+              "url": { "type": "string" },
+              "title": { "type": "string" },
+              "comparison_pictures_1": {
+                "type": "object",
+                "additionalProperties": true,
+                "required": ["medium", "original", "thumbnail"],
+                "properties": {
+                  "medium": { "type": "string" },
+                  "original": { "type": "string" },
+                  "thumbnail": { "type": "string" }
+                }
+              },
+              "comparison_pictures_2": {
+                "type": "object",
+                "additionalProperties": true,
+                "required": ["medium", "original", "thumbnail"],
+                "properties": {
+                  "medium": { "type": "string" },
+                  "original": { "type": "string" },
+                  "thumbnail": { "type": "string" }
+                }
+              },
+              "is_featured": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+
+    "spec_section": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["mileage", "transmission", "engine_type", "engine"],
+      "properties": {
+        "mileage": { "type": "string" },
+        "transmission": { "type": "string" },
+        "engine_type": { "type": "string" },
+        "engine": { "type": "string" }
+      }
+    },
+
+    "colors": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["colors_rich_content", "h2", "data"],
+      "properties": {
+        "colors_rich_content": { "type": "string" },
+        "h2": { "type": "string" },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["name", "hex_code"],
+            "properties": {
+              "name": { "type": "string" },
+              "hex_code": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "bread_crumbs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["label", "url"],
+        "properties": {
+          "label": { "type": "string" },
+          "url": { "type": "string" }
+        }
+      }
+    },
+
+    "custom_dimensions": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "user_type",
+        "newsletter_subsriber",
+        "car_listings",
+        "bike_listings",
+        "parts_listings",
+        "private_rides",
+        "public_rides"
+      ],
+      "properties": {
+        "user_type": { "type": "string" },
+        "newsletter_subsriber": { "type": "boolean" },
+        "car_listings": { "type": "string" },
+        "bike_listings": { "type": "string" },
+        "parts_listings": { "type": "string" },
+        "private_rides": { "type": "string" },
+        "public_rides": { "type": "string" }
+      }
+    }
+  }
+}

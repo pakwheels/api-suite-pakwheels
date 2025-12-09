@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "new_cars_dealers_response",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "dealers",
+    "seo_content",
+    "error",
+    "result_count",
+    "total_count",
+    "page_num",
+    "total_pages",
+    "selected_cities",
+    "selected_makes",
+    "related_results",
+    "custom_dimensions"
+  ],
+  "properties": {
+    "dealers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "id",
+          "company_name",
+          "is_verified",
+          "is_featured",
+          "url_slug",
+          "city_id",
+          "city_name",
+          "logo",
+          "review_rating"
+        ],
+        "properties": {
+          "id": { "type": ["integer", "number", "null"] },
+          "company_name": { "type": ["string", "null"] },
+          "office_phone": { "type": ["string", "null"] },
+          "is_verified": { "type": ["boolean", "null"] },
+          "is_featured": { "type": ["boolean", "null"] },
+          "url_slug": { "type": ["string", "null"] },
+          "city_id": { "type": ["integer", "number", "null"] },
+          "city_name": { "type": ["string", "null"] },
+          "logo": { "type": ["string", "null"] },
+          "review_rating": { "type": ["integer", "number", "null"] }
+        }
+      }
+    },
+    "seo_content": { "type": ["string", "null"] },
+    "error": { "type": ["string", "null"] },
+    "result_count": { "type": ["integer", "number", "string", "null"] },
+    "total_count": { "type": ["integer", "number", "string", "null"] },
+    "page_num": { "type": ["string", "integer", "number", "null"] },
+    "total_pages": { "type": ["integer", "number", "null"] },
+    "selected_cities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "selected_makes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "related_results": {
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "heading",
+              "links"
+            ],
+            "properties": {
+              "heading": { "type": ["string", "null"] },
+              "links": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": true,
+                  "required": [
+                    "title",
+                    "url"
+                  ],
+                  "properties": {
+                    "title": { "type": ["string", "null"] },
+                    "h1": { "type": ["string", "null"] },
+                    "url": { "type": ["string", "null"] },
+                    "result_count": { "type": ["string", "integer", "number", "null"] }
+                  }
+                }
+              }
+            }
+          },
+          { "type": "null" }
+        ]
+      }
+    },
+    "custom_dimensions": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "user_type": { "type": ["string", "null"] },
+        "newsletter_subsriber": { "type": ["boolean", "null"] },
+        "car_listings": { "type": ["string", "number", "null"] },
+        "bike_listings": { "type": ["string", "number", "null"] },
+        "parts_listings": { "type": ["string", "number", "null"] },
+        "private_rides": { "type": ["string", "number", "null"] },
+        "public_rides": { "type": ["string", "number", "null"] }
+      }
+    }
+  }
+}

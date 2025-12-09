@@ -1,0 +1,694 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "New Car Model Fuel Average",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "page_header",
+    "heading",
+    "model_id",
+    "model_name",
+    "make_id",
+    "manufacturer_name",
+    "is_electric_model",
+    "bread_crumbs",
+    "description",
+    "mileage_by_variants_block",
+    "fuel_cost_calculator",
+    "alternatives",
+    "over_all_rating",
+    "faqs",
+    "review_rating",
+    "review_count",
+    "specifications_path",
+    "images_path",
+    "model_path",
+    "reviews",
+    "custom_dimensions"
+  ],
+  "properties": {
+    "page_header": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "heading": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "model_id": {
+      "type": [
+        "integer",
+        "number",
+        "string"
+      ]
+    },
+    "model_name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "make_id": {
+      "type": [
+        "integer",
+        "number",
+        "string"
+      ]
+    },
+    "manufacturer_name": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "is_electric_model": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "bread_crumbs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "label"
+        ],
+        "properties": {
+          "label": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "description": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "mileage_by_variants_block": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "table_headers",
+        "h2",
+        "data"
+      ],
+      "properties": {
+        "table_headers": {
+          "type": "array",
+          "items": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "h2": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "version_id",
+              "version_name",
+              "link"
+            ],
+            "properties": {
+              "version_id": {
+                "type": [
+                  "integer",
+                  "number",
+                  "string"
+                ]
+              },
+              "version_name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "link": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "engine_capacity": {
+                "type": [
+                  "string",
+                  "number",
+                  "null"
+                ]
+              },
+              "transmission_type": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "engine_type": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "mileage_city": {
+                "type": [
+                  "string",
+                  "number",
+                  "null"
+                ]
+              },
+              "mileage_highway": {
+                "type": [
+                  "string",
+                  "number",
+                  "null"
+                ]
+              },
+              "mileage_overall": {
+                "type": [
+                  "string",
+                  "number",
+                  "null"
+                ]
+              },
+              "range": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "fuel_cost_calculator": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "fuel_prices",
+        "default_version_spec_id",
+        "default_version_spec_name",
+        "default_version_spec_engine_type",
+        "default_version_spec_mileage_city",
+        "h2"
+      ],
+      "properties": {
+        "fuel_prices": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "petrol_price",
+            "diesel_price"
+          ],
+          "properties": {
+            "petrol_price": {
+              "type": [
+                "string",
+                "number",
+                "null"
+              ]
+            },
+            "diesel_price": {
+              "type": [
+                "string",
+                "number",
+                "null"
+              ]
+            }
+          }
+        },
+        "default_version_spec_id": {
+          "type": [
+            "integer",
+            "number",
+            "string"
+          ]
+        },
+        "default_version_spec_name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "default_version_spec_engine_type": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "default_version_spec_mileage_city": {
+          "type": [
+            "string",
+            "number",
+            "null"
+          ]
+        },
+        "h2": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "asterisk_content": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "alternatives": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "h2",
+        "data"
+      ],
+      "properties": {
+        "h2": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "id",
+              "name",
+              "link"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "integer",
+                  "number",
+                  "string"
+                ]
+              },
+              "name": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "price": {
+                "type": [
+                  "string",
+                  "number",
+                  "null"
+                ]
+              },
+              "link": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "rating": {
+                "type": [
+                  "integer",
+                  "number",
+                  "null"
+                ]
+              },
+              "medium": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "original": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "thumbnail": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "over_all_rating": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "style": {
+          "type": [
+            "integer",
+            "number",
+            "null"
+          ]
+        },
+        "comfort": {
+          "type": [
+            "integer",
+            "number",
+            "null"
+          ]
+        },
+        "fuel_economy": {
+          "type": [
+            "integer",
+            "number",
+            "null"
+          ]
+        },
+        "performance": {
+          "type": [
+            "integer",
+            "number",
+            "null"
+          ]
+        },
+        "value_for_money": {
+          "type": [
+            "integer",
+            "number",
+            "null"
+          ]
+        }
+      }
+    },
+    "faqs": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "h2",
+        "data"
+      ],
+      "properties": {
+        "h2": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "question",
+              "answer"
+            ],
+            "properties": {
+              "question": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "answer": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "review_rating": {
+      "type": [
+        "integer",
+        "number",
+        "null"
+      ]
+    },
+    "review_count": {
+      "type": [
+        "integer",
+        "number",
+        "null"
+      ]
+    },
+    "specifications_path": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "url",
+        "text"
+      ],
+      "properties": {
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "images_path": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "url",
+        "text"
+      ],
+      "properties": {
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "model_path": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "url",
+        "text"
+      ],
+      "properties": {
+        "url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "text": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "reviews": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "h2",
+        "data"
+      ],
+      "properties": {
+        "h2": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "id",
+              "title",
+              "sub_title",
+              "detail_url",
+              "overall_rating",
+              "owner",
+              "description",
+              "style",
+              "comfort",
+              "fuel_economy",
+              "performance",
+              "value_for_money"
+            ],
+            "properties": {
+              "id": {
+                "type": [
+                  "integer",
+                  "number",
+                  "string"
+                ]
+              },
+              "title": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "sub_title": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "url": {
+                "type": [
+                  "string",
+                  "null",
+                  "boolean"
+                ]
+              },
+              "detail_url": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "pictures": {
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                  "medium": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "original": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "thumbnail": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              },
+              "overall_rating": {
+                "type": [
+                  "integer",
+                  "number",
+                  "null"
+                ]
+              },
+              "owner": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "created_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "description": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "style": {
+                "type": [
+                  "integer",
+                  "number",
+                  "null"
+                ]
+              },
+              "comfort": {
+                "type": [
+                  "integer",
+                  "number",
+                  "null"
+                ]
+              },
+              "fuel_economy": {
+                "type": [
+                  "integer",
+                  "number",
+                  "null"
+                ]
+              },
+              "performance": {
+                "type": [
+                  "integer",
+                  "number",
+                  "null"
+                ]
+              },
+              "value_for_money": {
+                "type": [
+                  "integer",
+                  "number",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "all_reviews_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "custom_dimensions": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

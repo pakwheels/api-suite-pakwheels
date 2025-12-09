@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "New Car Model Specifications",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "make_id",
+    "main_heading",
+    "description",
+    "detailed_specifications",
+    "versions",
+    "faqs",
+    "alternatives",
+    "fuel_average_path",
+    "images_path",
+    "model_path",
+    "bread_crumbs",
+    "custom_dimensions"
+  ],
+  "properties": {
+    "make_id": {
+      "type": [
+        "integer",
+        "number"
+      ]
+    },
+    "main_heading": {
+      "type": "string"
+    },
+    "logo_path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "description": {
+      "type": "string"
+    },
+    "detailed_specifications": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "heading_text",
+        "data"
+      ]
+    },
+    "versions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "id",
+          "name",
+          "specifications",
+          "features"
+        ]
+      }
+    },
+    "faqs": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "heading",
+        "data"
+      ]
+    },
+    "alternatives": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "heading_text",
+        "data"
+      ]
+    },
+    "fuel_average_path": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "url",
+        "text"
+      ]
+    },
+    "images_path": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "url",
+        "text"
+      ]
+    },
+    "model_path": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "url",
+        "text"
+      ]
+    },
+    "bread_crumbs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "label"
+        ]
+      }
+    },
+    "custom_dimensions": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

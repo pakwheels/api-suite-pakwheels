@@ -35,12 +35,7 @@ from .car_ads import (  # noqa: F401
     wait_for_ad_state,
     upsell_product_validation
 )
-from .new_cars import (  # noqa: F401
-    fetch_new_make_details,
-    fetch_all_make_models,
-    fetch_new_model_details,
-    fetch_new_version_details,
-)
+
 from .lead_forms.sifm import (  # noqa: F401
     fetch_sell_it_for_me_cities,
     fetch_sell_it_for_me_city_areas,
@@ -48,6 +43,21 @@ from .lead_forms.sifm import (  # noqa: F401
     update_sell_it_for_me_lead,
 )
 from .landing_page import fetch_main_landing_page  # noqa: F401
+from .new_cars import (  # noqa: F401
+    req_new_make,
+    req_new_model,
+    req_new_version,
+    req_new_generation,
+    req_model_images,
+    req_model_specifications,
+    req_model_fuel_average,
+    req_comparisons,
+    req_comparison_detail,
+    req_new_price_list,
+    req_new_dealers,
+)
+
+
 from .lead_forms import (  # noqa: F401
     fetch_carsure_cities,
     fetch_carsure_city_areas,
@@ -109,8 +119,8 @@ __all__ = [
     # "verify_live_or_pending",
     "verify_phone_number",
     "wait_for_ad_state",
+
     "fetch_new_make_details",
-    "fetch_all_make_models",
     "fetch_new_model_details",
     "fetch_new_version_details",
     "fetch_sell_it_for_me_cities",

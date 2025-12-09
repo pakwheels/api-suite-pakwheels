@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Sell It For Me Free Slot Summary",
+  "type": "object",
+  "required": [
+    "free_slots_available"
+  ],
+  "properties": {
+    "free_slots_available": {
+      "type": "boolean"
+    },
+    "date": {
+      "type": ["string", "null"]
+    },
+    "free_slot": {
+      "type": ["string", "null"]
+    },
+    "slot_time_title": {
+      "type": ["string", "null"]
+    },
+    "slot_time": {
+      "type": ["string", "null"]
+    }
+  },
+  "additionalProperties": true
+}

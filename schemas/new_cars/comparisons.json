@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "New Car Comparisons",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "head_message",
+    "main_comparison",
+    "feature_comparisons",
+    "comparison_videos",
+    "about_car_comparison",
+    "no_of_comparison_links",
+    "bread_crumbs",
+    "popular_new_cars",
+    "newly_launched_cars",
+    "upcoming_cars",
+    "custom_dimensions"
+  ],
+  "properties": {
+    "head_message": {
+      "type": "string"
+    },
+    "main_comparison": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "url",
+        "title",
+        "comparison_pictures_1",
+        "comparison_pictures_2"
+      ]
+    },
+    "feature_comparisons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "url",
+          "title",
+          "comparison_pictures_1",
+          "comparison_pictures_2"
+        ]
+      }
+    },
+    "comparison_videos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "video"
+        ]
+      }
+    },
+    "about_car_comparison": {
+      "type": "string"
+    },
+    "no_of_comparison_links": {
+      "type": [
+        "integer",
+        "number"
+      ]
+    },
+    "bread_crumbs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "label"
+        ]
+      }
+    },
+    "popular_new_cars": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "name",
+          "link"
+        ]
+      }
+    },
+    "newly_launched_cars": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "name",
+          "link"
+        ]
+      }
+    },
+    "upcoming_cars": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "name",
+          "link"
+        ]
+      }
+    },
+    "custom_dimensions": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

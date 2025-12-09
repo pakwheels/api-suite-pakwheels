@@ -1,0 +1,154 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "New Car Comparison Detail",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "heading",
+    "models_info",
+    "versions_info",
+    "car_versions_specifications",
+    "car_version_features",
+    "videos",
+    "main_comparison",
+    "feature_comparisons",
+    "car_comparison_data",
+    "faqs",
+    "seo_content",
+    "similar_links",
+    "error",
+    "bread_crumbs",
+    "custom_dimensions"
+  ],
+  "properties": {
+    "heading": {
+      "type": "string"
+    },
+    "models_info": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "model_id",
+          "model_name",
+          "pictures",
+          "url",
+          "slug"
+        ]
+      }
+    },
+    "versions_info": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "selected_version",
+          "review",
+          "used_car_pretty_url"
+        ]
+      }
+    },
+    "car_versions_specifications": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "text",
+            "subcategories"
+          ]
+        }
+      }
+    },
+    "car_version_features": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": true,
+          "required": [
+            "text",
+            "subcategories"
+          ]
+        }
+      }
+    },
+    "videos": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "h2",
+        "data"
+      ]
+    },
+    "main_comparison": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "feature_comparisons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true
+      }
+    },
+    "car_comparison_data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "model_name",
+          "model_ids_except_current_model"
+        ]
+      }
+    },
+    "faqs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "question",
+          "answer"
+        ]
+      }
+    },
+    "seo_content": {
+      "type": "string"
+    },
+    "similar_links": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "links",
+          "heading"
+        ]
+      }
+    },
+    "error": {
+      "type": "string"
+    },
+    "bread_crumbs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "label"
+        ]
+      }
+    },
+    "custom_dimensions": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

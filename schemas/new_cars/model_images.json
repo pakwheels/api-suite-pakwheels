@@ -1,0 +1,251 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "New Car Model Images",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "h1",
+    "make",
+    "model",
+    "generationName",
+    "generationDescription",
+    "variantDropdownOptions",
+    "exteriorPicturesHeading",
+    "exteriorPictures",
+    "interiorPicturesHeading",
+    "interiorPictures",
+    "colors",
+    "similarCarsHeading",
+    "similarCars",
+    "videosHeading",
+    "videos",
+    "fuelAveragePath",
+    "specificationsPath",
+    "modelPath",
+    "custom_dimensions"
+  ],
+  "properties": {
+    "h1": {
+      "type": "string"
+    },
+    "make": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "generationName": {
+      "type": "string"
+    },
+    "generationDescription": {
+      "type": "string"
+    },
+    "variantDropdownOptions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "name",
+          "id"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "id": {
+            "type": [
+              "integer",
+              "number",
+              "string"
+            ]
+          }
+        }
+      }
+    },
+    "exteriorPicturesHeading": {
+      "type": "string"
+    },
+    "exteriorPictures": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "medium"
+        ],
+        "properties": {
+          "medium": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "interiorPicturesHeading": {
+      "type": "string"
+    },
+    "interiorPictures": {
+      "type": [
+        "array",
+        "null"
+      ],
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "medium"
+        ],
+        "properties": {
+          "medium": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "colors": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "h2",
+        "description",
+        "data"
+      ],
+      "properties": {
+        "h2": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "name",
+              "hex_code"
+            ],
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "hex_code": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "similarCarsHeading": {
+      "type": "string"
+    },
+    "similarCars": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "id",
+          "name",
+          "link"
+        ],
+        "properties": {
+          "id": {
+            "type": [
+              "integer",
+              "number",
+              "string"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "link": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "videosHeading": {
+      "type": "string"
+    },
+    "videos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "video"
+        ],
+        "properties": {
+          "video": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "id",
+              "title",
+              "url"
+            ]
+          }
+        }
+      }
+    },
+    "fuelAveragePath": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "url",
+        "text"
+      ],
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "specificationsPath": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "url",
+        "text"
+      ],
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "modelPath": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "url",
+        "text"
+      ],
+      "properties": {
+        "url": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "custom_dimensions": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "make": "new-cars/toyota",
+  "model_link": "new-cars/toyota/corolla",
+  "version_link": "new-cars/toyota/corolla/xli-automatic",
+  "generation_link": "new-cars/toyota/corolla/2000-2005",
+  "model_images_link": "new-cars/toyota/corolla/photos",
+  "model_specifications_link": "new-cars/toyota/corolla/specifications",
+  "comparisons_link": "new-cars/compare",
+  "comparison_detail_link": "new-cars/compare/suzuki-mehran-vs-suzuki-bolan",
+  "model_fuel_average_link": "new-cars/toyota/corolla/fuel-average",
+  "price_list_link": "new-cars/pricelist",
+  "price_list_make": "suzuki",
+  "dealers_link": "new-cars/dealers",
+  "dealers_extra_info": true,
+  "dealers_page_num": 1,
+  "api_version": "18"
+}

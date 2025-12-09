@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "New Car Generation Details",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "heading",
+    "model_name",
+    "model_id",
+    "make_id",
+    "generation_name",
+    "page_type",
+    "pictures",
+    "price_block",
+    "overview",
+    "detailed_specifications",
+    "schema"
+  ],
+  "properties": {
+    "heading": {
+      "type": "string"
+    },
+    "model_name": {
+      "type": "string"
+    },
+    "model_id": {
+      "type": [
+        "integer",
+        "number"
+      ]
+    },
+    "make_id": {
+      "type": [
+        "integer",
+        "number"
+      ]
+    },
+    "generation_name": {
+      "type": "string"
+    },
+    "page_type": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "pictures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "medium"
+        ]
+      }
+    },
+    "price_block": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "data",
+        "min_price",
+        "max_price"
+      ]
+    },
+    "overview": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "h2",
+        "description"
+      ]
+    },
+    "detailed_specifications": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "data"
+      ]
+    },
+    "schema": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "@context",
+        "name",
+        "brand"
+      ]
+    }
+  }
+}

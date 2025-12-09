@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Sell It For Me Free Slots",
+  "type": "object",
+  "required": [
+    "free_slots_available"
+  ],
+  "properties": {
+    "free_slots_available": {
+      "type": "boolean"
+    },
+    "free_slots": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "slot_time_title",
+          "slot_time",
+          "slot_available",
+          "assignee_id"
+        ],
+        "properties": {
+          "slot_time_title": {
+            "type": "string"
+          },
+          "slot_time": {
+            "type": "string"
+          },
+          "slot_available": {
+            "type": "boolean"
+          },
+          "assignee_id": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "new_cars_price_list_response",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "make_name",
+    "make_id",
+    "models",
+    "models_count",
+    "error",
+    "bread_crumbs",
+    "custom_dimensions"
+  ],
+  "properties": {
+    "make_name": { "type": ["string", "null"] },
+    "make_id": { "type": ["integer", "number", "null"] },
+    "models_count": { "type": ["integer", "number", "null"] },
+    "error": { "type": ["string", "null"] },
+    "models": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "price_links",
+          "url_slug",
+          "name",
+          "id",
+          "versions_count",
+          "versions"
+        ],
+        "properties": {
+          "price_links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "properties": {
+                "url": { "type": ["string", "null"] },
+                "title": { "type": ["string", "null"] },
+                "anchor_text": { "type": ["string", "null"] }
+              }
+            }
+          },
+          "url_slug": { "type": ["string", "null"] },
+          "name": { "type": ["string", "null"] },
+          "id": { "type": ["integer", "number", "null"] },
+          "versions_count": { "type": ["integer", "number", "null"] },
+          "versions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true,
+              "required": [
+                "url_slug",
+                "name",
+                "id",
+                "price",
+                "engine_capacity",
+                "transmission_type",
+                "engine_type",
+                "rating",
+                "complete_url"
+              ],
+              "properties": {
+                "url_slug": { "type": ["string", "null"] },
+                "name": { "type": ["string", "null"] },
+                "id": { "type": ["integer", "number", "null"] },
+                "price": { "type": ["string", "number", "integer", "null"] },
+                "last_updated": { "type": ["string", "null"] },
+                "engine_capacity": { "type": ["integer", "number", "null"] },
+                "transmission_type": { "type": ["string", "null"] },
+                "engine_type": { "type": ["string", "null"] },
+                "rating": { "type": ["integer", "number", "null"] },
+                "complete_url": { "type": ["string", "null"] }
+              }
+            }
+          }
+        }
+      }
+    },
+    "bread_crumbs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": ["label"],
+        "properties": {
+          "label": { "type": ["string", "null"] },
+          "url": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "custom_dimensions": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "user_type": { "type": ["string", "null"] },
+        "newsletter_subsriber": { "type": ["boolean", "null"] },
+        "car_listings": { "type": ["string", "number", "null"] },
+        "bike_listings": { "type": ["string", "number", "null"] },
+        "parts_listings": { "type": ["string", "number", "null"] },
+        "private_rides": { "type": ["string", "number", "null"] },
+        "public_rides": { "type": ["string", "number", "null"] }
+      }
+    }
+  }
+}
