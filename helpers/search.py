@@ -5,23 +5,21 @@ import json
 
 
 FILTER_MAP = {
-    "ct": "city_name",        # ct_lahore → city_name == "Lahore"
-    "ca": "city_area",        # ca_dha-defence--7 → city_area == formatted string
-    "tr": "transmission",     # tr_automatic → transmission == "Automatic"
-    "mk": "make",             # mk_honda → make == "Honda"
-    "md": "model",            # md_corolla → model == "Corolla"
-    "vr": "version",          #
-    "cl": "exterior_color",   #
-    "pr": "price",            # range → price
-    "ml": "mileage",          # range → mileage
-    "yr": "model_year",       # range → year
-    "ec": "engine_capacity",  # ranage → engine capacity
+    "ct": "city_name",    
+    "ca": "city_area",        
+    "tr": "transmission",     
+    "mk": "make",             
+    "md": "model",            
+    "vr": "version",          
+    "cl": "exterior_color",   
+    "pr": "price",            
+    "ml": "mileage",          
+    "yr": "model_year",       
+    "ec": "engine_capacity",  
     "eg": "engine_type",
     "assembly": "assembly",
     "bt": "body_type",
     "seller":"user.user_type"
-
-
 }
 
 def search_request(api_client,validator, endpoint: str):
@@ -35,7 +33,7 @@ def search_request(api_client,validator, endpoint: str):
         params = params
     )
 
-    json_resp = resp["json"] or {} # Get the response body (acknowledgement)
+    json_resp = resp["json"] or {} 
 
 
     validator.assert_status_code(resp["status_code"], 200)
@@ -43,9 +41,6 @@ def search_request(api_client,validator, endpoint: str):
  
     # _validate_response(validator, json_resp, schema_path=schema_path)
     # print("Schema Validated Succsssfully")
-
-    # print("\n Search response payload:")
-    # print(json.dumps(json_resp, indent=2))
 
     return json_resp
 
