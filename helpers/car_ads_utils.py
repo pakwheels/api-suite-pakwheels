@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import Iterable, Optional, Tuple
 
-from helpers.payment import get_my_credits
+from helpers.payment import my_credits_request
 from helpers.shared import _normalize_slug
 
 
 def available_feature_credits(api_client) -> Optional[int]:
     try:
-        resp = get_my_credits(api_client)
+        resp = my_credits_request(api_client)
     except Exception:
         return None
     if not isinstance(resp, dict) or resp.get("status_code") != 200:

@@ -33,6 +33,7 @@ from .car_ads import (  # noqa: F401
     upload_ad_picture,
     # verify_live_or_pending,
     wait_for_ad_state,
+    upsell_product_validation
 )
 from .new_cars import (  # noqa: F401
     fetch_new_make_details,
@@ -40,7 +41,7 @@ from .new_cars import (  # noqa: F401
     fetch_new_model_details,
     fetch_new_version_details,
 )
-from .sifm import (  # noqa: F401
+from .lead_forms.sifm import (  # noqa: F401
     fetch_sell_it_for_me_cities,
     fetch_sell_it_for_me_city_areas,
     submit_sell_it_for_me_lead,
@@ -128,22 +129,27 @@ __all__ = [
     "fetch_my_active_ads",
     "fetch_my_pending_ads",
     "fetch_my_removed_ads",
+    "upsell_product_validation"
 ]
 
 from .payment import (  # noqa: F401
-    get_my_credits,
+    my_credits_request,
     initiate_jazz_cash,
     list_feature_products,
     payment_status,
     proceed_checkout,
+    product_upsell_request,
+    get_user_credit
 )
 
 __all__.extend(
     [
         "list_feature_products",
-        "get_my_credits",
+        "my_credits_request",
         "proceed_checkout",
         "initiate_jazz_cash",
         "payment_status",
+        "product_upsell_request",
+        "get_user_credit"
     ]
 )

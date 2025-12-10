@@ -12,15 +12,19 @@ from helpers import (
     get_session_ad_metadata,
     logout_user,
     reactivate_used_car_existing,
+    product_upsell_request,
+    upsell_product_validation,
+    get_user_credit
 
 )
+
 pytestmark = pytest.mark.parametrize(
     "api_client",
     [
-        {"mode": "email", "email": os.getenv("EMAIL"), "password": os.getenv("PASSWORD"), "clear_number_first": False},
-  ],
+         {"mode": "mobile", "mobile": os.getenv("MOBILE_NUMBER"), "otp": os.getenv("MOBILE_OTP"), "clear_number_first":True},
+    ],
      indirect=True,
-    ids=["email"],
+    ids=["mobile"],
 )
 
 
@@ -39,6 +43,7 @@ def test_edit_used_car_existing(api_client, validator, load_payload):
         ad_id=posted_ad["ad_id"],
         api_version=posted_ad["api_version"],
         )
+
 @pytest.mark.car_ad_post
 def test_close_used_car_existing( api_client, validator, load_payload):
     posted_ad = get_session_ad_metadata(api_client, validator)
@@ -74,7 +79,23 @@ def test_feature_used_car(api_client, validator):
         api_version=posted_ad["api_version"],
     )
 
+@pytest.mark.car_ad_post
+def test_feature_upsell(api_client,validator):
+    posted_ad = get_session_ad_metadata(api_client, validator)
+    product_list_data = product_upsell_request(api_client,validator,posted_ad["ad_id"],product_type="used_car_upsell")
+    upsell_product_validation(product_list_data,posted_ad["price"])
 
+@pytest.mark.car_ad_post
+def test_boost_upsell(api_client,validator):
+     posted_ad = get_session_ad_metadata(api_client, validator)
+     product_upsell_request(api_client,validator,posted_ad["ad_id"],product_type="boost_upsell")
+
+@pytest.mark.car_ad_post
+def test_limitExceed_upsell(api_client,validator):
+    posted_ad = get_session_ad_metadata(api_client, validator)
+    product_list_data = product_upsell_request(api_client,validator,posted_ad["ad_id"],product_type="used_car_upsell", include_normal=True)
+    normal_car_credits= get_user_credit(api_client,"normal_used_car_credits")
+    upsell_product_validation(product_list_data,posted_ad["price"],include_normal=True,normal_credit_count=normal_car_credits)
 
 @pytest.mark.auth
 def test_logout_user_e2e( api_client, validator, load_payload):
