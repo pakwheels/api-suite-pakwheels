@@ -74,6 +74,11 @@ from .number_verification import (  # noqa: F401
     verify_phone_number,
 )
 
+from .search import (  # noqa: F401
+    search_request,
+    validate_filters_applied
+)
+
 __all__ = [
     "get_auth_token",
     # "login_with_email",
@@ -129,7 +134,9 @@ __all__ = [
     "fetch_my_active_ads",
     "fetch_my_pending_ads",
     "fetch_my_removed_ads",
-    "upsell_product_validation"
+    "upsell_product_validation",
+    "search_request",
+    "validate_filters_applied"
 ]
 
 from .payment import (  # noqa: F401

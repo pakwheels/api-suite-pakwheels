@@ -1,0 +1,406 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "used_cars_search_response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "result",
+    "page_num",
+    "error",
+    "result_count",
+    "total_count",
+    "total_pages",
+    "search_added",
+    "related_results",
+    "filters",
+    "heading",
+    "faqs",
+    "videos",
+    "bread_crumbs",
+    "sorted_url",
+    "custom_dimensions"
+  ],
+  "properties": {
+    "result": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "ad_id",
+          "city_name",
+          "city_area",
+          "seller_comments",
+          "rich_description",
+          "price",
+          "monthly_installment",
+          "remaining_months",
+          "discount",
+          "original_price",
+          "title",
+          "url_slug",
+          "pictures_count",
+          "pictures",
+          "klass",
+          "video_link",
+          "video_id",
+          "sell_it_for_me_ad",
+          "sell_it_for_me_eligible",
+          "status",
+          "bumped_count",
+          "is_featured",
+          "ad_listing_id",
+          "last_updated",
+          "user",
+          "featured_request",
+          "created_at",
+          "is_suzuki_certified",
+          "is_certified",
+          "is_certified_requested",
+          "dealership_id",
+          "dealership_verified",
+          "certification_enabled",
+          "exact_color",
+          "disclaimer",
+          "warranty_text",
+          "insurance_company_name",
+          "insurance_company_logo",
+          "insurance_company_id",
+          "insurance_rate",
+          "insurance_rate_with_tracker",
+          "tracker_amount",
+          "final_insurance_amount",
+          "final_insurance_amount_with_tracker",
+          "recommended_oil",
+          "oil_widget_name",
+          "oil_widget_target_url",
+          "oil_logo",
+          "inspection_price",
+          "allow_whatsapp",
+          "make",
+          "model",
+          "version",
+          "model_year",
+          "engine_capacity",
+          "engine_type",
+          "chassis_no",
+          "auction_grade",
+          "import_date",
+          "transmission",
+          "auction_sheet_verified",
+          "auction_sheet_slug",
+          "exterior_color",
+          "registration_province",
+          "features",
+          "assembly",
+          "mileage",
+          "registration_city",
+          "body_type",
+          "air_bags",
+          "air_conditioning",
+          "power_windows",
+          "power_steering",
+          "power_locks",
+          "keyless_entry",
+          "power_mirrors",
+          "cruise_control",
+          "abs",
+          "navigation_system",
+          "am_fm_radio",
+          "cassette_player",
+          "cd_player",
+          "sun_roof",
+          "alloy_rims",
+          "immobilizer_key",
+          "cool_box",
+          "dvd_player",
+          "ad_saved",
+          "is_user_ad",
+          "eligible_for_finance",
+          "is_pakwheels_certified",
+          "certified_slug",
+          "offer_detail"
+        ],
+        "properties": {
+          "ad_id": { "type": "integer" },
+          "city_name": { "type": ["string", "null"] },
+          "city_area": { "type": ["string", "null"] },
+          "seller_comments": { "type": ["string", "null"] },
+          "rich_description": { "type": ["string", "null"] },
+          "price": { "type": "string" },
+          "monthly_installment": { "type": "integer" },
+          "remaining_months": { "type": "integer" },
+          "discount": { "type": ["number", "string", "null"] },
+          "original_price": { "type": ["number", "string", "null"] },
+          "title": { "type": "string" },
+          "url_slug": { "type": "string" },
+          "pictures_count": { "type": "integer" },
+          "is_pakwheels_certified": {"type": "integer"},
+          "certified_slug":{"type" : "string" },
+          "pictures": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "picture_id",
+                "picture_thumbnail",
+                "picture_medium",
+                "picture_original",
+                "picture_title",
+                "picture_alt"
+              ],
+              "properties": {
+                "picture_id": { "type": "integer" },
+                "picture_thumbnail": { "type": "string" },
+                "picture_medium": { "type": "string" },
+                "picture_original": { "type": "string" },
+                "picture_title": { "type": "string" },
+                "picture_alt": { "type": "string" }
+              }
+            }
+          },
+          "klass": { "type": "string" },
+          "video_link": { "type": ["string", "null"] },
+          "video_id": { "type": ["string", "null"] },
+          "sell_it_for_me_ad": { "type": "boolean" },
+          "sell_it_for_me_eligible": { "type": "boolean" },
+          "status": { "type": "integer" },
+          "bumped_count": { "type": "integer" },
+          "is_featured": { "type": "boolean" },
+          "ad_listing_id": { "type": "integer" },
+          "last_updated": { "type": "string" },
+          "user": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "cnic_verified",
+              "username",
+              "display_name",
+              "member_since",
+              "city",
+              "country",
+              "facebook_verified",
+              "facebook_uid",
+              "email_verified",
+              "mobile_verified",
+              "mobile_uuid",
+              "user_type",
+              "dealer_address",
+              "dealer_timings",
+              "dealer_name",
+              "dealer_logo",
+              "dealer_slug"
+            ],
+            "properties": {
+              "id": { "type": "integer" },
+              "cnic_verified": { "type": "boolean" },
+              "username": { "type": "string" },
+              "display_name": { "type": "string" },
+              "member_since": { "type": "string" },
+              "city": { "type": ["string", "null"] },
+              "country": { "type": ["string", "null"] },
+              "facebook_verified": { "type": "boolean" },
+              "facebook_uid": { "type": ["string", "null"] },
+              "email_verified": { "type": "boolean" },
+              "mobile_verified": { "type": "boolean" },
+              "mobile_uuid": { "type": ["string", "null"] },
+              "user_type": { "type": "integer" },
+              "dealer_address": { "type": ["string", "null"] },
+              "dealer_timings": { "type": ["string", "null"] },
+              "dealer_name": { "type": ["string", "null"] },
+              "dealer_logo": { "type": ["string", "null"] },
+              "dealer_slug": { "type": ["string", "null"] }
+            }
+          },
+          "featured_request": { "type": "boolean" },
+          "created_at": { "type": "string" },
+          "is_suzuki_certified": { "type": "boolean" },
+          "is_certified": { "type": "boolean" },
+          "is_certified_requested": { "type": "boolean" },
+          "dealership_id": { "type": ["integer", "null"] },
+          "dealership_verified": { "type": "boolean" },
+          "certification_enabled": { "type": "boolean" },
+          "exact_color": { "type": ["string", "null"] },
+          "disclaimer": { "type": ["string", "null"] },
+          "warranty_text": { "type": ["string", "null"] },
+          "insurance_company_name": { "type": ["string", "null"] },
+          "insurance_company_logo": { "type": ["string", "null"] },
+          "insurance_company_id": { "type": ["integer", "null"] },
+          "insurance_rate": { "type": ["number", "null"] },
+          "insurance_rate_with_tracker": { "type": ["number", "null"] },
+          "tracker_amount": { "type": ["number", "integer", "null"] },
+          "final_insurance_amount": { "type": ["number", "integer", "null"] },
+          "final_insurance_amount_with_tracker": { "type": ["number", "integer", "null"] },
+          "recommended_oil": { "type": ["string", "null"] },
+          "oil_widget_name": { "type": ["string", "null"] },
+          "oil_widget_target_url": { "type": ["string", "null"] },
+          "oil_logo": { "type": ["string", "null"] },
+          "inspection_price": { "type": ["number", "integer", "null"] },
+          "allow_whatsapp": { "type": "boolean" },
+          "make": { "type": "string" },
+          "model": { "type": "string" },
+          "version": { "type": "string" },
+          "model_year": { "type": "integer" },
+          "engine_capacity": { "type": ["string", "null"] },
+          "engine_type": { "type": ["string", "null"] },
+          "chassis_no": { "type": ["string", "null"] },
+          "auction_grade": { "type": ["string", "null"] },
+          "import_date": { "type": ["string", "null"] },
+          "transmission": { "type": ["string", "null"] },
+          "auction_sheet_verified": { "type": "boolean" },
+          "auction_sheet_slug": { "type": ["string", "null"] },
+          "exterior_color": { "type": ["string", "null"] },
+          "registration_province": { "type": ["string", "null"] },
+          "features": { "type": ["string", "null"] },
+          "assembly": { "type": ["string", "null"] },
+          "mileage": { "type": ["string", "null"] },
+          "registration_city": { "type": ["string", "null"] },
+          "body_type": { "type": ["string", "null"] },
+          "air_bags": { "type": "boolean" },
+          "air_conditioning": { "type": "boolean" },
+          "power_windows": { "type": "boolean" },
+          "power_steering": { "type": "boolean" },
+          "power_locks": { "type": "boolean" },
+          "keyless_entry": { "type": "boolean" },
+          "power_mirrors": { "type": "boolean" },
+          "cruise_control": { "type": "boolean" },
+          "abs": { "type": "boolean" },
+          "navigation_system": { "type": "boolean" },
+          "am_fm_radio": { "type": "boolean" },
+          "cassette_player": { "type": "boolean" },
+          "cd_player": { "type": "boolean" },
+          "sun_roof": { "type": "boolean" },
+          "alloy_rims": { "type": "boolean" },
+          "immobilizer_key": { "type": "boolean" },
+          "cool_box": { "type": "boolean" },
+          "dvd_player": { "type": "boolean" },
+          "ad_saved": { "type": "boolean" },
+          "is_user_ad": { "type": "boolean" },
+          "eligible_for_finance": { "type": "boolean" },
+          "offer_detail": { "type": ["string", "null"] }
+        }
+      }
+    },
+
+    "page_num": { "type": "integer" },
+    "error": { "type": "string" },
+    "result_count": { "type": "integer" },
+    "total_count": { "type": "integer" },
+    "total_pages": { "type": "integer" },
+    "search_added": { "type": "boolean" },
+
+    "related_results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "heading",
+          "links"
+        ],
+        "properties": {
+          "heading": { "type": "string" },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "title",
+                "count",
+                "url",
+                "page_heading",
+                "sort_value",
+                "key_param",
+                "pretty_url"
+              ],
+              "properties": {
+                "title": { "type": "string" },
+                "count": { "type": "integer" },
+                "url": { "type": "string" },
+                "page_heading": { "type": "string" },
+                "sort_value": { "type": "integer" },
+                "key_param": { "type": "string" },
+                "pretty_url": { "type": "boolean" }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "filters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ad_info",
+        "locations"
+      ],
+      "properties": {
+        "ad_info": {
+          "type": "array",
+          "items": { "type": "object" }
+        },
+        "locations": {
+          "type": "array",
+          "items": { "type": "object" }
+        }
+      }
+    },
+
+    "heading": { "type": "string" },
+
+    "faqs": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+
+    "videos": {
+      "type": ["array", "null"],
+      "items": { "type": "object" }
+    },
+
+    "bread_crumbs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "label",
+          "url"
+        ],
+        "properties": {
+          "label": { "type": "string" },
+          "url": { "type": ["string", "null"] }
+        }
+      }
+    },
+
+    "sorted_url": { "type": "string" },
+
+    "custom_dimensions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "user_type",
+        "newsletter_subsriber",
+        "car_listings",
+        "bike_listings",
+        "parts_listings",
+        "private_rides",
+        "public_rides"
+      ],
+      "properties": {
+        "user_type": { "type": ["string", "null"] },
+        "newsletter_subsriber": { "type": ["boolean", "null"] },
+        "car_listings": { "type": ["string", "null"] },
+        "bike_listings": { "type": ["string", "null"] },
+        "parts_listings": { "type": ["string", "null"] },
+        "private_rides": { "type": ["string", "null"] },
+        "public_rides": { "type": ["string", "null"] }
+      }
+    }
+  }
+}
