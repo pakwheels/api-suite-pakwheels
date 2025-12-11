@@ -37,18 +37,14 @@ from .car_ads import (  # noqa: F401
 )
 
 from .lead_forms.sifm import (  # noqa: F401
-    fetch_sell_it_for_me_cities,
-    fetch_sell_it_for_me_city_areas,
-    fetch_sell_it_for_me_free_slots,
+
     submit_sell_it_for_me_lead,
     update_sell_it_for_me_lead,
     schedule_sell_it_for_me_lead,
     reserve_sell_it_for_me_slot,
     checkout_sell_it_for_me_lead,
     initiate_sell_it_for_me_jazz_cash,
-    resolve_sifm_location,
-    create_sifm_lead,
-    fetch_sell_it_for_me_inspection_days
+    fetch_inspection_days
 )
 from .landing_page import fetch_main_landing_page  # noqa: F401
 from .new_cars import (  # noqa: F401
@@ -131,6 +127,7 @@ from .payment import (  # noqa: F401
     get_user_credit,
     complete_jazz_cash_payment,
 )
+from .shared import resolve_location  # noqa: F401
 
 __all__ = [
     # Auth/account helpers
@@ -168,18 +165,17 @@ __all__ = [
     "fetch_new_version_details",
 
     # Sell-it-for-me workflow helpers
-    "fetch_sell_it_for_me_cities",
-    "fetch_sell_it_for_me_city_areas",
-    "fetch_sell_it_for_me_free_slots",
+    "fetch_cities",
+    "fetch_cities_areas",
+    "fetch_free_slots",
     "submit_sell_it_for_me_lead",
     "update_sell_it_for_me_lead",
     "schedule_sell_it_for_me_lead",
     "reserve_sell_it_for_me_slot",
     "checkout_sell_it_for_me_lead",
     "initiate_sell_it_for_me_jazz_cash",
-    "resolve_sifm_location",
-    "create_sifm_lead",
-    "fetch_sell_it_for_me_inspection_days",
+    "resolve_location",
+    "fetch_inspection_days",
 
     # Landing page + My Ads
     "fetch_main_landing_page",

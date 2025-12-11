@@ -14,6 +14,8 @@ from urllib.parse import urlparse
 import copy
 import requests
 
+from helpers.config import get_test_constant
+
 __all__ = [
     "_ensure_slug_path",
     "_normalize_slug",
@@ -41,6 +43,7 @@ __all__ = [
     "_extract_week_count",
     "_format_slot_date",
     "_normalize_slot_payload",
+    "resolve_location",
 ]
 
 _METADATA_STORE: Dict[str, Dict[str, Any]] = {}
@@ -196,6 +199,13 @@ def _load_payload_template(
         return copy.deepcopy(base_payload)
     source = Path(payload_path) if payload_path else Path(default_path)
     return _read_json(source)
+
+
+def resolve_location() -> tuple[int, int]:
+    """Return default city and city-area identifiers for inspection flows."""
+    city_id = int(get_test_constant("SIFM_CITY_ID"))
+    city_area_id = int(get_test_constant("SIFM_CITY_AREA_ID"))
+    return city_id, city_area_id
 
 
 def _save_metadata_file(path: str, data: Dict[str, Any], fields: Optional[tuple] = None) -> None:
@@ -399,54 +409,96 @@ def _normalize_slot_payload(
     city_area_id: Optional[int] = None,
     require_available: bool = False,
 ) -> Optional[Dict[str, Any]]:
-    """Flatten numerous slot payload shapes into a consistent dict."""
+  
 
-    def _slot_is_available(slot: Dict[str, Any]) -> bool:
-        value = slot.get("slot_available")
-        if isinstance(value, bool):
-            return value
-        if isinstance(value, (int, float)):
-            return bool(value)
-        if isinstance(value, str):
-            return value.strip().lower() not in {"false", "0", "no", "n"}
-        return value is None
+    slots = (
+        slot_payload.get("slots")
+        or slot_payload.get("free_slots")
+        or slot_payload.get("data")
+        or []
+    )
 
-    slot_candidates: Optional[list] = None
-    for key in ("slots", "free_slots", "data"):
-        value = slot_payload.get(key)
-        if isinstance(value, list) and value:
-            slot_candidates = [dict(item) for item in value if isinstance(item, dict)]
-            if slot_candidates:
-                break
+    if not isinstance(slots, list) or not slots:
+        return None
 
-    if slot_candidates:
-        chosen = None
-        if require_available:
-            chosen = next((slot for slot in slot_candidates if _slot_is_available(slot)), None)
-        if chosen is None:
-            chosen = slot_candidates[0]
-        if "scheduled_date" not in chosen:
-            chosen["scheduled_date"] = chosen.get("date") or chosen.get("slot_date")
-        chosen["scheduled_date"] = _format_slot_date(chosen.get("scheduled_date"))
-        chosen.setdefault("slot_time", chosen.get("free_slot") or chosen.get("slot"))
-        chosen.setdefault("city_id", city_id)
-        chosen.setdefault("city_area_id", city_area_id)
-        return chosen if chosen.get("scheduled_date") else None
+    slot = slots[0]  
 
-    if slot_payload.get("free_slots_available") and (
-        slot_payload.get("free_slot") or slot_payload.get("slot")
-    ):
-        slot = {
-            "city_id": city_id,
-            "city_area_id": city_area_id,
-            "scheduled_date": _format_slot_date(
-                slot_payload.get("scheduled_date") or slot_payload.get("date")
-            ),
-            "slot_time": slot_payload.get("free_slot") or slot_payload.get("slot"),
-            "assessor_id": slot_payload.get("assessor_id"),
-            "slot_available": slot_payload.get("slot_available", True),
-        }
-        if require_available and not _slot_is_available(slot):
-            return None
-        return slot
-    return None
+    if require_available and not slot.get("slot_available", True):
+        return None
+
+    return {
+        "city_id": city_id,
+        "city_area_id": city_area_id,
+        "scheduled_date": slot.get("scheduled_date") or slot.get("date"),
+        "slot_time": slot.get("slot_time") or slot.get("slot"),
+        "assessor_id": slot.get("assessor_id") or slot.get("inspector_id"),
+        "slot_available": slot.get("slot_available", True),
+    }
+
+def fetch_cities(api_client, validator, access_token=None, api_version=None) -> dict:
+    token = access_token or getattr(api_client, "access_token", None)
+    version = api_version or os.getenv("API_VERSION")
+
+    params = {"access_token": token, "api_version": version}
+    resp = api_client.request("GET", "/main/sell-it-for-me-cities.json", params=params)
+    validator.assert_status_code(resp["status_code"], 200)
+
+    body = resp.get("json") or {}
+
+    cities = (
+        body.get("sell_it_for_me_cities")
+        or body.get("cities")
+        or []
+    )
+
+    return {"cities": cities}
+
+
+def fetch_cities_areas(api_client, validator, city_id, api_version=None, city_areas_type="inspection", access_token=None) -> dict:
+    token = access_token or getattr(api_client, "access_token", None)
+    version = api_version or os.getenv("API_VERSION")
+
+    params = {
+        "access_token": token,
+        "api_version": version,
+        "city_id": city_id,
+        "city_areas_type": city_areas_type,
+    }
+
+    resp = api_client.request("GET", "/main/get_all_city_areas.json", params=params)
+    validator.assert_status_code(resp["status_code"], 200)
+
+    body = resp.get("json") or {}
+    return {"city_areas": body.get("city_areas") or []}
+
+
+def fetch_free_slots(api_client, validator, city_id, city_area_id, api_version=None, access_token=None, scheduled_date=None) -> dict:
+    token = access_token or getattr(api_client, "access_token", None)
+    version = api_version or os.getenv("API_VERSION")
+
+    params = {
+        "access_token": token,
+        "api_version": version,
+        "city_id": city_id,
+        "city_area_id": city_area_id,
+    }
+
+    if scheduled_date:
+        params["scheduled_date"] = scheduled_date
+
+    resp = api_client.request("GET", "/requests/get_assignees_free_slots.json", params=params)
+    validator.assert_status_code(resp["status_code"], 200)
+
+    return resp.get("json") or {}
+
+
+def fetch_inspection_days(api_client, validator, api_version=None, access_token=None) -> dict:
+    token = access_token or getattr(api_client, "access_token", None)
+    version = api_version or os.getenv("API_VERSION")
+
+    params = {"access_token": token, "api_version": version}
+    resp = api_client.request("GET", "/requests/inspection_days.json", params=params)
+    validator.assert_status_code(resp["status_code"], 200)
+
+    return resp.get("json") or {}
+
