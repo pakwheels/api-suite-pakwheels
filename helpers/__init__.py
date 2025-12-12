@@ -95,6 +95,14 @@ from .search import (  # noqa: F401
     search_request,
     validate_filters_applied
 )
+from .ad_post import (
+    submit_bike_ad,
+    fetch_bike_ad_details,
+    edit_bike_ad,
+    remove_bike_ad,
+    reactivate_bike_ad,
+    feature_bike_ad,
+)  # noqa: F401
 
 __all__ = [
     "get_auth_token",
@@ -161,6 +169,12 @@ __all__ = [
     "upsell_product_validation",
     "search_request",
     "validate_filters_applied"
+    "submit_bike_ad",
+    "fetch_bike_ad_details",
+    "edit_bike_ad",
+    "remove_bike_ad",
+    "reactivate_bike_ad",
+    "feature_bike_ad",
 ]
 
 from .payment import (  # noqa: F401

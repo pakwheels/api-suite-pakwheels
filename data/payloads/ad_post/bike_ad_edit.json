@@ -1,0 +1,31 @@
+{
+  "used_bike": {
+    "ad_listing_attributes": {
+      "allow_whatsapp": true,
+      "category_id": 113,
+      "city_id": 410,
+      "city_area_id": 133,
+      "description": "This is a test ad",
+      "display_name": "Test",
+      "id": 0,
+      "phone": "03601234567",
+      "pictures_attributes": {
+        "0": {
+          "pictures_ids": "20165260"
+        }
+      },
+      "price": "199997"
+    },
+    "anti_theft_lock": 1,
+    "bike_manufacturer_id": 16,
+    "bike_model_id": 462,
+    "disc_break": 1,
+    "engine_type": "4-stroke",
+    "led_light": 1,
+    "mileage": "2300",
+    "model_year": 2022,
+    "reg_city_id": null,
+    "reg_province_id": 1,
+    "wind_shield": 0
+  }
+}
