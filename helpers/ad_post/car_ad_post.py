@@ -5,15 +5,23 @@ import json
 import os
 import re
 from pathlib import Path
+<<<<<<< HEAD:helpers/car_ads/__init__.py
 from typing import Any, Callable, Iterable, Optional, Tuple, List, Set
 from helpers.car_ads_utils import available_feature_credits, extract_feature_credit_count
 
+=======
+from typing import Any, Callable, Iterable, Optional, Tuple
+>>>>>>> fd5fee1 (Fixed ad post flows - bike,car,accessories and correct folder structure):helpers/ad_post/car_ad_post.py
 import requests
 
 from helpers import get_auth_token
 from helpers.shared import (
     _choose_feature_weeks,
     _ensure_slug_path,
+    _extract_feature_credit_count,
+    _extract_payment_id,
+    _extract_products_collection,
+    _extract_week_count,
     _get_value_by_path,
     _log_http,
     _normalize_bool_flag,
@@ -21,6 +29,8 @@ from helpers.shared import (
     _normalize_lower,
     _normalize_slug,
     _normalize_whitespace,
+    _product_id,
+    _product_label,
     _read_json,
     _validate_response,
 )
@@ -78,17 +88,6 @@ _EDIT_PAYLOAD_RESPONSE_RULES: Tuple[FieldRule, ...] = (
     for feature in _FEATURE_FLAGS
 )
 
-def _coerce_int(value) -> Optional[int]:
-    if isinstance(value, int):
-        return value
-    if isinstance(value, float) and value.is_integer():
-        return int(value)
-    if isinstance(value, str):
-        stripped = value.strip()
-        if stripped.isdigit():
-            return int(stripped)
-    return None
-
 def _available_feature_credits(api_client) -> Optional[int]:
     try:
         resp = my_credits_request(api_client)
@@ -97,28 +96,6 @@ def _available_feature_credits(api_client) -> Optional[int]:
     if not isinstance(resp, dict) or resp.get("status_code") != 200:
         return None
     return _extract_feature_credit_count(resp.get("json"))
-
-
-def _extract_feature_credit_count(payload) -> Optional[int]:
-    value = _coerce_int(payload)
-    if value is not None:
-        return value
-    if isinstance(payload, dict):
-        for key, item in payload.items():
-            key_lower = key.lower()
-            if "feature" in key_lower and "credit" in key_lower:
-                coerced = _coerce_int(item)
-                if coerced is not None:
-                    return coerced
-            nested = _extract_feature_credit_count(item)
-            if nested is not None:
-                return nested
-    if isinstance(payload, list):
-        for item in payload:
-            nested = _extract_feature_credit_count(item)
-            if nested is not None:
-                return nested
-    return None
 
 
 def post_used_car(
@@ -634,7 +611,7 @@ def _ensure_ad_listing_id(api_client, ad_ref: dict, ad_id: int, api_version: str
 
 
 def _select_feature_product(payload: dict, target_week: Optional[int]):
-    products = _extract_products(payload)
+    products = _extract_products_collection(payload)
     if not products:
         return None
     if target_week is None:
@@ -646,59 +623,6 @@ def _select_feature_product(payload: dict, target_week: Optional[int]):
         if weeks == target_week:
             return product
     return products[0]
-
-
-def _extract_products(payload):
-    if isinstance(payload, dict):
-        for key in ("products", "data", "items", "product_list"):
-            collection = payload.get(key)
-            if isinstance(collection, list) and collection:
-                return collection
-        for value in payload.values():
-            result = _extract_products(value)
-            if result:
-                return result
-    elif isinstance(payload, list):
-        for item in payload:
-            result = _extract_products(item)
-            if result:
-                return result
-    return []
-
-
-def _product_label(product: dict) -> str:
-    if not isinstance(product, dict):
-        return ""
-    for key in ("title", "name", "label", "description"):
-        value = product.get(key)
-        if isinstance(value, str):
-            return value
-    return ""
-
-
-def _product_id(product: dict):
-    if not isinstance(product, dict):
-        return None
-    for key in ("id", "product_id", "pk"):
-        value = product.get(key)
-        if value is not None:
-            return value
-    return None
-
-
-def _extract_week_count(label: str, category: Optional[str] = None) -> Optional[int]:
-    text = (label or "").lower()
-    match = re.search(r"(\d+)\s*(week|day)", text)
-    if match:
-        value = int(match.group(1))
-        unit = match.group(2)
-        if unit.startswith("day") and value % 7 == 0:
-            return value // 7
-        if unit.startswith("week"):
-            return value
-    if category and isinstance(category, str):
-        return _extract_week_count(category, None)
-    return None
 
 
 def wait_for_ad_state(
@@ -944,6 +868,7 @@ def reactivate_and_verify_lists(
         print(f"\nGET {img_resp.url} → {img_resp.status_code}")
         assert img_resp.status_code in (200, 403), f"Unexpected static image status: {img_resp.status_code}"
 
+<<<<<<< HEAD:helpers/car_ads/__init__.py
 
 __all__ = [
     "edit_payload_check",
@@ -1144,3 +1069,5 @@ def upsell_product_validation(prod_list_resp: dict, ad_price: int,include_normal
         raise AssertionError(full_err)
 
     print(f"Both upsell & business validated for {upsell_range_name}")
+=======
+>>>>>>> fd5fee1 (Fixed ad post flows - bike,car,accessories and correct folder structure):helpers/ad_post/car_ad_post.py
