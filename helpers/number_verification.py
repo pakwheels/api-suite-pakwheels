@@ -63,7 +63,15 @@ def verify_phone_number(
     )
     validator.assert_status_code(verify_resp["status_code"], 200)
     verify_body = verify_resp.get("json") or {}
-    validator.assert_json_schema(verify_body, "schemas/mobile_login_response_schema.json")
+    requires_full_schema = {"access_token", "refresh_token", "user"}.issubset(verify_body.keys())
+    if requires_full_schema:
+        validator.assert_json_schema(verify_body, "schemas/mobile_login_response_schema.json")
+    else:
+        # Recent API responses only acknowledge success without session tokens.
+        validator.assert_json_schema(
+            verify_body,
+            "schemas/mobile_otp_verify_ack_schema.json",
+        )
 
     return {
         "clear_response": None,

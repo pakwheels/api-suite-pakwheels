@@ -1,175 +1,64 @@
+# helpers/lead_forms/sifm.py
 from __future__ import annotations
 
 import os
-import copy
-import json
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Optional, Dict, Any
 
-DEFAULT_API_VERSION = os.getenv("API_VERSION", "22")
-DEFAULT_SCHEMA_PATH = Path("schemas/sifm/cities.json")
-DEFAULT_EXPECTED_PATH = Path("data/expected_responses/sifm/cities.json")
-CITY_AREAS_SCHEMA_PATH = Path("schemas/sifm/city_areas.json")
-CITY_AREAS_EXPECTED_PATH = Path("data/expected_responses/sifm/city_areas.json")
-LEAD_SCHEMA_PATH = Path("schemas/sifm/lead.json")
-LEAD_EXPECTED_PATH = Path("data/expected_responses/sifm/lead.json")
-LEAD_PAYLOAD_PATH = Path("data/payloads/sifm_lead.json")
-LEAD_UPDATE_SCHEMA_PATH = Path("schemas/sifm/lead_update.json")
-LEAD_UPDATE_EXPECTED_PATH = Path("data/expected_responses/sifm/lead_update.json")
-LEAD_UPDATE_PAYLOAD_PATH = Path("data/payloads/sifm_lead_phase2.json")
-
-
-def fetch_sell_it_for_me_cities(
-    api_client,
-    validator,
-    access_token: str,
-    api_version: Optional[str] = None,
-    expected_path: Optional[str] = None,
-    schema_path: Optional[str] = None,
-) -> dict:
-    """
-    Fetch Sell It For Me (SIFM) city listings and validate the response.
-
-    Parameters
-    ----------
-    api_client : APIClient
-        Shared API client fixture used for making HTTP requests.
-    validator : Validator
-        Assertion helper providing status-code, snapshot and schema checks.
-    access_token : str
-        Access token required by the endpoint.
-    api_version : str, optional
-        Override the API version (defaults to ``API_VERSION`` env or ``22``).
-    expected_path : str, optional
-        Optional JSON snapshot path for strict comparison.
-    schema_path : str, optional
-        Optional JSON schema path for validation.
-
-    Returns
-    -------
-    dict
-        Parsed JSON body returned by the endpoint.
-    """
-    version = str(api_version or DEFAULT_API_VERSION)
-    endpoint = "/main/sell-it-for-me-cities.json"
-    params = {
-        "access_token": access_token,
-        "api_version": version,
-    }
-
-    print(f"\n🏙️ Fetching Sell It For Me cities (api_version={version})")
-    resp = api_client.request("GET", endpoint, params=params)
-    validator.assert_status_code(resp["status_code"], 200)
-
-    body = resp.get("json") or {}
-
-    schema_file = Path(schema_path) if schema_path else DEFAULT_SCHEMA_PATH
-    snapshot_file = Path(expected_path) if expected_path else DEFAULT_EXPECTED_PATH
-
-    if schema_file.exists():
-        validator.assert_json_schema(body, str(schema_file))
-    else:
-        print(f"⚠️ SIFM schema not found at {schema_file}; skipping schema validation.")
-
-    if snapshot_file.exists():
-        validator.compare_with_expected(body, str(snapshot_file))
-    else:
-        print(f"⚠️ SIFM snapshot not found at {snapshot_file}; skipping snapshot comparison.")
-
-    return body
-
-
-def fetch_sell_it_for_me_city_areas(
-    api_client,
-    validator,
-    access_token: str,
-    city_id: int,
-    api_version: Optional[str] = None,
-    city_areas_type: str = "inspection",
-    expected_path: Optional[str] = None,
-    schema_path: Optional[str] = None,
-) -> dict:
-    """
-    Fetch Sell It For Me city areas (popular/other) for a given city id.
-    """
-    version = str(api_version or DEFAULT_API_VERSION)
-    endpoint = "/main/get_all_city_areas.json"
-    params = {
-        "access_token": access_token,
-        "api_version": version,
-        "city_id": city_id,
-        "city_areas_type": city_areas_type,
-    }
-
-    print(
-        f"\n🏙️ Fetching Sell It For Me city areas (city_id={city_id}, type={city_areas_type}, api_version={version})"
-    )
-    resp = api_client.request("GET", endpoint, params=params)
-    validator.assert_status_code(resp["status_code"], 200)
-
-    body = resp.get("json") or {}
-
-    schema_file = Path(schema_path) if schema_path else CITY_AREAS_SCHEMA_PATH
-    snapshot_file = Path(expected_path) if expected_path else CITY_AREAS_EXPECTED_PATH
-
-    if schema_file.exists():
-        validator.assert_json_schema(body, str(schema_file))
-    else:
-        print(f"⚠️ SIFM city areas schema not found at {schema_file}; skipping schema validation.")
-
-    if snapshot_file.exists():
-        validator.compare_with_expected(body, str(snapshot_file))
-    else:
-        print(f"⚠️ SIFM city areas snapshot not found at {snapshot_file}; skipping snapshot comparison.")
-
-    return body
-
-
-def _load_json_file(path: Path) -> Dict[str, Any]:
-    with path.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
+from helpers.config import get_test_constant
+from helpers.payment import proceed_checkout, initiate_jazz_cash
+from helpers.shared import (
+    _read_json,
+    _validate_response,
+    fetch_cities,
+    fetch_cities_areas,
+    fetch_free_slots,
+    fetch_inspection_days,
+    resolve_location,
+)
 
 
 def submit_sell_it_for_me_lead(
     api_client,
     validator,
-    api_version: Optional[str] = None,
+    api_version: Optional[str] = os.getenv("API_VERSION"),
     lead_payload: Optional[Dict[str, Any]] = None,
     payload_path: Optional[str] = None,
-    expected_path: Optional[str] = None,
     schema_path: Optional[str] = None,
-) -> dict:
+) -> Dict[str, Any]:
     """
-    Submit a Sell It For Me lead request and validate the response.
+    Phase 1: Submit a Sell It For Me lead.
+    - Base payload from data/payloads/sifm_lead.json (or payload_path)
+    - Optional lead_payload overrides
+    - Auto-fill city_id from /cities if missing
     """
-    version = str(api_version or DEFAULT_API_VERSION)
     endpoint = "/sell_it_for_me_leads.json"
-    params = {"api_version": version}
 
-    source_path = Path(payload_path) if payload_path else LEAD_PAYLOAD_PATH
-    base_payload = _load_json_file(source_path)
-    payload = copy.deepcopy(base_payload)
+    source_path = Path(payload_path) if payload_path else Path("data/payloads/sifm_lead.json")
+    payload = _read_json(source_path)
+
     if lead_payload:
         payload.setdefault("sell_it_for_me_lead", {}).update(lead_payload)
 
-    print("\n📨 Submitting Sell It For Me lead request")
-    resp = api_client.request("POST", endpoint, json_body=payload, params=params)
+    lead_details = payload.get("sell_it_for_me_lead") or {}
+    selected_city_id = lead_details.get("city_id")
+
+    if not selected_city_id:
+        cities_data = fetch_cities(api_client, validator)
+        cities = cities_data.get("cities") or []
+        if cities:
+            selected_city_id = cities[0]["id"]
+            lead_details["city_id"] = selected_city_id
+
+    print(f"[SIFM] POST {endpoint} payload={payload}")
+    resp = api_client.request("POST", endpoint, json_body=payload)
     validator.assert_status_code(resp["status_code"], 200)
 
-    body = resp.get("json") or {}
+    body: Dict[str, Any] = resp.get("json") or {}
 
-    schema_file = Path(schema_path) if schema_path else LEAD_SCHEMA_PATH
-    snapshot_file = Path(expected_path) if expected_path else LEAD_EXPECTED_PATH
-
+    schema_file = Path(schema_path) if schema_path else Path("schemas/sifm/lead.json")
     if schema_file.exists():
-        validator.assert_json_schema(body, str(schema_file))
-    else:
-        print(f"⚠️ SIFM lead schema not found at {schema_file}; skipping schema validation.")
-
-    if snapshot_file.exists():
-        validator.compare_with_expected(body, str(snapshot_file))
-    else:
-        print(f"⚠️ SIFM lead snapshot not found at {snapshot_file}; skipping snapshot comparison.")
+        _validate_response(validator, body, schema_path=str(schema_file))
 
     return body
 
@@ -178,42 +67,195 @@ def update_sell_it_for_me_lead(
     api_client,
     validator,
     lead_id: int,
-    api_version: Optional[str] = None,
     lead_payload: Optional[Dict[str, Any]] = None,
-    payload_path: Optional[str] = None,
-    expected_path: Optional[str] = None,
-    schema_path: Optional[str] = None,
-) -> dict:
+) -> Dict[str, Any]:
     """
-    Update Sell It For Me lead (phase 2 details) and validate the response.
+    Phase 2: Update Sell It For Me lead (e.g., owner details, location).
     """
-    version = str(api_version or DEFAULT_API_VERSION)
     endpoint = f"/sell_it_for_me_leads/{lead_id}.json"
-    params = {"api_version": version}
 
-    source_path = Path(payload_path) if payload_path else LEAD_UPDATE_PAYLOAD_PATH
-    base_payload = _load_json_file(source_path)
-    payload = copy.deepcopy(base_payload)
+    source_path = Path("data/payloads/sifm_lead_phase2.json")
+    payload = _read_json(source_path)
+
     if lead_payload:
         payload.setdefault("sell_it_for_me_lead", {}).update(lead_payload)
 
-    print(f"\n✏️ Updating Sell It For Me lead (id={lead_id})")
-    resp = api_client.request("PUT", endpoint, json_body=payload, params=params)
+    print(f"[SIFM] PUT {endpoint} payload={payload}")
+    resp = api_client.request("PUT", endpoint, json_body=payload)
     validator.assert_status_code(resp["status_code"], 200)
 
-    body = resp.get("json") or {}
+    body: Dict[str, Any] = resp.get("json") or {}
 
-    schema_file = Path(schema_path) if schema_path else LEAD_UPDATE_SCHEMA_PATH
-    snapshot_file = Path(expected_path) if expected_path else LEAD_UPDATE_EXPECTED_PATH
-
+    schema_file = Path("schemas/sifm/lead_update.json")
     if schema_file.exists():
-        validator.assert_json_schema(body, str(schema_file))
-    else:
-        print(f"⚠️ SIFM lead update schema not found at {schema_file}; skipping schema validation.")
-
-    if snapshot_file.exists():
-        validator.compare_with_expected(body, str(snapshot_file))
-    else:
-        print(f"⚠️ SIFM lead update snapshot not found at {snapshot_file}; skipping snapshot comparison.")
+        _validate_response(validator, body, schema_path=str(schema_file))
 
     return body
+
+
+def schedule_sell_it_for_me_lead(
+    api_client,
+    validator,
+    lead_id: int,
+    city_area_id: Optional[int] = None,
+    scheduled_date: Optional[str] = None,
+    inspector_id: Optional[int] = None,
+    time_slot: Optional[str] = None,
+    address: str = "test",
+    email: str = "",
+    check_credits: bool = True,
+    schema_path: Optional[str] = None,
+) -> Dict[str, Any]:
+
+
+    endpoint = f"/sell_it_for_me_leads/{lead_id}.json"
+
+    if city_area_id is None:
+        _, city_area_id = resolve_location()
+
+    if scheduled_date is None:
+        scheduled_date = get_test_constant("SIFM_SCHEDULED_DATE")
+
+    if inspector_id is None:
+        inspector_id = int(get_test_constant("SIFM_INSPECTOR_ID"))
+
+    if time_slot is None:
+        time_slot = get_test_constant("SIFM_TIME_SLOT")
+
+    payload = {
+        "sell_it_for_me_lead": {
+            "city_area_id": int(city_area_id),
+            "address": address,
+            "scheduled_date": scheduled_date,
+            "inspector_id": int(inspector_id),
+        },
+        "time_slot": time_slot,
+        "user": {"email": email},
+        "check_credits": bool(check_credits),
+    }
+
+    print(f"[SIFM] PUT {endpoint} payload={payload}")
+    resp = api_client.request("PUT", endpoint, json_body=payload)
+    validator.assert_status_code(resp["status_code"], 200)
+
+    body: Dict[str, Any] = resp.get("json") or {}
+
+    schema_file = Path(schema_path) if schema_path else Path("schemas/sifm/lead_phase3.json")
+    if schema_file.exists():
+        _validate_response(validator, body, schema_path=str(schema_file))
+
+    return body
+
+
+def reserve_sell_it_for_me_slot(
+    api_client,
+    validator,
+    lead_id: int,
+    schema_path: Optional[str] = None,
+) -> Dict[str, Any]:
+
+    endpoint = f"/sell_it_for_me_leads/{lead_id}/reserve_slot.json"
+
+    payload: Dict[str, Any] = {}
+    print(f"[SIFM] POST {endpoint} payload={payload}")
+    resp = api_client.request("POST", endpoint, json_body=payload)
+    validator.assert_status_code(resp["status_code"], 200)
+
+    body: Dict[str, Any] = resp.get("json") or {}
+    print("[Reserve Slot] Response:", body)
+
+    schema_file = Path(schema_path) if schema_path else Path("schemas/sifm/reserve_slot.json")
+    if schema_file.exists():
+        _validate_response(validator, body, schema_path=str(schema_file))
+
+    return body
+
+
+
+def checkout_sell_it_for_me_lead(
+    api_client,
+    validator,
+    lead_id: int,
+    discount_code: Optional[str] = None,
+    s_type: str = "sell_it_for_me_lead",
+    save_payment_info: Optional[bool] = None,
+    initiate_online_payment: Optional[bool] = None,
+) -> Dict[str, Any]:
+
+    resolved_product_id = get_test_constant("SIFM_PRODUCT_ID")
+    resolved_payment_method_id = get_test_constant("SIFM_PAYMENT_METHOD_ID")
+
+    overrides = {"payment_method_id": resolved_payment_method_id}
+
+    resp = proceed_checkout(
+        api_client,
+        product_id=resolved_product_id,
+        s_id=lead_id,
+        s_type=s_type,
+        discount_code=discount_code,
+        payload_overrides=overrides,
+    )
+    validator.assert_status_code(resp["status_code"], 200)
+
+    body: Dict[str, Any] = resp.get("json") or {}
+
+    schema_file = Path("schemas/sifm/proceed_checkout.json")
+    if schema_file.exists():
+        _validate_response(validator, body, schema_path=str(schema_file))
+
+    payment_id = body.get("payment_id") or body.get("paymentId")
+    jazz_response: Optional[Dict[str, Any]] = None
+
+    if payment_id and initiate_online_payment:
+        mobile = get_test_constant("JAZZ_CASH_MOBILE", os.getenv("JAZZ_CASH_MOBILE"))
+        cnic = get_test_constant("JAZZ_CASH_CNIC", os.getenv("JAZZ_CASH_CNIC"))
+
+        if save_payment_info is None:
+            save_env = os.getenv("SAVE_PAYMENT_INFO", "false")
+            save_flag = save_env.lower() in ("1", "true", "yes", "on")
+        else:
+            save_flag = bool(save_payment_info)
+
+        jazz_resp = initiate_jazz_cash(
+            api_client,
+            payment_id=payment_id,
+            mobile_number=mobile,
+            cnic_number=cnic,
+            save_payment_info=save_flag,
+        )
+        validator.assert_status_code(jazz_resp["status_code"], 200)
+        jazz_response = jazz_resp.get("json") or {}
+
+    return {"checkout": body, "jazz_cash": jazz_response}
+
+
+def initiate_sell_it_for_me_jazz_cash(
+    api_client,
+    validator,
+    payment_id: str,
+    save_payment_info: Optional[bool] = None,
+) -> Dict[str, Any]:
+
+    if not payment_id:
+        raise ValueError("payment_id is required to initiate JazzCash.")
+
+    mobile = get_test_constant("JAZZ_CASH_MOBILE", os.getenv("JAZZ_CASH_MOBILE"))
+    cnic = get_test_constant("JAZZ_CASH_CNIC", os.getenv("JAZZ_CASH_CNIC"))
+
+    if save_payment_info is None:
+        save_env = os.getenv("SAVE_PAYMENT_INFO", "false")
+        save_flag = save_env.lower() in ("1", "true", "yes", "on")
+    else:
+        save_flag = bool(save_payment_info)
+
+    resp = initiate_jazz_cash(
+        api_client,
+        payment_id=payment_id,
+        mobile_number=mobile,
+        cnic_number=cnic,
+        save_payment_info=save_flag,
+    )
+    validator.assert_status_code(resp["status_code"], 200)
+
+    return resp.get("json") or {}
+

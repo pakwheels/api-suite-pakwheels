@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "accessories_ad_post_response",
+  "type": "object",
+  "properties": {
+    "error": {"type": "array"},
+    "success": {"type": "string"},
+    "ad_listing_id": {"type": "integer"},
+    "ad_id": {"type": "integer"},
+    "ad_listing": {
+      "type": "object",
+      "properties": {
+        "ad_id": {"type": "integer"},
+        "city_name": {"type": ["string", "null"]},
+        "city_area": {"type": ["string", "null"]},
+        "seller_comments": {"type": ["string", "null"]},
+        "price": {"type": ["string", "null"]},
+        "url_slug": {"type": ["string", "null"]},
+        "pictures_count": {"type": ["integer", "null"]},
+        "pictures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "picture_id": {"type": ["integer", "null"]}
+            },
+            "required": ["picture_id"]
+          }
+        },
+        "klass": {"type": ["string", "null"]},
+        "status": {"type": ["integer", "null"]},
+        "ad_listing_id": {"type": ["integer", "null"]},
+        "user": {
+          "type": "object",
+          "properties": {
+            "id": {"type": ["integer", "null"]},
+            "display_name": {"type": ["string", "null"]},
+            "mobile_verified": {"type": ["boolean", "null"]}
+          },
+          "required": ["id"]
+        }
+      },
+      "required": ["ad_id", "user"]
+    }
+  },
+  "required": ["success", "ad_listing_id", "ad_id", "ad_listing"]
+}

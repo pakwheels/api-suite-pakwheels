@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Sell It For Me Lead Phase 3 Response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "sell_it_for_me_lead_id",
+    "has_credits",
+    "product",
+    "user_id",
+    "reserve_url",
+    "city_id",
+    "city_area_id",
+    "summary",
+    "success",
+    "error",
+    "mobile",
+    "mobile_verified",
+    "mobile_uuid"
+  ],
+  "properties": {
+    "sell_it_for_me_lead_id": {
+      "type": ["integer", "null"]
+    },
+    "has_credits": {
+      "type": "boolean"
+    },
+    "product": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "price", "type"],
+      "properties": {
+        "id": {
+          "type": ["integer", "null"]
+        },
+        "name": {
+          "type": ["string", "null"]
+        },
+        "price": {
+          "type": ["number", "string", "null"]
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "user_id": {
+      "type": ["integer", "null"]
+    },
+    "reserve_url": {
+      "type": ["string", "null"]
+    },
+    "city_id": {
+      "type": ["integer", "null"]
+    },
+    "city_area_id": {
+      "type": ["integer", "null"]
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "make",
+        "model",
+        "version",
+        "year",
+        "name",
+        "number",
+        "address",
+        "selected_date",
+        "selected_slot"
+      ],
+      "properties": {
+        "make": {
+          "type": ["string", "null"]
+        },
+        "model": {
+          "type": ["string", "null"]
+        },
+        "version": {
+          "type": ["string", "null"]
+        },
+        "year": {
+          "type": ["string", "null"]
+        },
+        "name": {
+          "type": ["string", "null"]
+        },
+        "number": {
+          "type": ["string", "null"]
+        },
+        "address": {
+          "type": ["string", "null"]
+        },
+        "selected_date": {
+          "type": ["string", "null"]
+        },
+        "selected_slot": {
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "success": {
+      "type": ["string", "null"]
+    },
+    "error": {
+      "type": ["string", "null"]
+    },
+    "mobile": {
+      "type": "string"
+    },
+    "mobile_verified": {
+      "type": "boolean"
+    },
+    "mobile_uuid": {
+      "type": ["string", "null"]
+    }
+  }
+}

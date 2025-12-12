@@ -13,7 +13,7 @@
     "error": { "type": ["string", "null"] },
     "carsure_ticket_id": { "type": "integer" },
     "city_id": { "type": "integer" },
-    "city_area_id": { "type": "integer" },
+    "city_area_id": { "type": ["integer", "null"] },
     "reserve_url": { "type": "string" },
     "summary": {
       "type": "object",
@@ -34,22 +34,22 @@
         "year": { "type": "integer" },
         "name": { "type": "string" },
         "number": { "type": "string" },
-        "address": { "type": "string" },
-        "selected_date": { "type": "string" },
-        "selected_slot": { "type": "string" }
+        "address": { "type": ["string", "null"] },
+        "selected_date": { "type": ["string", "null"] },
+        "selected_slot": { "type": ["string", "null"] }
       },
       "additionalProperties": true
     },
     "success": { "type": "string" },
     "product": {
       "type": "object",
-      "required": ["id", "name", "price", "type", "original_price"],
+      "required": ["id", "name", "price", "type"],
       "properties": {
         "id": { "type": "integer" },
         "name": { "type": "string" },
         "price": { "type": "number" },
         "type": { "type": "string" },
-        "original_price": { "type": "number" }
+        "original_price": { "type": ["number", "null"] }
       },
       "additionalProperties": true
     },

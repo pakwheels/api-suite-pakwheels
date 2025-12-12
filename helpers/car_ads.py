@@ -5,15 +5,17 @@ import json
 import os
 import re
 from pathlib import Path
-from typing import Any, Callable, Iterable, Optional, Tuple, List, Set
-from helpers.car_ads_utils import available_feature_credits, extract_feature_credit_count
-
+from typing import Any, Callable, Iterable, Optional, Tuple, List, Set, Dict
 import requests
 
 from helpers import get_auth_token
 from helpers.shared import (
     _choose_feature_weeks,
     _ensure_slug_path,
+    _extract_feature_credit_count,
+    _extract_payment_id,
+    _extract_products_collection,
+    _extract_week_count,
     _get_value_by_path,
     _log_http,
     _normalize_bool_flag,
@@ -21,7 +23,12 @@ from helpers.shared import (
     _normalize_lower,
     _normalize_slug,
     _normalize_whitespace,
+    _product_id,
+    _product_label,
     _read_json,
+    _inject_listing_picture,
+    _save_metadata_file,
+    _load_metadata_file,
     _validate_response,
 )
 from helpers.picture_uploader import upload_ad_picture
@@ -35,8 +42,77 @@ from helpers.payment import (
 DEFAULT_API_VERSION = os.getenv("API_VERSION", "22")
 POST_ENDPOINT = os.getenv("POST_ENDPOINT", "/used-cars.json")
 
-_POSTED_AD_CACHE: Optional[dict] = None
-CORE = "https://core.pakkey.com"
+_CAR_METADATA_KEY = "car_ad_post"
+
+
+def _save_car_ad_metadata(data: Dict[str, Any]) -> None:
+    """Persist a normalized subset of car ad metadata."""
+    slug = data.get("slug") or data.get("success")
+    if not slug and data.get("ad_id"):
+        slug = f"/used-cars/{data['ad_id']}"
+    price_value = _normalize_digits(data.get("price"))
+    normalized = {
+        "success": data.get("success") or slug,
+        "slug": slug,
+        "ad_id": data.get("ad_id"),
+        "ad_listing_id": data.get("ad_listing_id"),
+        "price": price_value,
+        "api_version": data.get("api_version"),
+    }
+    _save_metadata_file(
+        _CAR_METADATA_KEY,
+        normalized,
+        fields=("success", "slug", "ad_id", "ad_listing_id", "price", "api_version"),
+    )
+
+
+def load_last_car_ad_metadata(*_args, **_kwargs) -> Dict[str, Any]:
+
+    data = _load_metadata_file(_CAR_METADATA_KEY)
+    if not data:
+        return {}
+    slug = data.get("slug") or data.get("success")
+    if not slug and data.get("ad_id"):
+        slug = f"/used-cars/{data['ad_id']}"
+    if slug:
+        data["slug"] = slug
+        data.setdefault("success", slug)
+    return data
+
+
+def _update_car_metadata_snapshot(
+    source: dict,
+    *,
+    ad_id: Optional[int] = None,
+    ad_listing_id: Optional[int] = None,
+    api_version: Optional[str] = None,
+) -> None:
+    if not source:
+        return
+    existing = load_last_car_ad_metadata()
+    slug_candidate = (
+        source.get("success")
+        or source.get("slug")
+        or _get_value_by_path(source, "ad_listing.slug")
+        or _get_value_by_path(source, "used_car.slug")
+        or existing.get("slug")
+        or (f"/used-cars/{ad_id}" if ad_id else None)
+    )
+    price_candidate = (
+        _normalize_digits(source.get("price"))
+        or _normalize_digits(_get_value_by_path(source, "ad_listing.price"))
+        or _normalize_digits(_get_value_by_path(source, "used_car.ad_listing_attributes.price"))
+        or existing.get("price")
+    )
+    metadata_update = {
+        "success": slug_candidate,
+        "slug": slug_candidate,
+        "ad_id": ad_id or existing.get("ad_id"),
+        "ad_listing_id": ad_listing_id or existing.get("ad_listing_id"),
+        "price": price_candidate,
+        "api_version": api_version or existing.get("api_version"),
+    }
+    _save_car_ad_metadata(metadata_update)
 
 FieldRule = Tuple[str, str, Callable[[Any], Any]]
 
@@ -78,17 +154,6 @@ _EDIT_PAYLOAD_RESPONSE_RULES: Tuple[FieldRule, ...] = (
     for feature in _FEATURE_FLAGS
 )
 
-def _coerce_int(value) -> Optional[int]:
-    if isinstance(value, int):
-        return value
-    if isinstance(value, float) and value.is_integer():
-        return int(value)
-    if isinstance(value, str):
-        stripped = value.strip()
-        if stripped.isdigit():
-            return int(stripped)
-    return None
-
 def _available_feature_credits(api_client) -> Optional[int]:
     try:
         resp = my_credits_request(api_client)
@@ -97,28 +162,6 @@ def _available_feature_credits(api_client) -> Optional[int]:
     if not isinstance(resp, dict) or resp.get("status_code") != 200:
         return None
     return _extract_feature_credit_count(resp.get("json"))
-
-
-def _extract_feature_credit_count(payload) -> Optional[int]:
-    value = _coerce_int(payload)
-    if value is not None:
-        return value
-    if isinstance(payload, dict):
-        for key, item in payload.items():
-            key_lower = key.lower()
-            if "feature" in key_lower and "credit" in key_lower:
-                coerced = _coerce_int(item)
-                if coerced is not None:
-                    return coerced
-            nested = _extract_feature_credit_count(item)
-            if nested is not None:
-                return nested
-    if isinstance(payload, list):
-        for item in payload:
-            nested = _extract_feature_credit_count(item)
-            if nested is not None:
-                return nested
-    return None
 
 
 def post_used_car(
@@ -132,31 +175,16 @@ def post_used_car(
     """Post a used-car ad, store its metadata in cache, and return the full response payload."""
     body = _read_json(payload_path)
 
-    pictures_dir = Path("data/pictures")
-    if pictures_dir.exists():
-        # ... (Picture processing logic remains unchanged)
-        files = sorted(p for p in pictures_dir.iterdir() if p.is_file())
-        if files:
-            pics_attr = (
-                body.setdefault("used_car", {})
-                .setdefault("ad_listing_attributes", {})
-                .setdefault("pictures_attributes", {})
-            )
-            pics_attr.clear()
-
-            token = get_auth_token()
-            fcm_token = os.getenv("FCM_TOKEN")
-
-            for idx, file_path in enumerate(files):
-                pic_id = upload_ad_picture(
-                    api_client,
-                    file_path=str(file_path),
-                    api_version=os.getenv("PICTURE_UPLOAD_API_VERSION", "18"),
-                    access_token=token,
-                    fcm_token=fcm_token,
-                    new_version=True,
-                )
-                pics_attr[str(idx)] = {"pictures_ids": str(pic_id)}
+    listing_attrs = (
+        body.setdefault("used_car", {})
+        .setdefault("ad_listing_attributes", {})
+    )
+    _inject_listing_picture(
+        api_client,
+        listing_attrs,
+        upload_fn=upload_ad_picture,
+        default_image_path="data/pictures/corolla-front.jpg",
+    )
 
     via_whatsapp = "true" if (
         body.get("used_car", {}).get("ad_listing_attributes", {}).get("allow_whatsapp") is True
@@ -172,69 +200,28 @@ def post_used_car(
     print(json.dumps(resp.get("json"), indent=2))
 
     validator.assert_status_code(resp["status_code"], 200)
-    
-    ack = resp["json"] or {} # Get the response body (acknowledgement)
-    _validate_response(validator, ack, schema_path=schema_path, expected_path=expected_path)
-    
-    # --- START CACHE POPULATION LOGIC ---
-    global _POSTED_AD_CACHE
-    # Assuming _normalize_slug is accessible (as used in the original get_session_ad_metadata)
 
-    if ack and ack.get("ad_id"):
-        ad_id = int(ack["ad_id"])
-        ad_listing_id = int(ack["ad_listing_id"])
-        raw_slug = ack.get("success") or ack.get("slug")
-        slug = _normalize_slug(raw_slug) if raw_slug else None
-        str_price = ack.get("price") or _get_value_by_path(body, "used_car.ad_listing_attributes.price")
-        int_price = int(str_price)
+    body = resp.get("json") or {}
+    _validate_response(validator, body, schema_path=schema_path, expected_path=expected_path)
 
-        _POSTED_AD_CACHE = {
-            "ad_id": ad_id,
-            "ad_listing_id": ad_listing_id,
-            "slug": slug,
-            "api_version": api_version,
-            "ack": ack,
-            "price": int_price,
-            "details": {}, 
-        }
-      
-
-        print(f"✅ [CACHE] Posted Ad Metadata stored for ID: {ad_id}")
-    # --- END CACHE POPULATION LOGIC ---
-
-    return ack
-
-def get_session_ad_metadata(
-    api_client, 
-    validator, 
-    schema_path: str = "schemas/used_car_post_response_ack.json", 
-    expected_path: Optional[str] = None, 
-    api_version: str = DEFAULT_API_VERSION,
-) -> dict:
-    global _POSTED_AD_CACHE
-    
-    # Check if the ad metadata is already cached
-    if _POSTED_AD_CACHE:
-        return _POSTED_AD_CACHE
-
-    # If no cached data, you might want to handle the case where there is no ad to fetch
-    # Consider raising an exception or returning an empty dict if no ad is posted.
-    raise Exception("No ad has been posted yet. Please post an ad first.")
-
-def get_ad_ref(posted_ad: dict) -> dict:
-    slug = posted_ad.get("slug") or posted_ad.get("success")
-    return {
-        "slug": _normalize_slug(slug) if slug else None,
-        "ad_listing_id": int(posted_ad["ad_listing_id"]),
-        "ad_id": int(posted_ad["ad_id"]),
-    }
-
-
-def get_ad_ids(posted_ad: dict) -> dict:
-    return {
-        "ad_id": int(posted_ad["ad_id"]),
-        "ad_listing_id": int(posted_ad["ad_listing_id"]),
-    }
+    if body.get("ad_id"):
+        listing_attrs = body.get("used_car", {}).get("ad_listing_attributes", {}) or {}
+        slug_source = (
+            body.get("success")
+            or body.get("slug")
+            or _get_value_by_path(body, "ad_listing.slug")
+            or f"/used-cars/{body['ad_id']}"
+        )
+        body["slug"] = _normalize_slug(slug_source)
+        if body.get("success") is None:
+            body["success"] = body["slug"]
+        if body.get("price") is None and listing_attrs.get("price") is not None:
+            body["price"] = listing_attrs.get("price")
+        body["api_version"] = api_version
+        _save_car_ad_metadata(body)
+    print("[CarAdPost] Metadata after post:", json.dumps(body, indent=2))
+  
+    return body
 
 def edit_payload_check(payload: dict, response: dict) -> None:
     """
@@ -302,7 +289,7 @@ def close_used_car_existing(
 ):
     """
     Close an existing ad using its slug. Simplified to use a single URL:
-    {CORE}{slug_path}/close.json with access_token & api_version params.
+    base_url + slug_path + /close.json with access_token & api_version params.
     """
     slug = ad_ref.get("slug")
     assert slug, "ad_ref must include a slug when using simplified close."
@@ -317,7 +304,7 @@ def close_used_car_existing(
     if fcm_token:
         params["fcm_token"] = fcm_token
 
-    url = f"{CORE}{slug_path}/close.json"
+    url = f"{api_client.base_url}{slug_path}/close.json"
     resp = api_client.session.post(
         url,
         params=params,
@@ -407,13 +394,25 @@ def edit_used_car_existing(
     # 3. Validate the GET request
     validator.assert_status_code(details_resp["status_code"], 200)
     details_body = details_resp.get("json") or {}
+
+    if details_body.get("error") and not details_body.get("ad_listing"):
+        print(f"[CarAdPost] Warning: unable to fetch updated ad details: {details_body.get('error')}")
+        return body
     
     # 4. Use the detailed GET response for payload comparison
-    edit_payload_check(edit_payload, details_body)
-    
-    # --- FIX ENDS HERE ---
-    
-    return details_body # Return the detailed response
+    if details_body.get("ad_listing"):
+        _update_car_metadata_snapshot(details_body, ad_id=ad_id, ad_listing_id=ad_listing_id, api_version=api_version)
+        print("[CarAdPost] Metadata after edit:", load_last_car_ad_metadata())
+        edit_payload_check(edit_payload, details_body)
+        return details_body
+
+    print("[CarAdPost] Warning: edit details response missing 'ad_listing'; skipping payload check.")
+    _update_car_metadata_snapshot(body, ad_id=ad_id, ad_listing_id=ad_listing_id, api_version=api_version)
+    print("[CarAdPost] Metadata after edit:", load_last_car_ad_metadata())
+
+    return body
+
+ # Return the PUT response when GET body is incomplete
 # Backwards compatibility: allow helpers.edit_used_car(...) imports.
 edit_used_car = edit_used_car_existing
 
@@ -634,7 +633,7 @@ def _ensure_ad_listing_id(api_client, ad_ref: dict, ad_id: int, api_version: str
 
 
 def _select_feature_product(payload: dict, target_week: Optional[int]):
-    products = _extract_products(payload)
+    products = _extract_products_collection(payload)
     if not products:
         return None
     if target_week is None:
@@ -648,72 +647,40 @@ def _select_feature_product(payload: dict, target_week: Optional[int]):
     return products[0]
 
 
-def _extract_products(payload):
-    if isinstance(payload, dict):
-        for key in ("products", "data", "items", "product_list"):
-            collection = payload.get(key)
-            if isinstance(collection, list) and collection:
-                return collection
-        for value in payload.values():
-            result = _extract_products(value)
-            if result:
-                return result
-    elif isinstance(payload, list):
-        for item in payload:
-            result = _extract_products(item)
-            if result:
-                return result
-    return []
-
-
-def _product_label(product: dict) -> str:
-    if not isinstance(product, dict):
-        return ""
-    for key in ("title", "name", "label", "description"):
-        value = product.get(key)
-        if isinstance(value, str):
-            return value
-    return ""
-
-
-def _product_id(product: dict):
-    if not isinstance(product, dict):
-        return None
-    for key in ("id", "product_id", "pk"):
-        value = product.get(key)
-        if value is not None:
-            return value
-    return None
-
-
-def _extract_week_count(label: str, category: Optional[str] = None) -> Optional[int]:
-    text = (label or "").lower()
-    match = re.search(r"(\d+)\s*(week|day)", text)
-    if match:
-        value = int(match.group(1))
-        unit = match.group(2)
-        if unit.startswith("day") and value % 7 == 0:
-            return value // 7
-        if unit.startswith("week"):
-            return value
-    if category and isinstance(category, str):
-        return _extract_week_count(category, None)
-    return None
-
-
 def wait_for_ad_state(
     api_client,
-    slug_or_url: str,
+    slug_path: str,
     desired_states: Iterable[str] = ("st_live", "st_pending"),
     attempts: int = 10,
     delay: float = 0.8,
 ) -> Optional[str]:
     """
-    Poll the My-Ads lists until the ad appears in one of the desired states.
+    Poll the ad endpoint until the ad appears in one of the desired states.
 
     Returns the state name if found, otherwise None.
     """
     desired_states = tuple(desired_states)
+
+    for _ in range(attempts):
+        try:
+            resp = api_client.request("GET", _normalize_slug(slug_path, ensure_json_suffix=True), params={"api_version": DEFAULT_API_VERSION})
+            body = resp.get("json") or {}
+        except Exception:
+            body = {}
+
+        listing = body.get("ad_listing") or body.get("used_car") or body or {}
+        state = None
+        # Try common locations for state
+        if isinstance(listing, dict):
+            state = listing.get("state") or listing.get("ad_state") or listing.get("status")
+        state = state or body.get("state") or body.get("ad_state") or body.get("status")
+
+        if state in desired_states:
+            return state
+
+        import time
+
+        time.sleep(delay)
 
     return None
 
@@ -818,7 +785,7 @@ def reactivate_and_get_ad(
         params["fcm_token"] = fcm_token
 
     headers = {"Cache-Control": "no-cache", "Pragma": "no-cache", "Accept": "application/json"}
-    base_url = f"{CORE}{slug_path}"
+    base_url = f"{api_client.base_url}{slug_path}"
 
     # Attempt refresh
     refresh_url = f"{base_url}/refresh.json"
@@ -919,7 +886,7 @@ def reactivate_and_verify_lists(
         removed_params["fcm_token"] = fcm
 
     resp_removed = api_client.session.get(
-        f"{CORE}/users/my-ads/st_removed.json",
+        f"{api_client.base_url}/users/my-ads/st_removed.json",
         params=removed_params,
         headers={"Accept": "application/json"},
         timeout=30,
@@ -944,25 +911,6 @@ def reactivate_and_verify_lists(
         print(f"\nGET {img_resp.url} → {img_resp.status_code}")
         assert img_resp.status_code in (200, 403), f"Unexpected static image status: {img_resp.status_code}"
 
-
-__all__ = [
-    "edit_payload_check",
-    "close_used_car_existing",
-    "edit_used_car_existing",
-    "edit_used_car",
-    # "feature_used_car_existing",
-    "feature_used_car",
-    "feature_used_car_with_credit",
-    "feature_used_car_with_payment",
-    "post_used_car",
-    "get_session_ad_metadata",
-    "get_ad_ref",
-    "get_ad_ids",
-    "upload_ad_picture",
-    "reactivate_and_get_ad",
-    "reactivate_used_car_existing",
-    "wait_for_ad_state",
-]
 def _extract_payment_id(payload: dict) -> Optional[str]:
     """Return a payment/order id from any checkout response shape."""
     if not isinstance(payload, dict):

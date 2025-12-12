@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Sell It For Me Proceed Checkout Response",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "onlinePayment",
+    "actionUrl",
+    "method",
+    "paymentAttributes",
+    "message",
+    "success",
+    "paymentId"
+  ],
+  "properties": {
+    "onlinePayment": {
+      "type": "boolean"
+    },
+    "actionUrl": {
+      "type": ["string", "null"]
+    },
+    "method": {
+      "type": ["string", "null"]
+    },
+    "paymentAttributes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pp_Version": { "type": ["string", "null"] },
+        "pp_Language": { "type": ["string", "null"] },
+        "pp_Password": { "type": ["string", "null"] },
+        "pp_TxnCurrency": { "type": ["string", "null"] },
+        "pp_MerchantID": { "type": ["string", "null"] },
+        "pp_Description": { "type": ["string", "null"] },
+        "pp_TxnRefNo": { "type": ["string", "null"] },
+        "pp_Amount": { "type": ["integer", "number", "string", "null"] },
+        "pp_TxnDateTime": { "type": ["string", "null"] },
+        "pp_BillReference": { "type": ["string", "null"] },
+        "pp_TxnExpiryDateTime": { "type": ["string", "null"] },
+        "pp_ReturnURL": { "type": ["string", "null"] },
+        "pp_TxnType": { "type": ["string", "null"] },
+        "pp_IsRegisteredCustomer": { "type": ["string", "null"] },
+        "pp_SecureHash": { "type": ["string", "null"] }
+      }
+    },
+    "message": {
+      "type": ["string", "null"]
+    },
+    "success": {
+      "type": "boolean"
+    },
+    "paymentId": {
+      "type": ["string", "null"]
+    }
+  }
+}

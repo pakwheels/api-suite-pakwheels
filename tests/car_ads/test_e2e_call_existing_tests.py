@@ -1,15 +1,15 @@
 
 
 import os
-from helpers.car_ads import post_used_car
 import pytest
 
 from helpers import (
+      post_used_car,
     close_used_car_existing,
     edit_used_car_existing,
     feature_used_car,
     get_auth_token,
-    get_session_ad_metadata,
+    load_last_car_ad_metadata,
     logout_user,
     reactivate_used_car_existing,
     product_upsell_request,
@@ -26,15 +26,13 @@ pytestmark = pytest.mark.parametrize(
      indirect=True,
     ids=["mobile"],
 )
-
-
 @pytest.mark.car_ad_post
-def test_post_ad( api_client, validator, load_payload):
+def test_post_ad( api_client, validator):
     post_used_car(api_client, validator)
 
 @pytest.mark.car_ad_post
 def test_edit_used_car_existing(api_client, validator, load_payload):
-        posted_ad = get_session_ad_metadata(api_client, validator)
+        posted_ad = load_last_car_ad_metadata()
         edit_used_car_existing(
         api_client,
         validator,
@@ -46,7 +44,7 @@ def test_edit_used_car_existing(api_client, validator, load_payload):
 
 @pytest.mark.car_ad_post
 def test_close_used_car_existing( api_client, validator, load_payload):
-    posted_ad = get_session_ad_metadata(api_client, validator)
+    posted_ad = load_last_car_ad_metadata()
     result = close_used_car_existing(
         api_client,
         validator,
@@ -59,7 +57,7 @@ def test_close_used_car_existing( api_client, validator, load_payload):
 
 @pytest.mark.car_ad_post
 def test_refresh_used_car( api_client, validator):
-    posted_ad = get_session_ad_metadata(api_client, validator)
+    posted_ad = load_last_car_ad_metadata()
     resp = reactivate_used_car_existing(
         api_client,
         ad_ref=posted_ad,
@@ -71,7 +69,7 @@ def test_refresh_used_car( api_client, validator):
 
 @pytest.mark.car_ad_post
 def test_feature_used_car(api_client, validator):
-    posted_ad = get_session_ad_metadata(api_client, validator)
+    posted_ad = load_last_car_ad_metadata()
     feature_used_car(
         api_client,
         validator,
@@ -81,18 +79,18 @@ def test_feature_used_car(api_client, validator):
 
 @pytest.mark.car_ad_post
 def test_feature_upsell(api_client,validator):
-    posted_ad = get_session_ad_metadata(api_client, validator)
+    posted_ad = load_last_car_ad_metadata(api_client, validator)
     product_list_data = product_upsell_request(api_client,validator,posted_ad["ad_id"],product_type="used_car_upsell")
     upsell_product_validation(product_list_data,posted_ad["price"])
 
 @pytest.mark.car_ad_post
 def test_boost_upsell(api_client,validator):
-     posted_ad = get_session_ad_metadata(api_client, validator)
+     posted_ad = load_last_car_ad_metadata(api_client, validator)
      product_upsell_request(api_client,validator,posted_ad["ad_id"],product_type="boost_upsell")
 
 @pytest.mark.car_ad_post
 def test_limitExceed_upsell(api_client,validator):
-    posted_ad = get_session_ad_metadata(api_client, validator)
+    posted_ad = load_last_car_ad_metadata(api_client, validator)
     product_list_data = product_upsell_request(api_client,validator,posted_ad["ad_id"],product_type="used_car_upsell", include_normal=True)
     normal_car_credits= get_user_credit(api_client,"normal_used_car_credits")
     upsell_product_validation(product_list_data,posted_ad["price"],include_normal=True,normal_credit_count=normal_car_credits)

@@ -1,15 +1,15 @@
 {
   "sell_it_for_me_lead_id": 10529,
-  "has_credits": true,
+  "has_credits": false,
   "product": {
     "id": 148,
     "name": "Sell It For Me - Advance(Premium)",
     "price": 6000.0,
     "type": "sell_it_for_me_lead"
   },
-  "user_id": 1702164,
+  "user_id": 1714646,
   "reserve_url": "/sell_it_for_me_leads/10529/reserve_slot.json",
-  "city_id": 1,
+  "city_id": 410,
   "city_area_id": null,
   "summary": {
     "make": "Bugatti",

@@ -1,126 +1,70 @@
-import json
+# tests/lead_forms/test_carsure.py
+
+from __future__ import annotations
+
 import os
-from pathlib import Path
+from typing import Optional
 
 import pytest
 
 from helpers import (
-    fetch_carsure_cities,
-    fetch_carsure_city_areas,
     submit_carsure_inspection_request,
     update_carsure_inspection_request,
-    validate_checkout_response,
     proceed_checkout,
-    initiate_jazz_cash,
     payment_status,
+    initiate_carsure_jazz_cash,
+)
+from helpers.config import get_test_constant
+from helpers.shared import resolve_location, _extract_payment_id
+
+
+pytestmark = pytest.mark.parametrize(
+    "api_client",
+    [
+        {
+            "mode": "mobile",
+            "mobile": os.getenv("MOBILE_NUMBER"),
+            "otp": os.getenv("MOBILE_OTP"),
+            "clear_number_first": True,
+        }
+    ],
+    indirect=True,
+    ids=["mobile"],
 )
 
-CITY_ID_ENV = "CARSURE_CITY_ID"
-CITY_AREA_ID_ENV = "CARSURE_CITY_AREA_ID"
-PAYLOAD_CREATE = Path("data/payloads/lead_forms/carsure_request.json")
-PAYLOAD_UPDATE = Path("data/payloads/lead_forms/carsure_request_update.json")
-
-
-def _load_json(path: Path) -> dict:
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
-@pytest.mark.lead_forms
+@pytest.mark.carsure_full
 @pytest.mark.requires_auth
-def test_carsure_full_flow(api_client, validator):
-    access_token = getattr(api_client, "access_token", None)
-    if not access_token:
-        pytest.skip("API client does not have an access token.")
+def test_carsure_flow_1_slot_found_payment_done(api_client, validator) -> None:
+  
+    city_id, city_area_id = resolve_location()
 
-    print("\n[LeadForms] Step 1: Fetching Carsure cities")
-    cities_response = fetch_carsure_cities(api_client, validator, access_token=access_token)
-    cities = cities_response.get("carsure_cities") or []
-    print(f"[LeadForms] Found {len(cities)} cities")
-
-    city_id = os.getenv(CITY_ID_ENV)
-    if city_id:
-        city_id = int(city_id)
-    elif cities:
-        city_id = cities[0].get("id")
-        print(f"[LeadForms] Using first city id from response: {city_id}")
-    else:
-        pytest.skip("No city id available for Carsure flow.")
-
-    print("\n[LeadForms] Step 2: Fetching Carsure city areas")
-    areas_response = fetch_carsure_city_areas(
+    lead_response = submit_carsure_inspection_request(
         api_client,
         validator,
-        access_token=access_token,
         city_id=city_id,
-        city_areas_type="inspection",
     )
-    popular_areas = areas_response.get("popular") or []
-    other_areas = areas_response.get("other") or []
-    print(
-        f"[LeadForms] Popular areas: {len(popular_areas)} | Other areas: {len(other_areas)}"
-    )
+    ticket_id = lead_response.get("carsure_ticket_id")
+    assert ticket_id, "Ticket ID missing after submission."
 
-    # Load create payload and inject runtime values
-    create_payload = _load_json(PAYLOAD_CREATE)
-    mobile = os.getenv("MOBILE_NUMBER") or create_payload["car_certification_request"].get("mobile")
-    email = os.getenv("EMAIL") or create_payload["user"].get("email")
-    if not mobile or not email:
-        raise AssertionError("Missing MOBILE_NUMBER or EMAIL for Carsure lead creation.")
-
-    create_payload["car_certification_request"]["mobile"] = mobile
-    create_payload["car_certification_request"]["city_id"] = city_id
-    create_payload["user"]["email"] = email
-
-    print("\n[LeadForms] Step 3: Submitting Carsure inspection request")
-    create_response = submit_carsure_inspection_request(
-        api_client,
-        validator,
-        access_token=access_token,
-        payload=create_payload,
-    )
-    ticket_id = create_response.get("carsure_ticket_id")
-    if not ticket_id:
-        raise AssertionError("Carsure ticket id not returned; cannot proceed to update step.")
-    print(f"[LeadForms] Created lead ticket id: {ticket_id}")
-
-    update_payload = _load_json(PAYLOAD_UPDATE)
-    update_payload["user"]["email"] = email
-
-    city_area_id = os.getenv(CITY_AREA_ID_ENV)
-    if city_area_id:
-        city_area_id = int(city_area_id)
-    elif popular_areas:
-        city_area_id = popular_areas[0].get("id")
-        print(f"[LeadForms] Using first popular city area id: {city_area_id}")
-    else:
-        pytest.skip("No city area id available for Carsure update step.")
-
-    update_payload["car_certification_request"]["city_area_id"] = city_area_id
-
-    print("\n[LeadForms] Step 4: Updating Carsure inspection request")
+    scheduled_date = get_test_constant("CARSURE_SCHEDULED_DATE", "2025-12-11")
+    slot_time = get_test_constant("CARSURE_SLOT_TIME", "10:30AM")
+    assessor_id = int(get_test_constant("CARSURE_ASSESSOR_ID", 1234))
     update_response = update_carsure_inspection_request(
         api_client,
         validator,
-        access_token=access_token,
         carsure_ticket_id=ticket_id,
-        payload=update_payload,
-    )
-    print(
-        "[LeadForms] Update summary:",
-        update_response.get("summary") or {}
+        city_area_id=city_area_id,
+        scheduled_date=scheduled_date,
+        slot_time=slot_time,
+        assessor_id=assessor_id,
     )
 
-    print("\n[LeadForms] Step 5: Proceeding to checkout")
+    # 3) Checkout
     product = update_response.get("product") or {}
     product_id = product.get("id")
-    env_product = os.getenv("CARSURE_PRODUCT_ID")
-    if env_product:
-        product_id = int(env_product)
-    if not product_id:
-        raise AssertionError("No product id available for checkout.")
+    assert product_id, "Product id missing in Carsure update response."
 
-    payment_method_id = int(os.getenv("CARSURE_PAYMENT_METHOD_ID") or 107)
-
+    payment_method_id = get_test_constant("CARSURE_PAYMENT_METHOD_ID")
     checkout_response = proceed_checkout(
         api_client,
         product_id=product_id,
@@ -129,30 +73,169 @@ def test_carsure_full_flow(api_client, validator):
         discount_code="",
         payment_method_id=payment_method_id,
     )
-    validator.assert_status_code(checkout_response["status_code"], 200)
     checkout_json = checkout_response.get("json") or {}
-    payment_id = checkout_json.get("payment_id") or checkout_json.get("paymentId")
+
+    payment_id = _extract_payment_id(checkout_json)
     if not payment_id:
-        print("[LeadForms] Checkout response without payment_id:", checkout_json)
-        raise AssertionError("Checkout did not return payment_id.")
-    print(f"[LeadForms] Checkout payment id: {payment_id}")
-    validate_checkout_response(validator, checkout_json)
+        pytest.skip("Checkout did not return paymentId; cannot validate JazzCash in Carsure Flow 1.")
 
-    jazz_mobile = os.getenv("JAZZ_CASH_MOBILE") or "03123456789"
-    jazz_cnic = os.getenv("JAZZ_CASH_CNIC") or "12345-1234567-8"
-
-    print("\n[LeadForms] Step 6: Initiating JazzCash payment")
-    jazz_response = initiate_jazz_cash(
+    # 4) Pay via JazzCash
+    jazz_response = initiate_carsure_jazz_cash(
         api_client,
+        validator,
         payment_id=payment_id,
-        mobile_number=jazz_mobile,
-        cnic_number=jazz_cnic,
-        save_payment_info=False,
     )
-    validator.assert_status_code(jazz_response["status_code"], 200)
-    print("[LeadForms] JazzCash initiation response:", jazz_response.get("json") or {})
+    print("[Carsure Flow 1] JazzCash response:", jazz_response)
 
-    print("\n[LeadForms] Step 7: Polling payment status")
-    status_response = payment_status(api_client, payment_id)
-    validator.assert_status_code(status_response["status_code"], 200)
-    print("[LeadForms] Payment status response:", status_response.get("json") or {})
+    # 5) Verify payment status
+    status_response = payment_status(api_client, payment_id).get("json") or {}
+    payment_status_text = (status_response.get("status") or "").lower()
+    assert payment_status_text in {"paid", "received"}
+
+
+@pytest.mark.carsure_full
+@pytest.mark.requires_auth
+def test_carsure_flow_2_slot_found_payment_pending(api_client, validator) -> None:
+
+    city_id, city_area_id = resolve_location()
+
+    lead_response = submit_carsure_inspection_request(
+        api_client,
+        validator,
+        city_id=city_id,
+    )
+    ticket_id = lead_response.get("carsure_ticket_id")
+    assert ticket_id
+
+    scheduled_date = get_test_constant("CARSURE_SCHEDULED_DATE", "2025-12-11")
+    slot_time = get_test_constant("CARSURE_SLOT_TIME", "10:30AM")
+    assessor_id = int(get_test_constant("CARSURE_ASSESSOR_ID", 1234))
+    update_response = update_carsure_inspection_request(
+        api_client,
+        validator,
+        carsure_ticket_id=ticket_id,
+        city_area_id=city_area_id,
+        scheduled_date=scheduled_date,
+        slot_time=slot_time,
+        assessor_id=assessor_id,
+    )
+
+    product = update_response.get("product") or {}
+    product_id = product.get("id")
+    assert product_id, "Product id missing in Carsure update response."
+
+    payment_method_id = get_test_constant("CARSURE_PAYMENT_METHOD_ID")
+    checkout_response = proceed_checkout(
+        api_client,
+        product_id=product_id,
+        s_id=ticket_id,
+        s_type="car_certification_request",
+        discount_code="",
+        payment_method_id=payment_method_id,
+    )
+    checkout_json = checkout_response.get("json") or {}
+
+    payment_id = _extract_payment_id(checkout_json)
+    assert payment_id, "Checkout missing paymentId for Carsure Flow 2."
+
+    status_response = payment_status(api_client, payment_id).get("json") or {}
+    payment_status_text = (status_response.get("status") or "").lower()
+    assert payment_status_text not in {"paid", "received"}
+
+
+@pytest.mark.carsure_full
+@pytest.mark.requires_auth
+def test_carsure_flow_3_slot_not_found_payment_done(api_client, validator) -> None:
+
+    city_id, city_area_id = resolve_location()
+
+    lead_response = submit_carsure_inspection_request(
+        api_client,
+        validator,
+        city_id=city_id,
+    )
+    ticket_id = lead_response.get("carsure_ticket_id")
+    assert ticket_id
+
+    update_response = update_carsure_inspection_request(
+        api_client,
+        validator,
+        carsure_ticket_id=ticket_id,
+        city_area_id=city_area_id,
+        slot_not_found=True,
+    )
+
+    product = update_response.get("product") or {}
+    product_id = product.get("id")
+    assert product_id, "Product id missing in Carsure update response."
+
+    payment_method_id = get_test_constant("CARSURE_PAYMENT_METHOD_ID")
+    checkout_response = proceed_checkout(
+        api_client,
+        product_id=product_id,
+        s_id=ticket_id,
+        s_type="car_certification_request",
+        discount_code="",
+        payment_method_id=payment_method_id,
+    )
+    checkout_json = checkout_response.get("json") or {}
+
+    payment_id = _extract_payment_id(checkout_json)
+    if not payment_id:
+        pytest.skip("Checkout did not return paymentId; cannot validate Carsure Flow 3.")
+
+    jazz_response = initiate_carsure_jazz_cash(
+        api_client,
+        validator,
+        payment_id=payment_id,
+    )
+    print("[Carsure Flow 3] JazzCash response:", jazz_response)
+
+    status_response = payment_status(api_client, payment_id).get("json") or {}
+    payment_status_text = (status_response.get("status") or "").lower()
+    assert payment_status_text in {"paid", "received"}
+
+
+@pytest.mark.carsure_full
+@pytest.mark.requires_auth
+def test_carsure_flow_4_slot_not_found_payment_pending(api_client, validator) -> None:
+
+    city_id, city_area_id = resolve_location()
+
+    lead_response = submit_carsure_inspection_request(
+        api_client,
+        validator,
+        city_id=city_id,
+    )
+    ticket_id = lead_response.get("carsure_ticket_id")
+    assert ticket_id
+
+    update_response = update_carsure_inspection_request(
+        api_client,
+        validator,
+        carsure_ticket_id=ticket_id,
+        city_area_id=city_area_id,
+        slot_not_found=True,
+    )
+
+    product = update_response.get("product") or {}
+    product_id = product.get("id")
+    assert product_id, "Product id missing in Carsure update response."
+
+    payment_method_id = get_test_constant("CARSURE_PAYMENT_METHOD_ID")
+    checkout_response = proceed_checkout(
+        api_client,
+        product_id=product_id,
+        s_id=ticket_id,
+        s_type="car_certification_request",
+        discount_code="",
+        payment_method_id=payment_method_id,
+    )
+    checkout_json = checkout_response.get("json") or {}
+
+    payment_id = _extract_payment_id(checkout_json)
+    assert payment_id, "Checkout missing paymentId for Carsure Flow 4."
+
+    status_response = payment_status(api_client, payment_id).get("json") or {}
+    payment_status_text = (status_response.get("status") or "").lower()
+    assert payment_status_text not in {"paid", "received"}

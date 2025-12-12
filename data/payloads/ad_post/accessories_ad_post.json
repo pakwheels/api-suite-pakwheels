@@ -1,0 +1,19 @@
+{
+  "ad_listing": {
+    "allow_whatsapp": true,
+    "category_id": 319,
+    "city_area_id": 160,
+    "city_id": 410,
+    "condition": "1",
+    "description": "This is a Test Ad",
+    "display_name": "test",
+    "phone": "03601234567",
+    "pictures_attributes": {
+      "0": {
+        "pictures_ids": "20165699"
+      }
+    },
+    "price": "1500",
+    "title": "Steering Cover"
+  }
+}
