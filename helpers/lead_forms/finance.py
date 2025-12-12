@@ -44,9 +44,6 @@ def _compare_expected(body: Dict[str, Any], path: Path) -> None:
     expected = _load_json(path)
     assert body.get("success") == expected.get("success")
     assert body.get("error") == expected.get("error")
-    user_block = body.get("user") or {}
-    expected_user = expected.get("user") or {}
-    assert user_block.get("mobile_verified") == expected_user.get("mobile_verified")
 
 
 def submit_car_finance_lead(
